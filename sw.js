@@ -3,12 +3,13 @@
 // v3 — start_url corrigido para /minutinhos/
 // ================================================================
 
-const CACHE_NAME = 'minutinhos-v3';
+const CACHE_NAME = 'minutinhos-v4';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
   '/minutinhos/index.html',
   '/minutinhos/Index.html',
+  '/minutinhos/Mestre.html',
   '/minutinhos/manifest.json',
   '/minutinhos/sw.js',
   'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap',
