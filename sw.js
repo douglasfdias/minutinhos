@@ -12,8 +12,8 @@ const ASSETS_TO_CACHE = [
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js',
   'https://i.ibb.co/d4ntxNFN/background-user-UI-Minutinhos-3.webp',
   'https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png',
-  'https://i.ibb.co/zWtV49sx/icone-energia.png',
-  'https://i.ibb.co/v65gh5gt/icone-cristal.png',
+  'https://i.ibb.co/N2QFSxDx/icone-energia-2.png',
+  'https://i.ibb.co/Zzkm8F01/icone-cristal.png',
   'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
   'https://i.ibb.co/V077M1SY/avatar-girl-full-body-mod1-nobg-2.png',
   'https://i.ibb.co/rR2qn4yf/avatar-dad-full-body-mod1-nobg-2.png'
