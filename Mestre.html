@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Painel do Mestre — Ordem dos Guardiões</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --gold: #e67e22; --gold-dark: #d35400; --blue: #1a1a2e;
+      --green: #2ecc71; --red: #e74c3c; --bg: #f0f2f5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 12px; }
+
+    /* Tela de senha */
+    #senha-screen {
+      position: fixed; inset: 0; background: var(--blue);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999; gap: 14px; padding: 30px;
+    }
+    #senha-screen h1 { color: var(--gold); font-size: 2rem; }
+    #senha-screen p  { color: #aaa; font-size: 0.9rem; }
+    #senha-input {
+      padding: 12px 18px; border-radius: 10px; border: 2px solid #444;
+      background: #111; color: white; font-size: 1.1rem; width: 100%; max-width: 300px;
+      text-align: center; outline: none;
+    }
+    #senha-input:focus { border-color: var(--gold); }
+    #senha-btn {
+      background: var(--gold); color: white; border: none; border-radius: 10px;
+      padding: 12px 32px; font-size: 1rem; font-weight: bold; cursor: pointer;
+      width: 100%; max-width: 300px;
+    }
+    #senha-erro { color: #e74c3c; font-size: 0.85rem; display: none; }
+
+    h2 { color: var(--blue); border-left: 5px solid var(--gold); padding-left: 10px; margin: 8px 0 14px; font-size: 1.2rem; }
+    h3 { font-size: 1rem; color: var(--blue); margin-bottom: 8px; }
+
+    .card {
+      background: white; border-radius: 10px; padding: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.09); margin-bottom: 14px;
+    }
+    .card-hint { font-size: 0.78rem; color: #888; margin-bottom: 10px; }
+
+    /* Toast de feedback */
+    #toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px);
+      background: #1a1a2e; color: white; padding: 12px 22px; border-radius: 30px;
+      font-weight: bold; font-size: 0.9rem; z-index: 9999;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.success { background: #27ae60; }
+    #toast.error   { background: #c0392b; }
+
+    .btn-refresh {
+      background: var(--blue); color: white; width: 100%; height: 48px;
+      border: none; border-radius: 8px; font-size: 1rem; font-weight: bold;
+      cursor: pointer; margin-bottom: 14px; display: flex; align-items: center;
+      justify-content: center; gap: 8px; transition: opacity 0.2s;
+    }
+    .btn-refresh:disabled { opacity: 0.6; cursor: default; }
+
+    .pendente-item {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #f0f0f0; padding: 10px 0; font-size: 0.88rem;
+    }
+    .pendente-item:last-child { border-bottom: none; }
+    .pendente-info { flex: 1; }
+    .pendente-nome { font-weight: 700; color: var(--blue); }
+    .pendente-detalhe { font-size: 0.8rem; color: #666; margin-top: 2px; }
+    .pendente-acoes { display: flex; gap: 6px; flex-shrink: 0; margin-left: 8px; }
+
+    .btn { padding: 8px 14px; border: none; border-radius: 7px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: opacity 0.15s, transform 0.1s; }
+    .btn:active { transform: scale(0.95); opacity: 0.85; }
+    .btn-ok  { background: var(--green); color: white; }
+    .btn-del { background: var(--red);   color: white; }
+    .btn-add { background: var(--gold);  color: white; width: 100%; height: 44px; margin-top: 6px; font-size: 0.95rem; }
+
+    select, input[type="number"] {
+      padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 7px;
+      width: 100%; font-size: 1rem; margin: 5px 0; transition: border-color 0.2s;
+      background: white;
+    }
+    select:focus, input:focus { outline: none; border-color: var(--gold); }
+
+    .heroi-card {
+      background: var(--blue); color: white; border-radius: 10px;
+      padding: 12px 14px; margin-bottom: 10px;
+      border-left: 4px solid var(--gold);
+    }
+    .heroi-card:last-child { margin-bottom: 0; }
+    .heroi-topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .heroi-nome { font-weight: 700; font-size: 1rem; }
+    .heroi-saldos { font-size: 0.9rem; }
+    .heroi-row  { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px; color: #ccc; }
+    .heroi-row:last-child { margin-bottom: 0; }
+
+    .progress-wrap { margin-top: 8px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: #aaa; margin-bottom: 4px; }
+    .progress-bar { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #f39c12, #e74c3c); border-radius: 4px; transition: width 0.8s ease; }
+    .progress-fill.completo { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+
+    .empty-msg { text-align: center; color: #aaa; font-size: 0.9rem; padding: 16px 0; }
+  </style>
+</head>
+<body>
+
+  <!-- TELA DE SENHA -->
+  <div id="senha-screen">
+    <h1>⚔️</h1>
+    <h1 style="font-size:1.4rem;">Painel do Mestre</h1>
+    <p>Apenas os Mestres da Ordem podem entrar aqui.</p>
+    <input type="password" id="senha-input" placeholder="Senha da Ordem" onkeydown="if(event.key==='Enter')verificarSenha()">
+    <p id="senha-erro">❌ Senha incorreta. Tente novamente.</p>
+    <button id="senha-btn" onclick="verificarSenha()">🔓 Entrar</button>
+  </div>
+
+  <div id="toast"></div>
+  <div id="app" style="display:none;">
+
+    <h2>⚔ Painel do Mestre</h2>
+
+    <button class="btn-refresh" id="btn-refresh" onclick="carregarDadosMestre()">
+      🔄 Atualizar Dados
+    </button>
+
+    <!-- APROVAÇÕES PENDENTES -->
+    <div class="card">
+      <h3>📋 Aprovações Pendentes</h3>
+      <p class="card-hint">Leituras aguardando sua decisão, Mestre.</p>
+      <div id="lista-pendentes"><div class="empty-msg">Clique em "Atualizar Dados" para carregar.</div></div>
+    </div>
+
+    <!-- DUOLINGO -->
+    <div class="card">
+      <h3>🦜 Creditar Duolingo</h3>
+      <p class="card-hint">Credita Energia instantaneamente ao Guardião.</p>
+      <select id="sel-heroi-duo"><option value="">Selecione o Guardião...</option></select>
+      <input type="number" id="val-duo" placeholder="Minutos (número inteiro)" min="1">
+      <button class="btn btn-add" onclick="addDuo()">⚡ Creditar Energia Duolingo</button>
+    </div>
+
+    <!-- GASTAR CRISTAIS -->
+    <div class="card">
+      <h3>💎 Debitar Cristais (Tempo de Tela)</h3>
+      <p class="card-hint">Remove cristais para liberar tempo de tela.</p>
+      <select id="sel-heroi-gasto"><option value="">Selecione o Guardião...</option></select>
+      <input type="number" id="val-gasto" placeholder="Quantidade de Cristais" min="1">
+      <button class="btn btn-del" style="width:100%; height:44px; margin-top:6px; font-size:0.95rem;" onclick="addGasto()">💎 Remover Cristais</button>
+    </div>
+
+    <!-- RELATÓRIO DOS HERÓIS -->
+    <div class="card">
+      <h3>🏆 Status dos Guardiões</h3>
+      <div id="relatorio-semanal"><div class="empty-msg">Clique em "Atualizar Dados" para carregar.</div></div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================
+       FIREBASE
+    ========================================== */
+    const firebaseConfig = {
+      apiKey: "AIzaSyABCdoTrqwRmj3wmiYGRJfTbcyoqyf5uME",
+      authDomain: "minutinhos.firebaseapp.com",
+      databaseURL: "https://minutinhos-default-rtdb.firebaseio.com",
+      projectId: "minutinhos",
+      storageBucket: "minutinhos.firebasestorage.app",
+      messagingSenderId: "205117538078",
+      appId: "1:205117538078:web:33a0c88a10c6b3d7f5930f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function sanitizeEmail(email) {
+      return email.replace(/\./g, '_');
+    }
+
+    /* ==========================================
+       SENHA — verificação client-side
+    ========================================== */
+    const SENHA_MESTRE = 'ordem2025';
+
+    function verificarSenha() {
+      const val = document.getElementById('senha-input').value;
+      if (val === SENHA_MESTRE) {
+        document.getElementById('senha-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        carregarDadosMestre();
+      } else {
+        document.getElementById('senha-erro').style.display = 'block';
+        document.getElementById('senha-input').value = '';
+        document.getElementById('senha-input').focus();
+      }
+    }
+
+    /* ==========================================
+       TOAST DE FEEDBACK
+    ========================================== */
+    function showToast(msg, tipo) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'show ' + (tipo || '');
+      setTimeout(() => { t.className = ''; }, 3200);
+    }
+
+    /* ==========================================
+       CARREGAR DADOS DO MESTRE
+    ========================================== */
+    async function carregarDadosMestre() {
+      const btn = document.getElementById('btn-refresh');
+      btn.disabled = true;
+      btn.textContent = '⏳ Carregando...';
+
+      try {
+        const [usersSnap, transSnap, configSnap] = await Promise.all([
+          db.ref('usuarios').get(),
+          db.ref('transacoes').get(),
+          db.ref('config').get()
+        ]);
+
+        const usuarios = usersSnap.exists() ? usersSnap.val() : {};
+        const transMap = transSnap.exists() ? transSnap.val() : {};
+        const config   = configSnap.exists() ? configSnap.val() : {};
+
+        const trans = Object.entries(transMap).map(([key, val]) => ({ ...val, _key: key }));
+
+        // Pendentes
+        const pendentes = trans.filter(t => t.status === 'Pendente').map(t => {
+          const emailKey = sanitizeEmail(t.email);
+          const nome = usuarios[emailKey] ? usuarios[emailKey].nome : t.email;
+          return { key: t._key, nome, detalhes: t.detalhes, qtd: Number(t.quantidade) };
+        });
+
+        // Progresso semanal
+        const hoje = new Date();
+        const inicioSemana = new Date(hoje);
+        inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+        inicioSemana.setHours(0, 0, 0, 0);
+
+        const progresso = {};
+        Object.entries(usuarios).forEach(([key, u]) => {
+          if (!u.email || u.is_mestre) return;
+          progresso[u.email] = {
+            nome: u.nome, email: u.email,
+            energia: Math.floor(Number(u.saldo_energia)),
+            cristais: Math.floor(Number(u.saldo_cristais)),
+            leitura: 0, duolingo: 0
+          };
+        });
+
+        trans.forEach(t => {
+          if (t.status === 'Aprovado' && new Date(t.data) >= inicioSemana && progresso[t.email]) {
+            if (t.tipo === 'Leitura')  progresso[t.email].leitura  += Number(t.quantidade);
+            if (t.tipo === 'Duolingo') progresso[t.email].duolingo += Number(t.quantidade);
+          }
+        });
+
+        const meta = Number(config.meta_leitura_semanal) || 140;
+        exibirDadosMestre({ pendentes, progresso, meta });
+
+      } catch(err) {
+        showToast('❌ Erro ao carregar: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔄 Atualizar Dados';
+      }
+    }
+
+    function exibirDadosMestre({ pendentes, progresso, meta }) {
+      /* -- Pendentes -- */
+      const pDiv = document.getElementById('lista-pendentes');
+      if (!pendentes.length) {
+        pDiv.innerHTML = '<div class="empty-msg" style="color:#27ae60;">✅ Nenhuma missão aguardando aprovação!</div>';
+      } else {
+        pDiv.innerHTML = '';
+        pendentes.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'pendente-item';
+          div.id = 'pend-' + p.key;
+          div.innerHTML = `
+            <div class="pendente-info">
+              <div class="pendente-nome">${p.nome}</div>
+              <div class="pendente-detalhe">📖 ${p.detalhes} · ${p.qtd} min</div>
+            </div>
+            <div class="pendente-acoes">
+              <button class="btn btn-ok"  onclick="decidir('${p.key}', ${p.qtd}, '${p.email || ''}', 'APROVAR')">✓</button>
+              <button class="btn btn-del" onclick="decidir('${p.key}', 0,       '${p.email || ''}', 'REPROVAR')">✗</button>
+            </div>`;
+          pDiv.appendChild(div);
+        });
+        // Recarregar emails nos botões decidir (usar os emails reais)
+        // Precisa reatribuir com dados completos:
+        pendentes.forEach(p => {
+          const row = document.getElementById('pend-' + p.key);
+          if (!row) return;
+          const btns = row.querySelectorAll('button');
+          btns[0].onclick = () => decidir(p.key, p.qtd, p.emailReal || '', 'APROVAR');
+          btns[1].onclick = () => decidir(p.key, 0,      p.emailReal || '', 'REPROVAR');
+        });
+      }
+
+      /* -- Selects de heróis -- */
+      const selDuo   = document.getElementById('sel-heroi-duo');
+      const selGasto = document.getElementById('sel-heroi-gasto');
+      selDuo.innerHTML   = '<option value="">Selecione o Guardião...</option>';
+      selGasto.innerHTML = '<option value="">Selecione o Guardião...</option>';
+
+      /* -- Relatório -- */
+      const relDiv = document.getElementById('relatorio-semanal');
+      relDiv.innerHTML = '';
+
+      Object.values(progresso).forEach(p => {
+        selDuo.innerHTML   += `<option value="${p.email}">${p.nome}</option>`;
+        selGasto.innerHTML += `<option value="${p.email}">${p.nome}</option>`;
+
+        const pct      = Math.min(100, Math.round((p.leitura / meta) * 100));
+        const completo = pct >= 100 ? 'completo' : '';
+
+        relDiv.innerHTML += `
+          <div class="heroi-card">
+            <div class="heroi-topo">
+              <span class="heroi-nome">⚔ ${p.nome}</span>
+              <span class="heroi-saldos">⚡ ${p.energia} &nbsp;|&nbsp; 💎 ${p.cristais}</span>
+            </div>
+            <div class="heroi-row">
+              <span>📖 Leitura semanal</span>
+              <span>${p.leitura} / ${meta} min</span>
+            </div>
+            <div class="progress-wrap">
+              <div class="progress-bar">
+                <div class="progress-fill ${completo}" style="width:${pct}%"></div>
+              </div>
+            </div>
+            <div class="heroi-row" style="margin-top:6px;">
+              <span>🦜 Duolingo esta semana</span>
+              <span>${p.duolingo} min</span>
+            </div>
+          </div>`;
+      });
+
+      if (!relDiv.innerHTML) {
+        relDiv.innerHTML = '<div class="empty-msg">Nenhum guardião cadastrado.</div>';
+      }
+    }
+
+    /* ==========================================
+       DECIDIR (Aprovar / Reprovar)
+    ========================================== */
+    async function decidir(transKey, qtd, emailHint, acao) {
+      const row = document.getElementById('pend-' + transKey);
+      if (row) row.querySelectorAll('button').forEach(b => b.disabled = true);
+
+      try {
+        const transRef  = db.ref('transacoes/' + transKey);
+        const transSnap = await transRef.get();
+        const trans     = transSnap.val();
+        const email     = trans.email;
+
+        if (acao === 'APROVAR') {
+          const userKey  = sanitizeEmail(email);
+          const userRef  = db.ref('usuarios/' + userKey);
+          const userSnap = await userRef.get();
+          const userData = userSnap.val();
+          await userRef.update({ saldo_energia: Number(userData.saldo_energia) + Number(trans.quantidade) });
+          await transRef.update({ status: 'Aprovado' });
+          showToast('✅ Leitura aprovada!', 'success');
+        } else {
+          await transRef.update({ status: 'Reprovado' });
+          showToast('❌ Leitura reprovada.', 'error');
+        }
+
+        if (row) row.remove();
+        const pDiv = document.getElementById('lista-pendentes');
+        if (pDiv && !pDiv.querySelector('.pendente-item')) {
+          pDiv.innerHTML = '<div class="empty-msg" style="color:#27ae60;">✅ Nenhuma missão aguardando aprovação!</div>';
+        }
+
+      } catch(err) {
+        showToast('❌ Erro: ' + err.message, 'error');
+        if (row) row.querySelectorAll('button').forEach(b => b.disabled = false);
+      }
+    }
+
+    /* ==========================================
+       CREDITAR DUOLINGO
+    ========================================== */
+    async function addDuo() {
+      const email = document.getElementById('sel-heroi-duo').value;
+      const min   = parseInt(document.getElementById('val-duo').value);
+
+      if (!email) { showToast('⚠️ Selecione um Guardião!', 'error'); return; }
+      if (!min || min < 1) { showToast('⚠️ Informe os minutos (mínimo 1).', 'error'); return; }
+
+      try {
+        const userKey  = sanitizeEmail(email);
+        const userRef  = db.ref('usuarios/' + userKey);
+        const userSnap = await userRef.get();
+        const userData = userSnap.val();
+
+        await userRef.update({ saldo_energia: Number(userData.saldo_energia) + min });
+        await db.ref('transacoes').push({
+          data: new Date().toISOString(),
+          email: email,
+          tipo: 'Duolingo',
+          quantidade: min,
+          detalhes: 'Duolingo (Mestre)',
+          status: 'Aprovado'
+        });
+
+        showToast(`✅ +${min} min de Duolingo para ${userData.nome}!`, 'success');
+        document.getElementById('val-duo').value = '';
+      } catch(err) {
+        showToast('❌ ' + err.message, 'error');
+      }
+    }
+
+    /* ==========================================
+       DEBITAR CRISTAIS
+    ========================================== */
+    async function addGasto() {
+      const email = document.getElementById('sel-heroi-gasto').value;
+      const qtd   = parseInt(document.getElementById('val-gasto').value);
+
+      if (!email) { showToast('⚠️ Selecione um Guardião!', 'error'); return; }
+      if (!qtd || qtd < 1) { showToast('⚠️ Informe a quantidade (mínimo 1).', 'error'); return; }
+
+      try {
+        const userKey  = sanitizeEmail(email);
+        const userRef  = db.ref('usuarios/' + userKey);
+        const userSnap = await userRef.get();
+        const userData = userSnap.val();
+        const saldo    = Number(userData.saldo_cristais);
+
+        if (saldo < qtd) {
+          showToast(`⚠️ Apenas ${saldo} cristais disponíveis.`, 'error'); return;
+        }
+
+        await userRef.update({ saldo_cristais: saldo - qtd });
+        await db.ref('transacoes').push({
+          data: new Date().toISOString(),
+          email: email,
+          tipo: 'Gasto',
+          quantidade: qtd,
+          detalhes: 'Tempo de Tela (Mestre)',
+          status: 'Aprovado'
+        });
+
+        showToast(`💎 ${qtd} cristais removidos de ${userData.nome}.`, 'success');
+        document.getElementById('val-gasto').value = '';
+      } catch(err) {
+        showToast('❌ ' + err.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
