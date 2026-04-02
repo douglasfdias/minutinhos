@@ -387,18 +387,19 @@
     .footer-menu {
       display: grid; grid-template-columns: repeat(4, 1fr);
       background: linear-gradient(180deg, #2C1A0E, #1A0A00);
-      border-top: 3px solid var(--gold-dark); padding: 4px 2px;
+      border-top: 3px solid var(--gold-dark); padding: 5px 2px;
       flex-shrink: 0;
     }
     .menu-item {
-      opacity: 0.5; text-align: center; font-size: 0.6rem; color: #D4B483;
+      opacity: 0.45; text-align: center; font-size: 0.58rem; color: #D4B483;
       font-family: 'Cinzel', serif; font-weight: 700; cursor: pointer;
       border-right: 1px solid rgba(255,255,255,0.07);
       padding: 2px 0; transition: opacity 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 1px;
     }
     .menu-item:last-child { border-right: none; }
-    .menu-item:active { opacity: 0.8; }
-    .menu-item img { width: 100%; max-width: 52px; display: block; margin: 0 auto; filter: grayscale(1) brightness(0.6); }
+    .menu-item:active { opacity: 0.85; }
+    .menu-icon { font-size: 1.5rem; line-height: 1.2; display: block; filter: grayscale(0.6); }
 
     /* ============ FLOATING NUMBERS ============ */
     .float-number {
@@ -765,16 +766,16 @@
     <!-- Footer -->
     <div class="footer-menu">
       <div class="menu-item" onclick="oraMsg('A Loja de Avatares abrirá em breve, Guardião!')">
-        <img src="https://i.ibb.co/KRVPtD6/icone-avatares-blocked.png"> Avatares
+        <span class="menu-icon">🧙</span>Avatares
       </div>
       <div class="menu-item" onclick="oraMsg('O Baú de Artefatos está trancado... por ora.')">
-        <img src="https://i.ibb.co/KpXBGYNk/icone-artefatos-blocked.png"> Artefatos
+        <span class="menu-icon">⚔️</span>Artefatos
       </div>
       <div class="menu-item" onclick="oraMsg('A Loja Épica exige Nível 5!')">
-        <img src="https://i.ibb.co/270yJYKZ/icone-loja-Epica-blocked.png"> Loja Épica
+        <span class="menu-icon">🏰</span>Loja Épica
       </div>
       <div class="menu-item" onclick="oraMsg('Vouchers de recompensa selados pela Ordem.')">
-        <img src="https://i.ibb.co/0pBg0vyH/icone-vouchers-blocked.png"> Vouchers
+        <span class="menu-icon">📜</span>Vouchers
       </div>
     </div>
 
@@ -1300,6 +1301,11 @@
         email:     'izavieiradias@gmail.com',
         nome:      'Iza',
         avatarUrl: 'https://i.ibb.co/V077M1SY/avatar-girl-full-body-mod1-nobg-2.png'
+      },
+      {
+        email:     'douglasdias.dfd@gmail.com',
+        nome:      'Douglas',
+        avatarUrl: 'https://i.ibb.co/rR2qn4yf/avatar-dad-full-body-mod1-nobg-2.png'
       }
     ];
 
