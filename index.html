@@ -4,6 +4,13 @@
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FFD700">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Minutinhos">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <style>
     :root {
       --gold: #FFD700; --gold-dark: #B8860B; --gold-light: #FFF3B0;
@@ -391,15 +398,15 @@
       flex-shrink: 0;
     }
     .menu-item {
-      opacity: 0.45; text-align: center; font-size: 0.58rem; color: #D4B483;
+      opacity: 0.5; text-align: center; font-size: 0.58rem; color: #D4B483;
       font-family: 'Cinzel', serif; font-weight: 700; cursor: pointer;
       border-right: 1px solid rgba(255,255,255,0.07);
       padding: 2px 0; transition: opacity 0.2s;
       display: flex; flex-direction: column; align-items: center; gap: 1px;
     }
     .menu-item:last-child { border-right: none; }
-    .menu-item:active { opacity: 0.85; }
-    .menu-icon { width: 36px; height: 36px; display: block; margin: 0 auto; opacity: 0.55; }
+    .menu-item:active { opacity: 1; }
+    .menu-icon { width: 34px; height: 34px; display: block; }
 
     /* ============ FLOATING NUMBERS ============ */
     .float-number {
@@ -766,18 +773,50 @@
     <!-- Footer -->
     <div class="footer-menu">
       <div class="menu-item" onclick="oraMsg('A Loja de Avatares abrirá em breve, Guardião!')">
-        <img class="menu-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+CiAgPGRlZnM+PHJhZGlhbEdyYWRpZW50IGlkPSJnMSIgY3g9IjUwJSIgY3k9IjQwJSIgcj0iNjAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMUUzQTVGIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjMEExQTMwIi8+PC9yYWRpYWxHcmFkaWVudD48L2RlZnM+CiAgPHBhdGggZD0iTTI0IDMgTDQwIDEwIEw0MCAyOCBRNDAgNDAgMjQgNDUgUTggNDAgOCAyOCBMOCAxMCBaIiBmaWxsPSJ1cmwoI2cxKSIgc3Ryb2tlPSIjQjg4NjBCIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cGF0aCBkPSJNMjQgMyBMNDAgMTAgTDQwIDI4IFE0MCA0MCAyNCA0NSBROCA0MCA4IDI4IEw4IDEwIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRDcwMCIgc3Ryb2tlLXdpZHRoPSIwLjciIG9wYWNpdHk9IjAuNCIvPgogIDxjaXJjbGUgY3g9IjI0IiBjeT0iMTkiIHI9IjYiIGZpbGw9IiNGRkQ3MDAiIG9wYWNpdHk9IjAuOTUiLz4KICA8ZWxsaXBzZSBjeD0iMjQiIGN5PSIzNCIgcng9IjgiIHJ5PSI1IiBmaWxsPSIjRkZENzAwIiBvcGFjaXR5PSIwLjg1Ii8+CiAgPHJlY3QgeD0iMjEiIHk9IjI1IiB3aWR0aD0iNiIgaGVpZ2h0PSI5IiByeD0iMSIgZmlsbD0iI0ZGRDcwMCIgb3BhY2l0eT0iMC44NSIvPgo8L3N2Zz4=">Avatares
+        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 3L40 10L40 30Q40 42 24 46Q8 42 8 30L8 10Z" fill="#0A1A30" stroke="#B8860B" stroke-width="2"/>
+          <path d="M24 3L40 10L40 30Q40 42 24 46Q8 42 8 30L8 10Z" fill="none" stroke="#FFD700" stroke-width="0.8" opacity="0.5"/>
+          <circle cx="24" cy="20" r="6" fill="#FFD700"/>
+          <rect x="21" y="26" width="6" height="8" rx="1" fill="#FFD700"/>
+          <ellipse cx="24" cy="36" rx="8" ry="4" fill="#FFD700" opacity="0.8"/>
+        </svg>Avatares
       </div>
       <div class="menu-item" onclick="oraMsg('O Baú de Artefatos está trancado... por ora.')">
-        <img class="menu-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+CiAgPGxpbmUgeDE9IjgiIHkxPSI4IiB4Mj0iNDAiIHkyPSI0MCIgc3Ryb2tlPSIjRkZENzAwIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPGxpbmUgeDE9IjQwIiB5MT0iOCIgeDI9IjgiIHkyPSI0MCIgc3Ryb2tlPSIjRkZENzAwIiBzdHJva2Utd2lkdGg9IjMuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPHJlY3QgeD0iNCIgeT0iMjEiIHdpZHRoPSIxMCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iI0I4ODYwQiIgc3Ryb2tlPSIjRkZENzAwIiBzdHJva2Utd2lkdGg9IjEiLz4KICA8cmVjdCB4PSIzNCIgeT0iMjEiIHdpZHRoPSIxMCIgaGVpZ2h0PSI2IiByeD0iMiIgZmlsbD0iI0I4ODYwQiIgc3Ryb2tlPSIjRkZENzAwIiBzdHJva2Utd2lkdGg9IjEiLz4KICA8cG9seWdvbiBwb2ludHM9IjI0LDE3IDI3LDI0IDI0LDMxIDIxLDI0IiBmaWxsPSIjMDBENEZGIiBzdHJva2U9IiMwMDg4QUEiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3N2Zz4=">Artefatos
+        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <line x1="9" y1="9" x2="39" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="39" y1="9" x2="9" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
+          <rect x="4" y="21" width="10" height="6" rx="2" fill="#B8860B" stroke="#FFD700" stroke-width="1.2"/>
+          <rect x="34" y="21" width="10" height="6" rx="2" fill="#B8860B" stroke="#FFD700" stroke-width="1.2"/>
+          <polygon points="24,17 27,24 24,31 21,24" fill="#00D4FF" stroke="#0099BB" stroke-width="1"/>
+        </svg>Artefatos
       </div>
       <div class="menu-item" onclick="oraMsg('A Loja Épica exige Nível 5!')">
-        <img class="menu-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+CiAgPHJlY3QgeD0iOSIgeT0iMjIiIHdpZHRoPSIzMCIgaGVpZ2h0PSIyMiIgcng9IjEiIGZpbGw9IiMxRTNBNUYiIHN0cm9rZT0iI0I4ODYwQiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8cmVjdCB4PSI5IiB5PSIxMiIgd2lkdGg9IjkiIGhlaWdodD0iMTIiIGZpbGw9IiMxRTNBNUYiIHN0cm9rZT0iI0I4ODYwQiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8cmVjdCB4PSIzMCIgeT0iMTIiIHdpZHRoPSI5IiBoZWlnaHQ9IjEyIiBmaWxsPSIjMUUzQTVGIiBzdHJva2U9IiNCODg2MEIiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHJlY3QgeD0iOSIgeT0iOSIgd2lkdGg9IjIuNSIgaGVpZ2h0PSI1IiBmaWxsPSIjRkZENzAwIi8+CiAgPHJlY3QgeD0iMTMiIHk9IjkiIHdpZHRoPSIyLjUiIGhlaWdodD0iNSIgZmlsbD0iI0ZGRDcwMCIvPgogIDxyZWN0IHg9IjMwIiB5PSI5IiB3aWR0aD0iMi41IiBoZWlnaHQ9IjUiIGZpbGw9IiNGRkQ3MDAiLz4KICA8cmVjdCB4PSIzNCIgeT0iOSIgd2lkdGg9IjIuNSIgaGVpZ2h0PSI1IiBmaWxsPSIjRkZENzAwIi8+CiAgPHJlY3QgeD0iMTkiIHk9IjMwIiB3aWR0aD0iMTAiIGhlaWdodD0iMTQiIHJ4PSIxIiBmaWxsPSIjQjg4NjBCIi8+CiAgPHBvbHlnb24gcG9pbnRzPSIyNCwxMyAyNS41LDE4IDMwLDE4IDI2LjUsMjEgMjcuNSwyNiAyNCwyMyAyMC41LDI2IDIxLjUsMjEgMTgsMTggMjIuNSwxOCIgZmlsbD0iI0ZGRDcwMCIvPgo8L3N2Zz4=">Loja Épica
+        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <rect x="9" y="22" width="30" height="22" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
+          <rect x="9" y="12" width="9" height="12" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
+          <rect x="30" y="12" width="9" height="12" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
+          <rect x="9" y="9" width="2.5" height="5" fill="#FFD700"/>
+          <rect x="13" y="9" width="2.5" height="5" fill="#FFD700"/>
+          <rect x="30" y="9" width="2.5" height="5" fill="#FFD700"/>
+          <rect x="34" y="9" width="2.5" height="5" fill="#FFD700"/>
+          <rect x="19" y="30" width="10" height="14" rx="1" fill="#B8860B"/>
+          <polygon points="24,13 25.5,18 30,18 26.5,21 27.5,26 24,23 20.5,26 21.5,21 18,18 22.5,18" fill="#FFD700"/>
+        </svg>Loja Épica
       </div>
       <div class="menu-item" onclick="oraMsg('Vouchers de recompensa selados pela Ordem.')">
-        <img class="menu-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+CiAgPHJlY3QgeD0iMTAiIHk9IjgiIHdpZHRoPSIyOCIgaGVpZ2h0PSIzMiIgcng9IjMiIGZpbGw9IiNEMkI0OEMiIHN0cm9rZT0iIzhCNjkxNCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8ZWxsaXBzZSBjeD0iMTAiIGN5PSIyNCIgcng9IjUiIHJ5PSIxNiIgZmlsbD0iI0M0QTA3MCIgc3Ryb2tlPSIjOEI2OTE0IiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDxlbGxpcHNlIGN4PSIzOCIgY3k9IjI0IiByeD0iNSIgcnk9IjE2IiBmaWxsPSIjQzRBMDcwIiBzdHJva2U9IiM4QjY5MTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGxpbmUgeDE9IjE2IiB5MT0iMTUiIHgyPSIzMiIgeTI9IjE1IiBzdHJva2U9IiM3QjRGMUEiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGxpbmUgeDE9IjE2IiB5MT0iMTkiIHgyPSIzMiIgeTI9IjE5IiBzdHJva2U9IiM3QjRGMUEiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGxpbmUgeDE9IjE2IiB5MT0iMjMiIHgyPSIyOCIgeTI9IjIzIiBzdHJva2U9IiM3QjRGMUEiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSIzMyIgcj0iNSIgZmlsbD0iI0ZGRDcwMCIgc3Ryb2tlPSIjQjg4NjBCIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjIwLjUiIHk9IjM3IiBmb250LXNpemU9IjgiIGZpbGw9IiM4QjFBMUEiIGZvbnQtZmFtaWx5PSJzZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiPuKYhTwvdGV4dD4KPC9zdmc+">Vouchers
+        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="8" width="28" height="32" rx="3" fill="#D2B48C" stroke="#8B6914" stroke-width="1.5"/>
+          <ellipse cx="10" cy="24" rx="5" ry="16" fill="#C4A070" stroke="#8B6914" stroke-width="1.5"/>
+          <ellipse cx="38" cy="24" rx="5" ry="16" fill="#C4A070" stroke="#8B6914" stroke-width="1.5"/>
+          <line x1="16" y1="15" x2="32" y2="15" stroke="#7B4F1A" stroke-width="1.5"/>
+          <line x1="16" y1="19" x2="32" y2="19" stroke="#7B4F1A" stroke-width="1.5"/>
+          <line x1="16" y1="23" x2="27" y2="23" stroke="#7B4F1A" stroke-width="1.5"/>
+          <circle cx="24" cy="33" r="5" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/>
+          <text x="20.5" y="37" font-size="8" fill="#8B1A1A" font-family="serif" font-weight="bold">&#9733;</text>
+        </svg>Vouchers
       </div>
     </div>
+  </div>
 
   </div>
 
@@ -1904,6 +1943,11 @@
 
     // Helper: tom rápido genérico — mantido para compatibilidade (usa o novo motor)
     // soundTone já está definido no motor de áudio acima
+
+    // ── Registro do Service Worker (PWA) ──
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
 
     window.onload = function() {
       // AudioContext só após interação (política do browser)
