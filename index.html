@@ -698,6 +698,17 @@
     </div>
   </div>
 
+
+  <!-- =========== NOTIFICAÇÃO DO MESTRE =========== -->
+  <div id="notif-overlay">
+    <div class="notif-box">
+      <span class="notif-big-icon" id="notif-icon">⚡</span>
+      <div class="notif-from">✦ MENSAGEM DO MESTRE ✦</div>
+      <div class="notif-title" id="notif-title">Título</div>
+      <div class="notif-msg" id="notif-msg">Mensagem aqui</div>
+      <button class="notif-btn" onclick="fecharNotif()">⚔ ENTENDIDO! ⚔</button>
+    </div>
+  </div>
   <!-- Canvas de Partículas Mágicas -->
   <canvas id="particle-canvas"></canvas>
 
@@ -1394,12 +1405,14 @@
       setTimeout(() => {
         document.getElementById('guardian-select').style.display = 'none';
         loadData();
+        iniciarListeners();
       }, 600);
     }
 
     function trocarGuardiao() {
       try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
       currentUserEmail = null;
+      listenerAtivo = false;
       vibrate(40);
       soundTone(400, 'sine', 0.15, 0.15, 0.005);
       mostrarSelecao();
@@ -1949,6 +1962,68 @@
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
 
+
+    /* ============================================================
+       NOTIFICAÇÕES DO MESTRE — tempo real via Firebase
+    ============================================================ */
+    let listenerAtivo = false;
+
+    function iniciarListeners() {
+      if (listenerAtivo) return;
+      listenerAtivo = true;
+      const emailKey = sanitizeEmail(currentUserEmail);
+
+      // Listener de saldo em tempo real (pula o primeiro disparo)
+      let primeiroSaldo = true;
+      db.ref('usuarios/' + emailKey).on('value', snap => {
+        if (primeiroSaldo) { primeiroSaldo = false; return; }
+        if (!snap.exists()) return;
+        const data = snap.val();
+        const newE = Math.floor(Number(data.saldo_energia));
+        const newC = Math.floor(Number(data.saldo_cristais));
+        animateNumber(document.getElementById('v-e'), currentEnergy, newE);
+        animateNumber(document.getElementById('v-c'), parseInt(document.getElementById('v-c').textContent)||0, newC);
+        currentEnergy = newE;
+        // Pulso nos pills
+        ['pill-energia','pill-cristais'].forEach(id => {
+          const el = document.getElementById(id);
+          el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+        });
+      });
+
+      // Listener de notificações — exibe ao chegar
+      db.ref('notificacoes/' + emailKey).on('child_added', snap => {
+        const notif = snap.val();
+        if (notif) { mostrarNotificacao(notif); snap.ref.remove(); }
+      });
+    }
+
+    function mostrarNotificacao(notif) {
+      initAudio();
+      const icones = { duolingo:'🦜', gasto:'💎', leitura_aprovada:'📖', leitura_reprovada:'📖' };
+      document.getElementById('notif-icon').textContent  = icones[notif.tipo] || '⚔️';
+      document.getElementById('notif-title').textContent = notif.titulo   || 'Mensagem do Mestre!';
+      document.getElementById('notif-msg').textContent   = notif.mensagem || '';
+      const overlay = document.getElementById('notif-overlay');
+      overlay.classList.add('notif-show');
+      // Efeitos
+      vibrate([80, 40, 80, 40, 200]);
+      if (notif.tipo === 'duolingo') {
+        soundCrystalChime();
+        spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 24, ['rgba(255,215,0,','rgba(0,212,255,','rgba(255,180,50,']);
+        spawnShockwave(window.innerWidth/2, window.innerHeight/3, 'rgba(255,215,0,', 120);
+      } else if (notif.tipo === 'gasto') {
+        [1047,784,523].forEach((f,i) => setTimeout(()=>soundTone(f,'sine',0.3,0.2,0.01), i*120));
+        spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 18, ['rgba(0,212,255,','rgba(100,200,255,']);
+      }
+    }
+
+    function fecharNotif() {
+      document.getElementById('notif-overlay').classList.remove('notif-show');
+      vibrate(30);
+      soundTone(523, 'sine', 0.12, 0.1, 0.005);
+    }
+
     window.onload = function() {
       // AudioContext só após interação (política do browser)
       document.addEventListener('touchstart', () => initAudio(), { once: true });
@@ -1963,6 +2038,7 @@
             currentUserEmail = dados.email;
             document.getElementById('guardian-select').style.display = 'none';
             loadData();
+            iniciarListeners();
             return;
           }
         }
