@@ -1,12 +1,16 @@
 // ================================================================
 // sw.js — Service Worker — Minutinhos: Ordem dos Guardiões
-// v2 — força limpeza do cache antigo
+// v3 — start_url corrigido para /minutinhos/
 // ================================================================
 
-const CACHE_NAME = 'minutinhos-v2';
+const CACHE_NAME = 'minutinhos-v3';
 
 const ASSETS_TO_CACHE = [
-  './Index.html',
+  '/minutinhos/',
+  '/minutinhos/index.html',
+  '/minutinhos/Index.html',
+  '/minutinhos/manifest.json',
+  '/minutinhos/sw.js',
   'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js',
@@ -54,7 +58,7 @@ self.addEventListener('fetch', event => {
         return response;
       }).catch(() => {
         if (event.request.destination === 'document') {
-          return caches.match('./Index.html');
+          return caches.match('/minutinhos/');
         }
       });
     })
