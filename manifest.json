@@ -1,0 +1,24 @@
+{
+  "name": "Minutinhos — Ordem dos Guardiões",
+  "short_name": "Minutinhos",
+  "description": "App de leitura gamificado da Ordem dos Guardiões",
+  "start_url": "./Index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050A18",
+  "theme_color": "#FFD700",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
