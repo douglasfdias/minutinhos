@@ -248,7 +248,7 @@
 
         const progresso = {};
         Object.entries(usuarios).forEach(([key, u]) => {
-          if (!u.email || u.is_mestre) return;
+          if (!u.email) return;
           progresso[u.email] = {
             nome: u.nome, email: u.email,
             energia: Math.floor(Number(u.saldo_energia)),
