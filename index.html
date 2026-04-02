@@ -662,6 +662,9 @@
       60%{transform:scale(1)} 100%{transform:scale(1)}
     }
   </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -1265,51 +1268,40 @@
     }
 
     /* ============================================================
-       CONFIGURAÇÃO DA API
-       Cole aqui a URL do seu WebApp do Apps Script.
-       Exemplo: https://script.google.com/macros/s/XXXXXX/exec
+       FIREBASE — configuração e inicialização
     ============================================================ */
-    const API_URL = 'https://script.google.com/macros/s/AKfycbx_48MjUN12HpiKVpZVp5MwEFHLFR4x9rBWNYV0LtkvK2w3b7g3U6mPdRIOvbubEgAqcQ/exec';
+    const firebaseConfig = {
+      apiKey: "AIzaSyABCdoTrqwRmj3wmiYGRJfTbcyoqyf5uME",
+      authDomain: "minutinhos.firebaseapp.com",
+      databaseURL: "https://minutinhos-default-rtdb.firebaseio.com",
+      projectId: "minutinhos",
+      storageBucket: "minutinhos.firebasestorage.app",
+      messagingSenderId: "205117538078",
+      appId: "1:205117538078:web:33a0c88a10c6b3d7f5930f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    // Chamada à API via JSONP — contorna o bloqueio CORS do Apps Script
-    // Funciona inserindo um <script> dinâmico em vez de fetch()
-    function api(params) {
-      return new Promise((resolve, reject) => {
-        const cbName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
-        const url    = new URL(API_URL);
-        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, String(v)));
-        url.searchParams.set('callback', cbName);
-
-        // Timeout de 20 segundos
-        const timer = setTimeout(() => {
-          cleanup();
-          reject(new Error('Timeout — Apps Script demorou demais.'));
-        }, 20000);
-
-        function cleanup() {
-          clearTimeout(timer);
-          delete window[cbName];
-          const el = document.getElementById(cbName);
-          if (el) el.remove();
-        }
-
-        // Callback global que o Apps Script vai chamar
-        window[cbName] = (data) => {
-          cleanup();
-          resolve(data);
-        };
-
-        // Insere a tag <script>
-        const script = document.createElement('script');
-        script.id  = cbName;
-        script.src = url.toString();
-        script.onerror = () => {
-          cleanup();
-          reject(new Error('Falha ao conectar com a API.'));
-        };
-        document.body.appendChild(script);
-      });
+    function sanitizeEmail(email) {
+      return email.replace(/\./g, '_');
     }
+
+    /* ============================================================
+       GUARDIÕES — lista local fixa
+       Edite aqui se mudar os nomes ou avatares.
+    ============================================================ */
+    const GUARDIOES_LOCAL = [
+      {
+        email:     'israelvieiradias04@gmail.com',
+        nome:      'Israel',
+        avatarUrl: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'
+      },
+      {
+        email:     'izavieiradias@gmail.com',
+        nome:      'Iza',
+        avatarUrl: 'https://i.ibb.co/V077M1SY/avatar-girl-full-body-mod1-nobg-2.png'
+      }
+    ];
 
     /* ============================================================
        SISTEMA DE AUTENTICAÇÃO — Seleção de Guardião
@@ -1320,26 +1312,20 @@
     function mostrarSelecao() {
       document.getElementById('guardian-select').style.display = 'flex';
       const cardsEl = document.getElementById('gs-cards');
-      cardsEl.innerHTML = '<div class="gs-loading">⏳ Convocando Guardiões...</div>';
+      cardsEl.innerHTML = '';
 
-      api({ action: 'guardioes' }).then(guardioes => {
-        if (!guardioes || !guardioes.length) {
-          cardsEl.innerHTML = '<div class="gs-loading" style="color:#f88;">❌ Erro ao carregar. Verifique a URL da API.</div>';
-          return;
-        }
-        cardsEl.innerHTML = '';
-        guardioes.forEach((g, i) => {
-          const card = document.createElement('div');
-          card.className = 'gs-card gs-card-enter';
-          card.style.animationDelay = (i * 0.15) + 's';
-          card.innerHTML = `
-            <img class="gs-card-avatar" src="${g.avatarUrl}"
-                 onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
-            <div class="gs-card-name">${g.nome}</div>
-            <div class="gs-card-label">Guardião da Ordem</div>`;
-          card.addEventListener('click', () => entrarComoGuardiao(g));
-          cardsEl.appendChild(card);
-        });
+      // Usa a lista local — sem chamada de rede, funciona em qualquer dispositivo
+      GUARDIOES_LOCAL.forEach((g, i) => {
+        const card = document.createElement('div');
+        card.className = 'gs-card gs-card-enter';
+        card.style.animationDelay = (i * 0.15) + 's';
+        card.innerHTML = `
+          <img class="gs-card-avatar" src="${g.avatarUrl}"
+               onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
+          <div class="gs-card-name">${g.nome}</div>
+          <div class="gs-card-label">Guardião da Ordem</div>`;
+        card.addEventListener('click', () => entrarComoGuardiao(g));
+        cardsEl.appendChild(card);
       });
     }
 
@@ -1391,9 +1377,46 @@
       }, 30);
     }
 
-    function loadData() {
-      api({ action: 'heroData', email: currentUserEmail }).then(d => {
-        if (!d) return;
+    async function loadData() {
+      try {
+        const userKey = sanitizeEmail(currentUserEmail);
+        const userSnap = await db.ref('usuarios/' + userKey).get();
+        if (!userSnap.exists()) {
+          oraMsg('⚠️ Guardião não encontrado no banco da Ordem.');
+          return;
+        }
+        const userData = userSnap.val();
+
+        // Busca transações para calcular XP e histórico
+        const transSnap = await db.ref('transacoes').get();
+        const transMap = transSnap.exists() ? transSnap.val() : {};
+        const trans = Object.values(transMap);
+        const emailLower = currentUserEmail.toLowerCase();
+
+        const xpTotal = trans
+          .filter(t => t.email === emailLower && t.status === 'Aprovado' && t.tipo === 'Leitura')
+          .reduce((sum, t) => sum + Number(t.quantidade), 0);
+
+        const myTrans = trans
+          .filter(t => t.email === emailLower)
+          .sort((a, b) => new Date(b.data) - new Date(a.data))
+          .slice(0, 6)
+          .map(t => ({ tipo: t.tipo, qtd: Math.floor(Number(t.quantidade)), status: t.status }));
+
+        const d = {
+          nome:      userData.nome,
+          energia:   Math.floor(Number(userData.saldo_energia)),
+          cristais:  Math.floor(Number(userData.saldo_cristais)),
+          avatarUrl: userData.avatar_url,
+          historico: myTrans,
+          xp: {
+            total:   xpTotal,
+            nivel:   Math.floor(xpTotal / 500) + 1,
+            atual:   xpTotal % 500,
+            proximo: 500
+          }
+        };
+
         const prevLevel = currentLevel;
         currentEnergy = d.energia;
 
@@ -1438,7 +1461,7 @@
         }
         list.innerHTML = '';
         d.historico.forEach((h, i) => {
-          const icone = h.tipo === 'Leitura' ? '📖' : '⚒️';
+          const icone = h.tipo === 'Leitura' ? '📖' : h.tipo === 'Forja' ? '⚒️' : '🦜';
           const statusClass = h.status === 'Pendente' ? 'entry-status-pendente' : 'entry-status-aprovado';
           const div = document.createElement('div');
           div.className = 'diary-entry';
@@ -1455,7 +1478,10 @@
           'Leia mais. Cresça mais. A Ordem conta com você.'
         ];
         oraMsg(msgs[Math.floor(Math.random() * msgs.length)]);
-      });
+      } catch(err) {
+        oraMsg('⚠️ Não consegui conectar ao servidor. Tente novamente.');
+        console.error('loadData error:', err);
+      }
     }
 
     /* ============================================================
@@ -1535,9 +1561,32 @@
       setForgeMsg('As chamas da Ordem selam a forja... Aguarde!');
       vibrate([50, 30, 50]);
 
-      api({ action: 'forja', email: currentUserEmail, qtd: forgeAcc }).then(res => {
-        if (!res) { setForgeMsg('❌ Erro de conexão. Tente novamente.'); return; }
-        setForgeMsg(res.msg);
+      (async () => {
+        try {
+          const userKey = sanitizeEmail(currentUserEmail);
+          const userRef = db.ref('usuarios/' + userKey);
+          const snap = await userRef.get();
+          const userData = snap.val();
+          const custo = (forgeAcc / 10) * 30;
+          if (Number(userData.saldo_energia) < custo) {
+            setForgeMsg('⚡ Energia insuficiente! Leia mais livros primeiro.'); return;
+          }
+          await userRef.update({
+            saldo_energia: Number(userData.saldo_energia) - custo,
+            saldo_cristais: Number(userData.saldo_cristais) + forgeAcc
+          });
+          await db.ref('transacoes').push({
+            data: new Date().toISOString(),
+            email: currentUserEmail,
+            tipo: 'Forja',
+            quantidade: forgeAcc,
+            detalhes: `Forja Épica de ${forgeAcc} cristais`,
+            status: 'Aprovado'
+          });
+          setForgeMsg(`⚒️ Forja concluída! +${forgeAcc} Cristais adquiridos!`);
+        } catch(err) {
+          setForgeMsg('❌ Erro de conexão. Tente novamente.'); return;
+        }
 
         soundForgeEpic(); screenFlash(); screenShake(14, 600);
         vibrate([80,40,80,40,250,60,400,80,700]);
@@ -1573,7 +1622,7 @@
         setTimeout(() => spawnFloat('⚔ ÉPICO! ⚔', '#FF8C00', cx, cy + 20), 500);
         setTimeout(() => spawnFloat('✨ GLÓRIA! ✨', '#FFD700', cx, cy - 10), 1000);
         setTimeout(fecharForja, 4000);
-      });
+      })();
     }
 
     /* ============================================================
@@ -1626,12 +1675,22 @@
       soundCrystalChime();
       vibrate([60, 30, 120]);
 
-      api({ action: 'registrarLeitura', email: currentUserEmail, livro, min }).then(msg => {
+      db.ref('transacoes').push({
+        data: new Date().toISOString(),
+        email: currentUserEmail,
+        tipo: 'Leitura',
+        quantidade: min,
+        detalhes: livro,
+        status: 'Pendente'
+      }).then(() => {
         fecharLeitura();
-        oraMsg(msg || '📜 Leitura registrada!');
+        oraMsg(`📜 "${livro}" registrado! ${min} min aguardando aprovação do Mestre.`);
         vibrate([100, 50, 200]);
         spawnFloat('+' + min + ' ⚡', '#FF8C00', window.innerWidth / 2, window.innerHeight / 3);
         loadData();
+      }).catch(() => {
+        document.getElementById('reading-oracle-text').textContent = '❌ Erro ao registrar. Tente novamente.';
+        soundError();
       });
     }
 
@@ -1840,22 +1899,10 @@
     // Helper: tom rápido genérico — mantido para compatibilidade (usa o novo motor)
     // soundTone já está definido no motor de áudio acima
 
-    /* ============================================================
-       KEEPALIVE — evita travamento por inatividade
-       Apps Script expira após ~6min; fazemos ping a cada 4min.
-    ============================================================ */
-    function iniciarKeepalive() {
-      setInterval(() => {
-        api({ action: 'keepalive' }).catch(() => {});
-      }, 4 * 60 * 1000);
-    }
-
     window.onload = function() {
       // AudioContext só após interação (política do browser)
       document.addEventListener('touchstart', () => initAudio(), { once: true });
       document.addEventListener('click',      () => initAudio(), { once: true });
-
-      iniciarKeepalive();
 
       // Verifica guardião salvo no localStorage
       try {
