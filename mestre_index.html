@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Painel do Mestre — Ordem dos Guardiões</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Mestre">
+  <link rel="apple-touch-icon" href="../icon-mestre-192.png">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <style>
+    :root { --gold:#e67e22; --gold-dark:#d35400; --blue:#1a1a2e; --green:#2ecc71; --red:#e74c3c; --bg:#f0f2f5; --crystal:#00bcd4; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Segoe UI',sans-serif; background:var(--bg); }
+    #senha-screen { position:fixed; inset:0; background:#1a1a2e; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; gap:14px; padding:30px; }
+    #senha-screen h1 { color:#e67e22; font-size:2.5rem; }
+    #senha-input { padding:13px 18px; border-radius:10px; border:2px solid #333; background:#111; color:white; font-size:1.1rem; width:100%; max-width:300px; text-align:center; outline:none; transition:border-color 0.2s; }
+    #senha-input:focus { border-color:#e67e22; }
+    #senha-btn { background:linear-gradient(135deg,#e67e22,#d35400); color:white; border:none; border-radius:10px; padding:14px 32px; font-size:1rem; font-weight:bold; cursor:pointer; width:100%; max-width:300px; box-shadow:0 4px 0 #a04000; transition:transform 0.1s; }
+    #senha-btn:active { transform:translateY(2px); }
+    #senha-erro { color:#e74c3c; font-size:0.85rem; display:none; }
+    #app { display:none; padding:12px; max-width:600px; margin:0 auto; }
+    h2 { color:var(--blue); border-left:5px solid var(--gold); padding-left:10px; margin:8px 0 14px; font-size:1.15rem; }
+    h3 { font-size:0.95rem; color:var(--blue); margin-bottom:8px; }
+    .card { background:white; border-radius:12px; padding:14px; box-shadow:0 2px 10px rgba(0,0,0,0.08); margin-bottom:14px; }
+    .card-hint { font-size:0.75rem; color:#999; margin-bottom:10px; }
+    #toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(60px); background:#1a1a2e; color:white; padding:12px 22px; border-radius:30px; font-weight:bold; font-size:0.9rem; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform 0.3s ease,opacity 0.3s ease; opacity:0; }
+    #toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    #toast.success { background:#27ae60; } #toast.error { background:#c0392b; }
+    .btn-refresh { background:var(--blue); color:white; width:100%; height:48px; border:none; border-radius:10px; font-size:1rem; font-weight:bold; cursor:pointer; margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity 0.2s; }
+    .btn-refresh:disabled { opacity:0.6; cursor:default; }
+    .guardiao-cards { display:flex; flex-direction:column; gap:12px; }
+    .guardiao-card { background:var(--blue); color:white; border-radius:14px; padding:14px 16px; border-left:5px solid var(--gold); }
+    .gc-topo { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .gc-avatar { width:52px; height:52px; border-radius:50%; border:2px solid var(--gold); object-fit:contain; background:rgba(255,255,255,0.05); flex-shrink:0; }
+    .gc-info { flex:1; }
+    .gc-nome { font-weight:800; font-size:1.05rem; }
+    .gc-nivel { font-size:0.75rem; color:#f39c12; font-weight:700; margin-top:2px; }
+    .gc-streak { background:rgba(255,100,0,0.2); border:1px solid rgba(255,100,0,0.4); border-radius:20px; padding:3px 10px; font-size:0.78rem; font-weight:800; color:#FF9800; flex-shrink:0; }
+    .gc-saldos { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+    .gc-saldo-pill { background:rgba(255,255,255,0.07); border-radius:10px; padding:8px 10px; text-align:center; }
+    .gc-saldo-valor { font-size:1.4rem; font-weight:900; line-height:1; }
+    .gc-saldo-label { font-size:0.65rem; color:#aaa; margin-top:2px; }
+    .gc-energia .gc-saldo-valor { color:#FF8C00; } .gc-cristais .gc-saldo-valor { color:var(--crystal); }
+    .gc-stats { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+    .gc-stat { font-size:0.78rem; color:#ccc; } .gc-stat span { font-weight:800; color:white; }
+    .gc-progress-label { display:flex; justify-content:space-between; font-size:0.72rem; color:#aaa; margin-bottom:4px; }
+    .gc-progress-bar { height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; margin-bottom:8px; }
+    .gc-progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#f39c12,#e74c3c); transition:width 0.8s ease; }
+    .gc-progress-fill.ok { background:linear-gradient(90deg,#27ae60,#2ecc71); }
+    .pendente-item { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f0f0f0; padding:10px 0; font-size:0.88rem; }
+    .pendente-item:last-child { border-bottom:none; }
+    .pendente-info { flex:1; } .pendente-nome { font-weight:700; color:var(--blue); }
+    .pendente-detalhe { font-size:0.78rem; color:#777; margin-top:2px; }
+    .pendente-acoes { display:flex; gap:6px; margin-left:8px; }
+    .btn { padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.85rem; transition:opacity 0.15s,transform 0.1s; }
+    .btn:active { transform:scale(0.94); opacity:0.85; }
+    .btn-ok { background:var(--green); color:white; } .btn-del { background:var(--red); color:white; }
+    .btn-add { background:var(--gold); color:white; width:100%; height:46px; margin-top:8px; font-size:0.95rem; border-radius:10px; }
+    select, input[type="number"] { padding:11px 12px; border:1.5px solid #ddd; border-radius:9px; width:100%; font-size:1rem; margin:5px 0; background:white; transition:border-color 0.2s; outline:none; }
+    select:focus, input:focus { border-color:var(--gold); }
+    .hist-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:0.82rem; }
+    .hist-item:last-child { border-bottom:none; }
+    .hist-nome { font-weight:700; color:var(--blue); margin-right:6px; flex-shrink:0; }
+    .hist-detalhe { color:#666; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .hist-qtd { font-weight:800; margin-left:6px; white-space:nowrap; }
+    .hist-pendente { color:#e67e22; } .hist-aprovado { color:#27ae60; } .hist-reprovado { color:#e74c3c; }
+    .empty-msg { text-align:center; color:#bbb; font-size:0.88rem; padding:18px 0; }
+    .badge-pend { background:var(--red); color:white; border-radius:20px; padding:2px 8px; font-size:0.72rem; font-weight:800; margin-left:8px; vertical-align:middle; }
+  </style>
+</head>
+<body>
+  <div id="senha-screen">
+    <h1>⚔️</h1>
+    <p style="color:#e67e22;font-size:1.2rem;font-weight:bold;">Painel do Mestre</p>
+    <p style="color:#aaa;font-size:0.9rem;">Apenas os Mestres da Ordem podem entrar aqui.</p>
+    <input type="password" id="senha-input" placeholder="Senha da Ordem" onkeydown="if(event.key==='Enter')verificarSenha()">
+    <p id="senha-erro">❌ Senha incorreta.</p>
+    <button id="senha-btn" onclick="verificarSenha()">🔓 Entrar na Ordem</button>
+  </div>
+  <div id="toast"></div>
+  <div id="app">
+    <h2>⚔ Painel do Mestre</h2>
+    <button class="btn-refresh" id="btn-refresh" onclick="carregarDados()">🔄 Atualizar Tudo</button>
+    <div class="card">
+      <h3>🏆 Guardiões da Ordem</h3>
+      <p class="card-hint">Saldos, progresso semanal, nível e sequência de leitura.</p>
+      <div class="guardiao-cards" id="dashboard-guardioes"><div class="empty-msg">Clique em "Atualizar Tudo" para carregar.</div></div>
+    </div>
+    <div class="card">
+      <h3>📋 Aprovações Pendentes <span class="badge-pend" id="badge-pend" style="display:none">0</span></h3>
+      <p class="card-hint">Leituras aguardando sua decisão, Mestre.</p>
+      <div id="lista-pendentes"><div class="empty-msg">Clique em "Atualizar Tudo" para carregar.</div></div>
+    </div>
+    <div class="card">
+      <h3>📜 Histórico Recente</h3>
+      <p class="card-hint">Últimas 12 atividades de todos os Guardiões.</p>
+      <div id="historico-recente"><div class="empty-msg">Clique em "Atualizar Tudo" para carregar.</div></div>
+    </div>
+    <div class="card">
+      <h3>🦜 Creditar Duolingo</h3>
+      <p class="card-hint">Credita Energia imediatamente + notifica o Guardião no app.</p>
+      <select id="sel-duo"><option value="">Selecione o Guardião...</option></select>
+      <input type="number" id="val-duo" placeholder="Minutos (ex: 30)" min="1">
+      <button class="btn btn-add" onclick="addDuo()">⚡ Creditar Energia</button>
+    </div>
+    <div class="card">
+      <h3>💎 Debitar Cristais (Tempo de Tela)</h3>
+      <p class="card-hint">Remove cristais + notifica o Guardião no app.</p>
+      <select id="sel-gasto"><option value="">Selecione o Guardião...</option></select>
+      <input type="number" id="val-gasto" placeholder="Quantidade de Cristais" min="1">
+      <button class="btn btn-del" style="width:100%;height:46px;margin-top:8px;font-size:0.95rem;border-radius:10px;" onclick="addGasto()">💎 Remover Cristais</button>
+    </div>
+  </div>
+  <script>
+    const firebaseConfig = { apiKey:"AIzaSyABCdoTrqwRmj3wmiYGRJfTbcyoqyf5uME", authDomain:"minutinhos.firebaseapp.com", databaseURL:"https://minutinhos-default-rtdb.firebaseio.com", projectId:"minutinhos", storageBucket:"minutinhos.firebasestorage.app", messagingSenderId:"205117538078", appId:"1:205117538078:web:33a0c88a10c6b3d7f5930f" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    function san(e) { return e.replace(/\./g,'_'); }
+    function verificarSenha() {
+      if (document.getElementById('senha-input').value === 'ordem2025') {
+        document.getElementById('senha-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        carregarDados();
+      } else { document.getElementById('senha-erro').style.display='block'; document.getElementById('senha-input').value=''; document.getElementById('senha-input').focus(); }
+    }
+    function toast(msg, tipo) { const t=document.getElementById('toast'); t.textContent=msg; t.className='show '+(tipo||''); setTimeout(()=>t.className='',3200); }
+    function calcStreak(trans, email) {
+      const dias = new Set(trans.filter(t=>t.email===email&&t.status==='Aprovado'&&t.tipo==='Leitura').map(t=>(t.data||'').substring(0,10)));
+      let s=0; const hoje=new Date();
+      for(let i=0;i<60;i++){const d=new Date(hoje);d.setDate(hoje.getDate()-i);const str=d.toISOString().substring(0,10);if(dias.has(str)){s++;}else if(i>0)break;}
+      return s;
+    }
+    function diasDesde(data) { if(!data)return'—'; const d=Math.floor((Date.now()-new Date(data))/86400000); return d===0?'hoje':d===1?'ontem':d+' dias atrás'; }
+    function fmtData(iso) { if(!iso)return'—'; const d=new Date(iso); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+    async function carregarDados() {
+      const btn=document.getElementById('btn-refresh'); btn.disabled=true; btn.textContent='⏳ Carregando...';
+      try {
+        const [uSnap,tSnap,cSnap]=await Promise.all([db.ref('usuarios').get(),db.ref('transacoes').get(),db.ref('config').get()]);
+        const usuarios=uSnap.exists()?uSnap.val():{};
+        const trans=tSnap.exists()?Object.entries(tSnap.val()).map(([k,v])=>({...v,_key:k})).filter(t=>t.email):[];
+        const config=cSnap.exists()?cSnap.val():{};
+        const metaL=Number(config.meta_leitura_semanal)||140, metaD=Number(config.meta_duolingo_semanal)||140;
+        const hoje=new Date(); const iS=new Date(hoje); iS.setDate(hoje.getDate()-hoje.getDay()); iS.setHours(0,0,0,0);
+        const guardioes=Object.values(usuarios).filter(u=>u.email).map(u=>{
+          const mt=trans.filter(t=>t.email===u.email);
+          const xp=mt.filter(t=>t.status==='Aprovado'&&t.tipo==='Leitura').reduce((s,t)=>s+Number(t.quantidade),0);
+          let lS=0,dS=0; mt.forEach(t=>{if(t.status==='Aprovado'&&new Date(t.data)>=iS){if(t.tipo==='Leitura')lS+=Number(t.quantidade);if(t.tipo==='Duolingo')dS+=Number(t.quantidade);}});
+          const ua=mt.filter(t=>t.status==='Aprovado').sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
+          return {nome:u.nome,email:u.email,avatarUrl:u.avatar_url,energia:Math.floor(Number(u.saldo_energia)),cristais:Math.floor(Number(u.saldo_cristais)),xp,nivel:Math.floor(xp/500)+1,xpN:xp%500,lS,dS,streak:calcStreak(trans,u.email),ua:ua?ua.data:null};
+        });
+        const pendentes=trans.filter(t=>t.status==='Pendente').map(t=>({key:t._key,email:t.email,nome:Object.values(usuarios).find(u=>u.email===t.email)?.nome||t.email,detalhes:t.detalhes,qtd:Number(t.quantidade)}));
+        const historico=trans.filter(t=>t.tipo).sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,12).map(t=>({...t,ng:Object.values(usuarios).find(u=>u.email===t.email)?.nome||t.email}));
+        renderDash(guardioes,metaL,metaD); renderPend(pendentes); renderHist(historico); renderSel(guardioes);
+      } catch(e){toast('❌ '+e.message,'error');}
+      finally{btn.disabled=false;btn.textContent='🔄 Atualizar Tudo';}
+    }
+    function renderDash(gs,metaL,metaD) {
+      const d=document.getElementById('dashboard-guardioes');
+      if(!gs.length){d.innerHTML='<div class="empty-msg">Nenhum guardião cadastrado.</div>';return;}
+      d.innerHTML=gs.map(g=>{
+        const pL=Math.min(100,Math.round(g.lS/metaL*100)), pX=Math.round(g.xpN/500*100), okL=pL>=100?'ok':'';
+        const str=g.streak>0?`<span class="gc-streak">🔥 ${g.streak} dia${g.streak>1?'s':''}</span>`:'';
+        return `<div class="guardiao-card">
+          <div class="gc-topo"><img class="gc-avatar" src="${g.avatarUrl}" onerror="this.style.display='none'"><div class="gc-info"><div class="gc-nome">${g.nome}</div><div class="gc-nivel">⭐ Nível ${g.nivel} · ${g.xp} XP total</div></div>${str}</div>
+          <div class="gc-saldos"><div class="gc-saldo-pill gc-energia"><div class="gc-saldo-valor">${g.energia}</div><div class="gc-saldo-label">⚡ Energia</div></div><div class="gc-saldo-pill gc-cristais"><div class="gc-saldo-valor">${g.cristais}</div><div class="gc-saldo-label">💎 Cristais</div></div></div>
+          <div class="gc-stats"><div class="gc-stat">📖 Leitura: <span>${g.lS}/${metaL} min</span></div><div class="gc-stat">🦜 Duolingo: <span>${g.dS}/${metaD} min</span></div><div class="gc-stat">📊 XP nível: <span>${g.xpN}/500</span></div><div class="gc-stat">🕐 Última: <span>${diasDesde(g.ua)}</span></div></div>
+          <div class="gc-progress-label"><span>📖 Progresso semanal</span><span>${pL}%</span></div><div class="gc-progress-bar"><div class="gc-progress-fill ${okL}" style="width:${pL}%"></div></div>
+          <div class="gc-progress-label"><span>⭐ Próximo nível</span><span>${pX}%</span></div><div class="gc-progress-bar"><div class="gc-progress-fill" style="width:${pX}%;background:linear-gradient(90deg,#1565C0,#00D4FF)"></div></div>
+        </div>`;
+      }).join('');
+    }
+    function renderPend(ps) {
+      const d=document.getElementById('lista-pendentes'), b=document.getElementById('badge-pend');
+      if(!ps.length){b.style.display='none';d.innerHTML='<div class="empty-msg" style="color:#27ae60;">✅ Nenhuma missão aguardando!</div>';return;}
+      b.style.display='inline';b.textContent=ps.length; d.innerHTML='';
+      ps.forEach(p=>{const el=document.createElement('div');el.className='pendente-item';el.id='pend-'+p.key;el.innerHTML=`<div class="pendente-info"><div class="pendente-nome">${p.nome}</div><div class="pendente-detalhe">📖 ${p.detalhes} · ${p.qtd} min</div></div><div class="pendente-acoes"><button class="btn btn-ok">✓</button><button class="btn btn-del">✗</button></div>`;el.querySelectorAll('button')[0].onclick=()=>decidir(p.key,p.qtd,p.email,'APROVAR');el.querySelectorAll('button')[1].onclick=()=>decidir(p.key,0,p.email,'REPROVAR');d.appendChild(el);});
+    }
+    function renderHist(hs) {
+      const d=document.getElementById('historico-recente');
+      if(!hs.length){d.innerHTML='<div class="empty-msg">Sem histórico ainda.</div>';return;}
+      const ic={Leitura:'📖',Forja:'⚒️',Duolingo:'🦜',Gasto:'💸'};
+      d.innerHTML=hs.map(h=>{const sc=h.status==='Pendente'?'hist-pendente':h.status==='Aprovado'?'hist-aprovado':'hist-reprovado';const sn=h.tipo==='Gasto'?'−':'+';return`<div class="hist-item"><span>${ic[h.tipo]||'•'}</span><span class="hist-nome">${h.ng}</span><span class="hist-detalhe">${h.detalhes||h.tipo}</span><span class="hist-qtd ${sc}">${sn}${h.quantidade}</span><span style="font-size:0.68rem;color:#bbb;margin-left:6px;white-space:nowrap">${fmtData(h.data)}</span></div>`;}).join('');
+    }
+    function renderSel(gs) { ['sel-duo','sel-gasto'].forEach(id=>{const s=document.getElementById(id);s.innerHTML='<option value="">Selecione o Guardião...</option>';gs.forEach(g=>s.innerHTML+=`<option value="${g.email}">${g.nome}</option>`);}); }
+    async function decidir(key,qtd,emailH,acao) {
+      const row=document.getElementById('pend-'+key); if(row)row.querySelectorAll('button').forEach(b=>b.disabled=true);
+      try {
+        const tRef=db.ref('transacoes/'+key), tSnap=await tRef.get(), t=tSnap.val(), em=t.email;
+        if(acao==='APROVAR'){
+          const uSnap=await db.ref('usuarios/'+san(em)).get(), u=uSnap.val();
+          await db.ref('usuarios/'+san(em)).update({saldo_energia:Number(u.saldo_energia)+Number(t.quantidade)});
+          await tRef.update({status:'Aprovado'});
+          await db.ref('notificacoes/'+san(em)).push({tipo:'leitura_aprovada',titulo:'📖 Leitura Aprovada!',mensagem:`O Mestre aprovou "${t.detalhes}"! +${t.quantidade} ⚡ creditados!`,quantidade:Number(t.quantidade),timestamp:new Date().toISOString()});
+          toast('✅ Leitura aprovada!','success');
+        } else {
+          await tRef.update({status:'Reprovado'});
+          await db.ref('notificacoes/'+san(em)).push({tipo:'leitura_reprovada',titulo:'📖 Leitura Reprovada',mensagem:`O Mestre não aprovou "${t.detalhes}" desta vez. Tente novamente!`,quantidade:0,timestamp:new Date().toISOString()});
+          toast('❌ Leitura reprovada.','error');
+        }
+        if(row)row.remove();
+        const pd=document.getElementById('lista-pendentes');
+        if(pd&&!pd.querySelector('.pendente-item')){document.getElementById('badge-pend').style.display='none';pd.innerHTML='<div class="empty-msg" style="color:#27ae60;">✅ Nenhuma missão aguardando!</div>';}
+      } catch(e){toast('❌ '+e.message,'error');if(row)row.querySelectorAll('button').forEach(b=>b.disabled=false);}
+    }
+    async function addDuo() {
+      const email=document.getElementById('sel-duo').value, min=parseInt(document.getElementById('val-duo').value);
+      if(!email){toast('⚠️ Selecione um Guardião!','error');return;} if(!min||min<1){toast('⚠️ Informe os minutos.','error');return;}
+      try {
+        const snap=await db.ref('usuarios/'+san(email)).get(), u=snap.val();
+        await db.ref('usuarios/'+san(email)).update({saldo_energia:Number(u.saldo_energia)+min});
+        await db.ref('transacoes').push({data:new Date().toISOString(),email,tipo:'Duolingo',quantidade:min,detalhes:'Duolingo (Mestre)',status:'Aprovado'});
+        await db.ref('notificacoes/'+san(email)).push({tipo:'duolingo',titulo:'🦜 Duolingo Creditado!',mensagem:`O Mestre creditou +${min} minutos de Duolingo! +${min} ⚡ de Energia para você!`,quantidade:min,timestamp:new Date().toISOString()});
+        toast(`✅ +${min} min para ${u.nome}!`,'success'); document.getElementById('val-duo').value='';
+      } catch(e){toast('❌ '+e.message,'error');}
+    }
+    async function addGasto() {
+      const email=document.getElementById('sel-gasto').value, qtd=parseInt(document.getElementById('val-gasto').value);
+      if(!email){toast('⚠️ Selecione um Guardião!','error');return;} if(!qtd||qtd<1){toast('⚠️ Informe a quantidade.','error');return;}
+      try {
+        const snap=await db.ref('usuarios/'+san(email)).get(), u=snap.val(), saldo=Number(u.saldo_cristais);
+        if(saldo<qtd){toast(`⚠️ Apenas ${saldo} cristais disponíveis.`,'error');return;}
+        await db.ref('usuarios/'+san(email)).update({saldo_cristais:saldo-qtd});
+        await db.ref('transacoes').push({data:new Date().toISOString(),email,tipo:'Gasto',quantidade:qtd,detalhes:'Tempo de Tela (Mestre)',status:'Aprovado'});
+        await db.ref('notificacoes/'+san(email)).push({tipo:'gasto',titulo:'💎 Cristais Usados!',mensagem:`${qtd} cristais foram trocados por tempo de tela. Aproveite! 🎮`,quantidade:qtd,timestamp:new Date().toISOString()});
+        toast(`💎 ${qtd} cristais de ${u.nome} removidos.`,'success'); document.getElementById('val-gasto').value='';
+      } catch(e){toast('❌ '+e.message,'error');}
+    }
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw-mestre.js').catch(()=>{});
+  </script>
+</body>
+</html>
