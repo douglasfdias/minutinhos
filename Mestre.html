@@ -146,7 +146,7 @@
         const config=cSnap.exists()?cSnap.val():{};
         const metaL=Number(config.meta_leitura_semanal)||140, metaD=Number(config.meta_duolingo_semanal)||140;
         const hoje=new Date(); const iS=new Date(hoje); iS.setDate(hoje.getDate()-hoje.getDay()); iS.setHours(0,0,0,0);
-        const guardioes=Object.values(usuarios).filter(u=>u.email&&!u.is_mestre).map(u=>{
+        const guardioes=Object.values(usuarios).filter(u=>u.email).map(u=>{
           const mt=trans.filter(t=>t.email===u.email);
           const xp=mt.filter(t=>t.status==='Aprovado'&&t.tipo==='Leitura').reduce((s,t)=>s+Number(t.quantidade),0);
           let lS=0,dS=0; mt.forEach(t=>{if(t.status==='Aprovado'&&new Date(t.data)>=iS){if(t.tipo==='Leitura')lS+=Number(t.quantidade);if(t.tipo==='Duolingo')dS+=Number(t.quantidade);}});
