@@ -1,2101 +1,236 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#050A18">
+  <title>Painel do Mestre — Ordem dos Guardiões</title>
+  <link rel="manifest" href="manifest-mestre.json">
+  <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Minutinhos">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Mestre">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <style>
-    :root {
-      --gold: #FFD700; --gold-dark: #B8860B; --gold-light: #FFF3B0;
-      --blue-deep: #050A18; --blue-mid: #0D1B35; --blue-hud: #1E3A5F;
-      --crystal: #00D4FF; --crystal-glow: rgba(0, 212, 255, 0.4);
-      --energy: #FF8C00; --energy-glow: rgba(255, 140, 0, 0.4);
-      --red-err: #FF4444; --green-ok: #00FF88;
-      --parchment: #FDF5E6; --parchment-dark: #D2B48C;
-    }
-
-    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--blue-deep) url('https://i.ibb.co/d4ntxNFN/background-user-UI-Minutinhos-3.webp') center center / cover no-repeat fixed;
-      color: white; overflow: hidden; height: 100vh; height: 100dvh; position: relative;
-    }
-
-    /* ============ CANVAS DE PARTÍCULAS ============ */
-    #particle-canvas {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 0;
-    }
-
-    /* ============ CONTAINER PRINCIPAL ============ */
-    .app-container {
-      display: flex; flex-direction: column; height: 100vh; height: 100dvh; position: relative; z-index: 1;
-    }
-
-    /* ============ HUD SUPERIOR ============ */
-    .top-hud {
-      display: flex; justify-content: space-around; align-items: center;
-      padding: 8px 12px;
-      background: linear-gradient(180deg, rgba(5,10,24,0.97) 0%, rgba(10,25,50,0.92) 100%);
-      border-bottom: 2px solid transparent;
-      border-image: linear-gradient(90deg, transparent, var(--gold), var(--gold-dark), var(--gold), transparent) 1;
-      flex-shrink: 0; position: relative;
-    }
-    .top-hud::after {
-      content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 4px;
-      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent);
-      filter: blur(3px);
-    }
-
-    .stat-pill {
-      background: linear-gradient(135deg, rgba(0,0,0,0.6), rgba(30,58,95,0.4));
-      border: 2px solid var(--gold-dark);
-      border-radius: 12px; display: flex; align-items: center; padding: 6px 14px; gap: 8px;
-      box-shadow: 0 0 12px rgba(255,215,0,0.15), inset 0 0 15px rgba(0,0,0,0.5);
-      position: relative; overflow: hidden; cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.3s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .stat-pill:active { transform: scale(0.92); }
-    .stat-pill.energia-glow { box-shadow: 0 0 24px rgba(255,140,0,0.7), inset 0 0 15px rgba(0,0,0,0.5) !important; border-color: #FF8C00 !important; transition: box-shadow 0.15s, border-color 0.15s; }
-    .stat-pill.cristal-glow { box-shadow: 0 0 24px rgba(0,212,255,0.7), inset 0 0 15px rgba(0,0,0,0.5) !important; border-color: #00D4FF !important; transition: box-shadow 0.15s, border-color 0.15s; }
-    .stat-pill::before {
-      content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.08), transparent);
-      animation: shimmer-hud 4s infinite; animation-delay: var(--delay, 0s);
-    }
-    @keyframes shimmer-hud { 0%{left:-100%} 100%{left:200%} }
-
-    .stat-pill img { width: 28px; height: 28px; object-fit: contain; }
-    .stat-pill span {
-      font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 900; color: white;
-      text-shadow: 0 0 8px rgba(255,215,0,0.5);
-      transition: transform 0.3s, color 0.3s;
-    }
-    .stat-pill.pop span { animation: stat-pop 0.4s ease-out; }
-    @keyframes stat-pop {
-      0%{transform:scale(1)} 40%{transform:scale(1.5); color:var(--gold)} 100%{transform:scale(1)}
-    }
-
-    .hud-actions { display: flex; gap: 10px; }
-    .hud-icon {
-      font-size: 1.6rem; cursor: pointer; padding: 4px;
-      transition: transform 0.2s, filter 0.2s;
-      filter: drop-shadow(0 0 4px rgba(255,215,0,0));
-    }
-    .hud-icon:active { transform: scale(0.85); }
-    .hud-icon:hover { filter: drop-shadow(0 0 6px rgba(255,215,0,0.6)); transform: scale(1.1); }
-
-    /* ============ SEÇÃO DO HERÓI ============ */
-    .hero-section {
-      text-align: center; padding: 10px 10px 0; flex-shrink: 0; position: relative;
-    }
-
-    .hero-name-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, rgba(5,15,40,0.9), rgba(30,58,95,0.8));
-      border: 2px solid var(--gold-dark);
-      border-radius: 20px; padding: 4px 18px;
-      font-family: 'Cinzel', serif; font-size: 0.95rem; font-weight: 700;
-      color: var(--gold-light); letter-spacing: 0.05em;
-      text-shadow: 0 0 10px rgba(255,215,0,0.4);
-      box-shadow: 0 0 15px rgba(255,215,0,0.1);
-      margin-bottom: 6px; cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.2s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .hero-name-badge:active { transform: scale(0.94); }
-    .hero-name-badge.badge-shine { animation: badge-shine-anim 0.7s ease-out; }
-    @keyframes badge-shine-anim {
-      0%  { box-shadow: 0 0 15px rgba(255,215,0,0.1); border-color: var(--gold-dark); }
-      40% { box-shadow: 0 0 40px rgba(255,215,0,1), 0 0 80px rgba(255,200,0,0.5); border-color: var(--gold); }
-      100%{ box-shadow: 0 0 15px rgba(255,215,0,0.1); border-color: var(--gold-dark); }
-    }
-
-    .hero-avatar-wrap {
-      position: relative; display: inline-block; cursor: pointer;
-      -webkit-user-select: none; user-select: none;
-    }
-    .hero-avatar-wrap::before {
-      content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
-      width: 80%; height: 20px;
-      background: radial-gradient(ellipse, rgba(255,215,0,0.25), transparent 70%);
-      filter: blur(6px); transition: opacity 0.3s;
-    }
-    .hero-avatar-wrap.hero-glow::before {
-      background: radial-gradient(ellipse, rgba(255,215,0,0.7), transparent 70%);
-    }
-    #hero-img {
-      height: 220px; max-width: 90%;
-      filter: drop-shadow(0 0 20px rgba(255,215,0,0.2));
-      animation: hero-float 4s ease-in-out infinite;
-      display: block; margin: 0 auto;
-      transition: filter 0.2s;
-    }
-    .hero-avatar-wrap:active #hero-img { filter: drop-shadow(0 0 30px rgba(255,215,0,0.9)) brightness(1.15); }
-    .hero-avatar-wrap.hero-glow #hero-img { animation: hero-hero-shine 0.8s ease-out !important; }
-    @keyframes hero-hero-shine {
-      0%  { filter: drop-shadow(0 0 20px rgba(255,215,0,0.2)); transform: translateY(0) scale(1); }
-      20% { filter: drop-shadow(0 0 50px rgba(255,215,0,1)) drop-shadow(0 0 80px rgba(255,180,0,0.6)) brightness(1.2); transform: translateY(-12px) scale(1.07); }
-      50% { filter: drop-shadow(0 0 30px rgba(255,215,0,0.7)); transform: translateY(-6px) scale(1.03); }
-      100%{ filter: drop-shadow(0 0 20px rgba(255,215,0,0.2)); transform: translateY(0) scale(1); }
-    }
-    @keyframes hero-float {
-      0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}
-    }
-
-    /* ============ MODAL DE LEITURA ============ */
-    #reading-modal {
-      position: fixed; inset: 0; z-index: 1001;
-      background: radial-gradient(ellipse at center, rgba(5,20,50,0.97), rgba(2,5,15,0.99));
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      padding: 20px; overflow: hidden;
-    }
-    #reading-modal::before {
-      content: ''; position: absolute; inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='%23FFD700' fill-opacity='0.05'/%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-    .reading-close { position: absolute; top: 15px; right: 18px; font-size: 2rem; color: rgba(200,180,140,0.7); border: none; background: none; cursor: pointer; z-index: 5; }
-    .reading-close:active { color: white; transform: scale(0.85); }
-
-    .reading-scroll {
-      background: linear-gradient(160deg, rgba(30,20,8,0.96), rgba(15,10,4,0.98));
-      border: 3px solid var(--gold-dark); border-radius: 18px;
-      padding: 20px 22px; width: 100%; max-width: 340px;
-      box-shadow: 0 0 40px rgba(255,150,0,0.2), inset 0 0 30px rgba(0,0,0,0.5);
-      position: relative; z-index: 2;
-    }
-    .reading-scroll::before {
-      content: ''; position: absolute; inset: 6px; border: 1px solid rgba(255,215,0,0.15); border-radius: 13px; pointer-events: none;
-    }
-    .reading-title {
-      font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 900;
-      color: var(--gold); text-align: center; margin-bottom: 4px;
-      text-shadow: 0 0 15px rgba(255,150,0,0.6);
-    }
-    .reading-subtitle { text-align: center; font-size: 0.78rem; color: rgba(200,180,140,0.8); margin-bottom: 16px; font-weight: 700; }
-
-    .reading-oracle-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
-    .reading-oracle-img { width: 55px; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(255,215,0,0.4)); }
-    .reading-oracle-bubble {
-      background: rgba(253,245,230,0.9); color: #4e342e; padding: 8px 12px; border-radius: 10px;
-      font-size: 0.78rem; font-weight: 800; border: 1.5px solid #C8A96E; flex: 1; position: relative;
-    }
-    .reading-oracle-bubble::before {
-      content: ''; position: absolute; left: -10px; top: 12px;
-      border-top: 8px solid transparent; border-bottom: 8px solid transparent;
-      border-right: 10px solid rgba(253,245,230,0.9);
-    }
-
-    .reading-field-label {
-      font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 700;
-      color: var(--gold-light); letter-spacing: 0.06em; margin-bottom: 5px; display: block;
-    }
-    .reading-input {
-      width: 100%; padding: 11px 14px; border-radius: 10px; border: 2px solid var(--gold-dark);
-      background: rgba(5,10,25,0.8); color: white; font-size: 1rem; font-family: 'Nunito', sans-serif;
-      font-weight: 700; outline: none; margin-bottom: 14px;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .reading-input:focus { border-color: var(--gold); box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 0 14px rgba(255,215,0,0.3); }
-    .reading-input::placeholder { color: rgba(255,255,255,0.3); }
-    .reading-input[type="number"] { -moz-appearance: textfield; }
-    .reading-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-    .reading-mins-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
-    .reading-mins-row .reading-input { margin-bottom: 0; flex: 1; }
-    .min-preset-row { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-    .min-preset {
-      padding: 5px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 800;
-      background: rgba(255,215,0,0.12); border: 1.5px solid var(--gold-dark);
-      color: var(--gold-light); cursor: pointer; font-family: 'Nunito', sans-serif;
-      transition: background 0.15s, transform 0.1s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .min-preset:active { background: rgba(255,215,0,0.3); transform: scale(0.93); }
-    .min-preset.selected { background: rgba(255,215,0,0.3); border-color: var(--gold); }
-
-    .btn-send-reading {
-      width: 100%; height: 52px; border-radius: 13px; border: 3px solid var(--gold-dark);
-      background: linear-gradient(160deg, #1565C0, #1976D2, #42A5F5);
-      font-family: 'Cinzel', serif; font-weight: 700; font-size: 1rem;
-      color: white; cursor: pointer;
-      box-shadow: 0 5px 0 #0D47A1, 0 0 20px rgba(66,165,245,0.25);
-      letter-spacing: 0.05em; display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: transform 0.1s;
-    }
-    .btn-send-reading:active { transform: translateY(3px); box-shadow: 0 2px 0 #0D47A1; }
-
-    /* Fogos de artifício da forja */
-    .firework-particle {
-      position: fixed; pointer-events: none; z-index: 9999;
-      width: 8px; height: 8px; border-radius: 50%;
-      animation: fw-fly var(--dur) ease-out forwards;
-    }
-    @keyframes fw-fly {
-      0%  { transform: translate(0,0) scale(1); opacity: 1; }
-      100%{ transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
-    }
-
-    /* Barra de XP épica */
-    .xp-wrap { padding: 6px 15px 0; }
-    .xp-bar-container {
-      width: 100%; height: 18px;
-      background: linear-gradient(135deg, #050A18, #0D1B35);
-      border: 2px solid var(--gold-dark);
-      border-radius: 10px; position: relative; overflow: hidden;
-      box-shadow: 0 0 10px rgba(255,215,0,0.1), inset 0 2px 4px rgba(0,0,0,0.5);
-      cursor: pointer; -webkit-user-select: none; user-select: none;
-    }
-    .xp-bar-container.xp-pulse { animation: xp-pulse-anim 0.55s ease-out; }
-    @keyframes xp-pulse-anim {
-      0%  { box-shadow: 0 0 10px rgba(0,180,255,0.1); }
-      40% { box-shadow: 0 0 30px rgba(0,180,255,0.95), 0 0 60px rgba(0,212,255,0.5); border-color: #00D4FF; }
-      100%{ box-shadow: 0 0 10px rgba(0,180,255,0.1); border-color: var(--gold-dark); }
-    }
-    .xp-bar-fill {
-      height: 100%; width: 0%;
-      background: linear-gradient(90deg, #0066CC, #00D4FF, #00AAFF);
-      transition: width 1.8s cubic-bezier(0.25, 1, 0.5, 1);
-      position: relative; overflow: hidden;
-    }
-    .xp-bar-fill::after {
-      content: ''; position: absolute; top: 0; left: -80%; width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      animation: xp-shimmer 2.5s infinite;
-    }
-    @keyframes xp-shimmer { 0%{left:-80%} 100%{left:160%} }
-    .xp-text {
-      position: absolute; width: 100%; text-align: center; font-size: 0.72rem;
-      line-height: 14px; color: white; font-weight: 900; top: 0; left: 0;
-      text-shadow: 0 1px 2px black; letter-spacing: 0.03em;
-    }
-
-    /* ============ BOTÕES DE AÇÃO ============ */
-    .action-grid { display: flex; gap: 10px; padding: 10px 15px; flex-shrink: 0; }
-
-    .btn-epic {
-      flex: 1; height: 58px; border-radius: 14px;
-      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.9rem;
-      color: white; cursor: pointer; position: relative; overflow: hidden;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-      border: none; outline: none;
-      transition: transform 0.1s, filter 0.2s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .btn-epic::before {
-      content: ''; position: absolute; inset: 2px; border-radius: 12px;
-      background: inherit; filter: brightness(1.2);
-      opacity: 0; transition: opacity 0.15s;
-    }
-    .btn-epic:active { transform: scale(0.95); filter: brightness(0.9); }
-    .btn-epic:active::before { opacity: 0.3; }
-
-    /* Ripple effect */
-    .ripple {
-      position: absolute; border-radius: 50%; background: rgba(255,255,255,0.3);
-      transform: scale(0); animation: ripple-out 0.6s ease-out forwards;
-      pointer-events: none;
-    }
-    @keyframes ripple-out { to { transform: scale(4); opacity: 0; } }
-
-    .btn-read {
-      background: linear-gradient(160deg, #1565C0, #1976D2, #42A5F5);
-      box-shadow: 0 6px 0 #0D47A1, 0 0 20px rgba(66,165,245,0.3);
-    }
-    .btn-read:active { box-shadow: 0 2px 0 #0D47A1, 0 0 10px rgba(66,165,245,0.2); }
-
-    .btn-forge {
-      background: linear-gradient(160deg, #BF360C, #E64A19, #FF7043);
-      box-shadow: 0 6px 0 #8B1A00, 0 0 20px rgba(255,112,67,0.3);
-    }
-    .btn-forge:active { box-shadow: 0 2px 0 #8B1A00, 0 0 10px rgba(255,112,67,0.2); }
-
-    .btn-label { font-size: 0.85rem; font-family: 'Cinzel', serif; font-weight: 700; }
-
-    /* ============ ORÁCULO ============ */
-    .oracle-section {
-      display: flex; padding: 6px 12px; align-items: flex-end; gap: 8px; flex-shrink: 0;
-    }
-    .oracle-avatar-wrap { position: relative; flex-shrink: 0; }
-    .oracle-avatar {
-      width: 65px; height: 65px; object-fit: contain;
-      animation: oracle-idle 3s ease-in-out infinite;
-      filter: drop-shadow(0 0 8px rgba(255,215,0,0.3));
-      cursor: pointer; -webkit-user-select: none; user-select: none;
-    }
-    .oracle-avatar.oracle-excited {
-      animation: oracle-excited-anim 0.7s ease-out !important;
-    }
-    @keyframes oracle-excited-anim {
-      0%  { transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 8px rgba(255,215,0,0.3)); }
-      15% { transform: rotate(-18deg) scale(1.2); filter: drop-shadow(0 0 22px rgba(255,215,0,1)); }
-      35% { transform: rotate(14deg) scale(1.25); }
-      55% { transform: rotate(-9deg) scale(1.12); }
-      75% { transform: rotate(5deg) scale(1.06); }
-      100%{ transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 8px rgba(255,215,0,0.3)); }
-    }
-    @keyframes oracle-idle { 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} }
-
-    .speech-bubble {
-      background: linear-gradient(135deg, rgba(253,245,230,0.95), rgba(240,220,180,0.9));
-      color: #4e342e; padding: 10px 14px; border-radius: 14px;
-      position: relative; font-weight: 800; font-size: 0.82rem;
-      box-shadow: 0 4px 0 #A0825A, 0 6px 12px rgba(0,0,0,0.4);
-      flex: 1; border: 2px solid #C8A96E; text-align: center;
-      min-height: 44px; display: flex; align-items: center; justify-content: center;
-    }
-    .speech-bubble::before {
-      content: ''; position: absolute; left: -12px; bottom: 15px;
-      border-top: 8px solid transparent; border-bottom: 8px solid transparent;
-      border-right: 12px solid rgba(253,245,230,0.95);
-    }
-    .oracle-talking { animation: bubble-bounce 0.3s ease-out; }
-    @keyframes bubble-bounce { 0%{transform:scale(0.97)} 60%{transform:scale(1.02)} 100%{transform:scale(1)} }
-
-    /* ============ DIÁRIO ============ */
-    .diary-section {
-      flex: 1; overflow: hidden; display: flex; flex-direction: column;
-      padding: 6px 12px 8px;
-    }
-    .diary-frame {
-      background: linear-gradient(135deg, rgba(253,245,230,0.93), rgba(240,220,180,0.88));
-      color: #2c3e50; border: 3px solid #8d6e63;
-      border-radius: 8px; padding: 8px 10px; flex: 1; overflow-y: auto;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.3);
-      position: relative;
-    }
-    .diary-title {
-      text-align: center; font-family: 'Cinzel', serif; font-size: 0.9rem;
-      color: #5d4037; border-bottom: 2px solid #D7B896; margin-bottom: 6px;
-      padding-bottom: 4px; letter-spacing: 0.05em; font-weight: 900;
-    }
-    .diary-entry {
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px solid rgba(141,110,99,0.2); padding: 4px 2px;
-      font-size: 0.78rem; font-weight: 700; animation: entry-slide 0.4s ease-out;
-    }
-    @keyframes entry-slide { from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
-    .entry-status-pendente { color: #E65100; font-weight: 900; }
-    .entry-status-aprovado { color: #2E7D32; font-weight: 900; }
-
-    /* ============ FOOTER ============ */
-    .footer-menu {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      background: linear-gradient(180deg, #2C1A0E, #1A0A00);
-      border-top: 3px solid var(--gold-dark); padding: 5px 2px;
-      flex-shrink: 0;
-    }
-    .menu-item {
-      opacity: 0.5; text-align: center; font-size: 0.58rem; color: #D4B483;
-      font-family: 'Cinzel', serif; font-weight: 700; cursor: pointer;
-      border-right: 1px solid rgba(255,255,255,0.07);
-      padding: 2px 0; transition: opacity 0.2s;
-      display: flex; flex-direction: column; align-items: center; gap: 1px;
-    }
-    .menu-item:last-child { border-right: none; }
-    .menu-item:active { opacity: 1; }
-    .menu-icon { width: 34px; height: 34px; display: block; }
-
-    /* ============ FLOATING NUMBERS ============ */
-    .float-number {
-      position: fixed; pointer-events: none; z-index: 9999;
-      font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.6rem;
-      text-shadow: 0 0 10px currentColor;
-      animation: float-up 1.4s ease-out forwards;
-    }
-    @keyframes float-up {
-      0%{opacity:1; transform:translateY(0) scale(1)}
-      60%{opacity:1; transform:translateY(-60px) scale(1.1)}
-      100%{opacity:0; transform:translateY(-100px) scale(0.8)}
-    }
-
-    /* ============ TELA DE SELEÇÃO DE GUARDIÃO ============ */
-    #guardian-select {
-      position: fixed; inset: 0; z-index: 2000;
-      background: var(--blue-deep) url('https://i.ibb.co/d4ntxNFN/background-user-UI-Minutinhos-3.webp') center/cover no-repeat;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 24px;
-    }
-    #guardian-select::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(5,10,24,0.7) 0%, rgba(5,10,24,0.5) 50%, rgba(5,10,24,0.85) 100%);
-    }
-    .gs-content { position: relative; z-index: 1; width: 100%; max-width: 360px; text-align: center; }
-
-    .gs-title {
-      font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900;
-      color: var(--gold); text-shadow: 0 0 20px rgba(255,150,0,0.8);
-      margin-bottom: 4px; letter-spacing: 0.04em;
-    }
-    .gs-subtitle {
-      font-size: 0.85rem; color: rgba(255,220,150,0.8); font-weight: 700;
-      margin-bottom: 24px; letter-spacing: 0.05em;
-    }
-    .gs-oracle-row {
-      display: flex; align-items: flex-start; gap: 10px; margin-bottom: 22px;
-      text-align: left;
-    }
-    .gs-oracle-img { width: 60px; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(255,215,0,0.4)); }
-    .gs-oracle-bubble {
-      background: linear-gradient(135deg, rgba(253,245,230,0.93), rgba(240,220,180,0.88));
-      color: #4e342e; padding: 10px 13px; border-radius: 12px;
-      font-size: 0.8rem; font-weight: 800; border: 2px solid #C8A96E; flex: 1;
-      position: relative; box-shadow: 0 3px 0 #A0825A;
-    }
-    .gs-oracle-bubble::before {
-      content: ''; position: absolute; left: -10px; top: 14px;
-      border-top: 8px solid transparent; border-bottom: 8px solid transparent;
-      border-right: 10px solid rgba(253,245,230,0.93);
-    }
-
-    .gs-cards { display: flex; gap: 14px; justify-content: center; width: 100%; }
-    .gs-card {
-      flex: 1; max-width: 150px;
-      background: linear-gradient(160deg, rgba(10,25,60,0.92), rgba(5,15,40,0.95));
-      border: 2px solid var(--gold-dark); border-radius: 18px;
-      padding: 16px 12px; text-align: center; cursor: pointer;
-      position: relative; overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 0 rgba(255,215,0,0);
-      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .gs-card::before {
-      content: ''; position: absolute; inset: 0; border-radius: 16px;
-      background: linear-gradient(135deg, rgba(255,215,0,0.06), transparent);
-      pointer-events: none;
-    }
-    .gs-card:active { transform: scale(0.95); }
-    .gs-card:hover  { border-color: var(--gold); box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255,215,0,0.25); }
-    .gs-card-avatar {
-      width: 100px; height: 130px; object-fit: contain;
-      filter: drop-shadow(0 0 10px rgba(255,215,0,0.2));
-      display: block; margin: 0 auto 10px;
-      transition: filter 0.2s, transform 0.2s;
-    }
-    .gs-card:active .gs-card-avatar { filter: drop-shadow(0 0 20px rgba(255,215,0,0.8)); transform: scale(1.05); }
-    .gs-card-name {
-      font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.05rem;
-      color: var(--gold-light); text-shadow: 0 0 8px rgba(255,215,0,0.4);
-    }
-    .gs-card-label { font-size: 0.7rem; color: rgba(200,180,140,0.7); font-weight: 700; margin-top: 2px; }
-
-    .gs-loading {
-      margin-top: 18px; font-size: 0.8rem; color: rgba(255,220,150,0.6);
-      font-weight: 700; letter-spacing: 0.05em;
-    }
-
-    /* Transição de entrada */
-    .gs-card-enter { animation: gs-card-in 0.5s ease-out both; }
-    @keyframes gs-card-in {
-      from { opacity: 0; transform: translateY(30px) scale(0.9); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* Overlay de boas-vindas ao entrar */
-    #welcome-flash {
-      position: fixed; inset: 0; z-index: 1999; pointer-events: none; opacity: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: radial-gradient(ellipse, rgba(255,215,0,0.25), transparent 70%);
-    }
-    #welcome-flash.show { animation: wf-anim 1.2s ease-out forwards; }
-    @keyframes wf-anim { 0%{opacity:0} 20%{opacity:1} 100%{opacity:0} }
-    .welcome-text {
-      font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 900;
-      color: var(--gold); text-shadow: 0 0 30px gold; text-align: center;
-      animation: wt-scale 1.2s ease-out;
-    }
-    @keyframes wt-scale {
-      0%{transform:scale(0.5) rotate(-5deg); opacity:0}
-      30%{transform:scale(1.15) rotate(2deg); opacity:1}
-      60%{transform:scale(0.97)}
-      100%{transform:scale(1)}
-    }
-
-    /* Botão trocar guardião (no HUD) */
-    .btn-trocar {
-      font-size: 1.1rem; cursor: pointer; padding: 4px 6px; border-radius: 8px;
-      transition: transform 0.2s, filter 0.2s; filter: drop-shadow(0 0 4px rgba(255,215,0,0));
-      -webkit-user-select: none; user-select: none;
-    }
-    .btn-trocar:active { transform: scale(0.85); }
-    .btn-trocar:hover  { filter: drop-shadow(0 0 6px rgba(255,215,0,0.6)); }
-
-    /* ============ MODAL FORJA ÉPICA ============ */
-    #forge-modal {
-      position: fixed; inset: 0;
-      background: radial-gradient(ellipse at center, rgba(20,5,0,0.97) 0%, rgba(5,2,0,0.99) 100%);
-      z-index: 1000; display: none; flex-direction: column;
-      align-items: center; justify-content: center; padding: 15px;
-      overflow: hidden;
-    }
-    #forge-modal::before {
-      content: ''; position: absolute; inset: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.142 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83zM22.344 0L13.858 8.485 15.272 9.9l9.9-9.9h-2.828zM32 0l-3.172 3.172 1.414 1.414L34.828 0H32zM28.656 0l-9.9 9.9 1.415 1.415L32 0h-3.344z' fill='%23FFD700' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
-      pointer-events: none;
-    }
-
-    /* Efeito de fogo de fundo */
-    .forge-fire-bg {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
-      background: radial-gradient(ellipse at bottom, rgba(255,80,0,0.15) 0%, transparent 70%);
-      animation: fire-flicker 1.5s ease-in-out infinite;
-    }
-    @keyframes fire-flicker { 0%,100%{opacity:0.6;transform:scaleX(1)} 50%{opacity:1;transform:scaleX(1.05)} }
-
-    .close-btn {
-      position: absolute; top: 15px; right: 18px; font-size: 2rem; color: rgba(255,200,150,0.7);
-      border: none; background: none; cursor: pointer; transition: color 0.2s, transform 0.2s;
-      z-index: 10;
-    }
-    .close-btn:active { transform: scale(0.85); color: white; }
-
-    .forge-oracle-row {
-      display: flex; flex-direction: column; align-items: center; width: 90%; z-index: 2;
-    }
-    .forge-oracle-avatar {
-      width: 80px; margin-bottom: 4px;
-      animation: oracle-idle 3s ease-in-out infinite;
-      filter: drop-shadow(0 0 10px rgba(255,150,0,0.4));
-    }
-    #ora-msg-forge {
-      background: linear-gradient(135deg, rgba(253,245,230,0.92), rgba(240,220,180,0.88));
-      color: #4e342e; padding: 8px 12px; border-radius: 10px;
-      font-weight: 800; font-size: 0.8rem; text-align: center;
-      width: 100%; border: 2px solid #C8A96E;
-      box-shadow: 0 3px 0 #A0825A;
-    }
-
-    .forge-title {
-      font-family: 'Cinzel', serif; color: var(--gold); font-size: 2.2rem;
-      margin: 8px 0 0; text-shadow: 0 0 20px rgba(255,150,0,0.8), 0 0 40px rgba(255,80,0,0.4);
-      letter-spacing: 0.05em; z-index: 2;
-    }
-
-    #forge-display {
-      font-family: 'Cinzel', serif; font-size: 3.5rem; font-weight: 900;
-      color: var(--crystal); text-shadow: 0 0 20px var(--crystal), 0 0 40px rgba(0,212,255,0.4);
-      margin: 8px 0; z-index: 2; transition: transform 0.1s;
-    }
-    #forge-display.crystal-pop { animation: crystal-pop 0.3s ease-out; }
-    @keyframes crystal-pop {
-      0%{transform:scale(1)} 40%{transform:scale(1.25)} 100%{transform:scale(1)}
-    }
-
-    .forge-cost-label {
-      color: rgba(255,200,150,0.8); font-size: 0.85rem; text-align: center; z-index: 2;
-      font-family: 'Nunito', sans-serif; font-weight: 700;
-    }
-
-    .forge-btn-hammer {
-      font-size: 4.5rem; background: none; border: none; cursor: pointer;
-      filter: drop-shadow(0 0 12px rgba(255,150,0,0.5));
-      transition: transform 0.05s; z-index: 2;
-      -webkit-user-select: none; user-select: none;
-      animation: hammer-idle 2s ease-in-out infinite;
-    }
-    @keyframes hammer-idle { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
-    .forge-btn-hammer.hammer-hit { animation: hammer-strike 0.25s ease-out !important; }
-    @keyframes hammer-strike {
-      0%{transform:rotate(-30deg) scale(1.1)}
-      40%{transform:rotate(15deg) scale(0.9)}
-      70%{transform:rotate(-5deg) scale(1.05)}
-      100%{transform:rotate(-5deg) scale(1)}
-    }
-
-    /* Sparks container */
-    .sparks-container {
-      position: absolute; pointer-events: none; z-index: 5;
-      width: 100px; height: 100px; top: 50%; left: 50%; transform: translate(-50%, -60%);
-    }
-    .spark {
-      position: absolute; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--gold); top: 50%; left: 50%;
-      animation: spark-fly 0.6s ease-out forwards;
-    }
-    @keyframes spark-fly {
-      0%{transform:translate(0,0) scale(1); opacity:1}
-      100%{transform:translate(var(--dx), var(--dy)) scale(0); opacity:0}
-    }
-
-    .btn-confirm-forge {
-      width: 100%; max-width: 260px; height: 52px;
-      background: linear-gradient(160deg, #BF360C, #E64A19, #FF7043);
-      border: 3px solid var(--gold-dark); border-radius: 14px;
-      font-family: 'Cinzel', serif; font-weight: 700; font-size: 1rem;
-      color: white; cursor: pointer; z-index: 2;
-      box-shadow: 0 5px 0 #8B1A00, 0 0 20px rgba(255,100,0,0.3);
-      letter-spacing: 0.05em;
-      transition: transform 0.1s;
-    }
-    .btn-confirm-forge:active { transform: translateY(3px); box-shadow: 0 2px 0 #8B1A00; }
-
-    /* ============ SCREEN FLASH ============ */
-    #screen-flash {
-      position: fixed; inset: 0; pointer-events: none; z-index: 9998;
-      opacity: 0; background: radial-gradient(ellipse, rgba(255,215,0,0.4), transparent);
-    }
-    .flash-active { animation: screen-flash 1s ease-out forwards; }
-    @keyframes screen-flash { 0%{opacity:0} 20%{opacity:1} 100%{opacity:0} }
-
-    /* ============ NÍVEL UP OVERLAY ============ */
-    #levelup-overlay {
-      position: fixed; inset: 0; z-index: 9997; pointer-events: none;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0;
-    }
-    #levelup-overlay.show { animation: levelup-anim 2.5s ease-out forwards; }
-    @keyframes levelup-anim {
-      0%{opacity:0} 10%{opacity:1} 70%{opacity:1} 100%{opacity:0}
-    }
-    .levelup-text {
-      font-family: 'Cinzel', serif; font-size: 3rem; font-weight: 900;
-      color: var(--gold); text-shadow: 0 0 30px var(--gold), 0 0 60px rgba(255,150,0,0.5);
-      text-align: center; animation: levelup-bounce 2.5s ease-out;
-    }
-    @keyframes levelup-bounce {
-      0%{transform:scale(0) rotate(-10deg)} 15%{transform:scale(1.3) rotate(3deg)}
-      30%{transform:scale(0.9)} 45%{transform:scale(1.1)}
-      60%{transform:scale(1)} 100%{transform:scale(1)}
-    }
-
-    /* ============ SINO DE NOTIFICAÇÕES ============ */
-    .bell-wrap { position: relative; display: inline-block; }
-    .bell-badge {
-      position: absolute; top: 1px; right: 0px;
-      background: #e74c3c; border-radius: 50%;
-      width: 8px; height: 8px;
-      border: 1.5px solid var(--blue-deep); pointer-events: none;
-    }
-    .hud-icon.bell-ringing { animation: bell-ring 0.5s ease-in-out 3; }
-    @keyframes bell-ring {
-      0%,100%{ transform: rotate(0) scale(1); }
-      25%    { transform: rotate(-18deg) scale(1.2); }
-      75%    { transform: rotate(14deg) scale(1.2); }
-    }
-  </style>
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <style>
+    :root { --gold:#e67e22; --gold-dark:#d35400; --blue:#1a1a2e; --green:#2ecc71; --red:#e74c3c; --bg:#f0f2f5; --crystal:#00bcd4; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Segoe UI',sans-serif; background:var(--bg); }
+    #senha-screen { position:fixed; inset:0; background:#1a1a2e; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; gap:14px; padding:30px; }
+    #senha-screen h1 { color:#e67e22; font-size:2.5rem; }
+    #senha-input { padding:13px 18px; border-radius:10px; border:2px solid #333; background:#111; color:white; font-size:1.1rem; width:100%; max-width:300px; text-align:center; outline:none; transition:border-color 0.2s; }
+    #senha-input:focus { border-color:#e67e22; }
+    #senha-btn { background:linear-gradient(135deg,#e67e22,#d35400); color:white; border:none; border-radius:10px; padding:14px 32px; font-size:1rem; font-weight:bold; cursor:pointer; width:100%; max-width:300px; box-shadow:0 4px 0 #a04000; transition:transform 0.1s; }
+    #senha-btn:active { transform:translateY(2px); }
+    #senha-erro { color:#e74c3c; font-size:0.85rem; display:none; }
+    #app { display:none; padding:12px; max-width:600px; margin:0 auto; }
+    h2 { color:var(--blue); border-left:5px solid var(--gold); padding-left:10px; margin:8px 0 14px; font-size:1.15rem; }
+    h3 { font-size:0.95rem; color:var(--blue); margin-bottom:8px; }
+    .card { background:white; border-radius:12px; padding:14px; box-shadow:0 2px 10px rgba(0,0,0,0.08); margin-bottom:14px; }
+    .card-hint { font-size:0.75rem; color:#999; margin-bottom:10px; }
+    #toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(60px); background:#1a1a2e; color:white; padding:12px 22px; border-radius:30px; font-weight:bold; font-size:0.9rem; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.3); transition:transform 0.3s ease,opacity 0.3s ease; opacity:0; }
+    #toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    #toast.success { background:#27ae60; } #toast.error { background:#c0392b; }
+    .btn-refresh { background:var(--blue); color:white; width:100%; height:48px; border:none; border-radius:10px; font-size:1rem; font-weight:bold; cursor:pointer; margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity 0.2s; }
+    .btn-refresh:disabled { opacity:0.6; cursor:default; }
+    .guardiao-cards { display:flex; flex-direction:column; gap:12px; }
+    .guardiao-card { background:var(--blue); color:white; border-radius:14px; padding:14px 16px; border-left:5px solid var(--gold); }
+    .gc-topo { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+    .gc-avatar { width:52px; height:52px; border-radius:50%; border:2px solid var(--gold); object-fit:contain; background:rgba(255,255,255,0.05); flex-shrink:0; }
+    .gc-info { flex:1; }
+    .gc-nome { font-weight:800; font-size:1.05rem; }
+    .gc-nivel { font-size:0.75rem; color:#f39c12; font-weight:700; margin-top:2px; }
+    .gc-streak { background:rgba(255,100,0,0.2); border:1px solid rgba(255,100,0,0.4); border-radius:20px; padding:3px 10px; font-size:0.78rem; font-weight:800; color:#FF9800; flex-shrink:0; }
+    .gc-saldos { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+    .gc-saldo-pill { background:rgba(255,255,255,0.07); border-radius:10px; padding:8px 10px; text-align:center; }
+    .gc-saldo-valor { font-size:1.4rem; font-weight:900; line-height:1; }
+    .gc-saldo-label { font-size:0.65rem; color:#aaa; margin-top:2px; }
+    .gc-energia .gc-saldo-valor { color:#FF8C00; } .gc-cristais .gc-saldo-valor { color:var(--crystal); }
+    .gc-stats { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+    .gc-stat { font-size:0.78rem; color:#ccc; } .gc-stat span { font-weight:800; color:white; }
+    .gc-progress-label { display:flex; justify-content:space-between; font-size:0.72rem; color:#aaa; margin-bottom:4px; }
+    .gc-progress-bar { height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; margin-bottom:8px; }
+    .gc-progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,#f39c12,#e74c3c); transition:width 0.8s ease; }
+    .gc-progress-fill.ok { background:linear-gradient(90deg,#27ae60,#2ecc71); }
+    .pendente-item { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f0f0f0; padding:10px 0; font-size:0.88rem; }
+    .pendente-item:last-child { border-bottom:none; }
+    .pendente-info { flex:1; } .pendente-nome { font-weight:700; color:var(--blue); }
+    .pendente-detalhe { font-size:0.78rem; color:#777; margin-top:2px; }
+    .pendente-acoes { display:flex; gap:6px; margin-left:8px; }
+    .btn { padding:8px 14px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.85rem; transition:opacity 0.15s,transform 0.1s; }
+    .btn:active { transform:scale(0.94); opacity:0.85; }
+    .btn-ok { background:var(--green); color:white; } .btn-del { background:var(--red); color:white; }
+    .btn-add { background:var(--gold); color:white; width:100%; height:46px; margin-top:8px; font-size:0.95rem; border-radius:10px; }
+    select, input[type="number"] { padding:11px 12px; border:1.5px solid #ddd; border-radius:9px; width:100%; font-size:1rem; margin:5px 0; background:white; transition:border-color 0.2s; outline:none; }
+    select:focus, input:focus { border-color:var(--gold); }
+    .hist-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:0.82rem; }
+    .hist-item:last-child { border-bottom:none; }
+    .hist-nome { font-weight:700; color:var(--blue); margin-right:6px; flex-shrink:0; }
+    .hist-detalhe { color:#666; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .hist-qtd { font-weight:800; margin-left:6px; white-space:nowrap; }
+    .hist-pendente { color:#e67e22; } .hist-aprovado { color:#27ae60; } .hist-reprovado { color:#e74c3c; }
+    .empty-msg { text-align:center; color:#bbb; font-size:0.88rem; padding:18px 0; }
+    .badge-pend { background:var(--red); color:white; border-radius:20px; padding:2px 8px; font-size:0.72rem; font-weight:800; margin-left:8px; vertical-align:middle; }
+  </style>
 </head>
 <body>
-
-  <!-- =========== BOAS-VINDAS FLASH =========== -->
-  <div id="welcome-flash"><div class="welcome-text" id="welcome-text">⚔ Bem-vindo! ⚔</div></div>
-
-  <!-- =========== SELEÇÃO DE GUARDIÃO =========== -->
-  <div id="guardian-select">
-    <div class="gs-content">
-      <div class="gs-title">⚔ ORDEM DOS GUARDIÕES ⚔</div>
-      <div class="gs-subtitle">✦ MINUTINHOS ✦</div>
-
-      <div class="gs-oracle-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="gs-oracle-img">
-        <div class="gs-oracle-bubble">
-          Saudações, Guardião! Toque no seu avatar para entrar na Ordem!
-        </div>
-      </div>
-
-      <div class="gs-cards" id="gs-cards">
-        <div class="gs-loading">⏳ Convocando Guardiões...</div>
-      </div>
+  <div id="senha-screen">
+    <h1>⚔️</h1>
+    <p style="color:#e67e22;font-size:1.2rem;font-weight:bold;">Painel do Mestre</p>
+    <p style="color:#aaa;font-size:0.9rem;">Apenas os Mestres da Ordem podem entrar aqui.</p>
+    <input type="password" id="senha-input" placeholder="Senha da Ordem" onkeydown="if(event.key==='Enter')verificarSenha()">
+    <p id="senha-erro">❌ Senha incorreta.</p>
+    <button id="senha-btn" onclick="verificarSenha()">🔓 Entrar na Ordem</button>
+  </div>
+  <div id="toast"></div>
+  <div id="app">
+    <h2>⚔ Painel do Mestre</h2>
+    <button class="btn-refresh" id="btn-refresh" onclick="carregarDados()">🔄 Atualizar Tudo</button>
+    <div class="card">
+      <h3>🏆 Guardiões da Ordem</h3>
+      <p class="card-hint">Saldos, progresso semanal, nível e sequência de leitura.</p>
+      <div class="guardiao-cards" id="dashboard-guardioes"><div class="empty-msg">Clique em "Atualizar Tudo" para carregar.</div></div>
+    </div>
+    <div class="card">
+      <h3>📋 Aprovações Pendentes <span class="badge-pend" id="badge-pend" style="display:none">0</span></h3>
+      <p class="card-hint">Leituras aguardando sua decisão, Mestre.</p>
+      <div id="lista-pendentes"><div class="empty-msg">Clique em "Atualizar Tudo" para carregar.</div></div>
+    </div>
+    <div class="card">
+      <h3>📜 Histórico Recente</h3>
+      <p class="card-hint">Últimas 12 atividades de todos os Guardiões.</p>
+      <div id="historico-recente"><div class="empty-msg">Clique em "Atualizar Tudo" para carregar.</div></div>
+    </div>
+    <div class="card">
+      <h3>🦜 Creditar Duolingo</h3>
+      <p class="card-hint">Credita Energia imediatamente + notifica o Guardião no app.</p>
+      <select id="sel-duo"><option value="">Selecione o Guardião...</option></select>
+      <input type="number" id="val-duo" placeholder="Minutos (ex: 30)" min="1">
+      <button class="btn btn-add" onclick="addDuo()">⚡ Creditar Energia</button>
+    </div>
+    <div class="card">
+      <h3>💎 Debitar Cristais (Tempo de Tela)</h3>
+      <p class="card-hint">Remove cristais + notifica o Guardião no app.</p>
+      <select id="sel-gasto"><option value="">Selecione o Guardião...</option></select>
+      <input type="number" id="val-gasto" placeholder="Quantidade de Cristais" min="1">
+      <button class="btn btn-del" style="width:100%;height:46px;margin-top:8px;font-size:0.95rem;border-radius:10px;" onclick="addGasto()">💎 Remover Cristais</button>
     </div>
   </div>
-  <!-- Canvas de Partículas Mágicas -->
-  <canvas id="particle-canvas"></canvas>
-
-  <!-- Flash de Tela -->
-  <div id="screen-flash"></div>
-
-  <!-- Level Up Overlay -->
-  <div id="levelup-overlay">
-    <div class="levelup-text">⭐ NÍVEL ACIMA! ⭐<br><span id="levelup-num" style="font-size:1.5rem; color:white;"></span></div>
-  </div>
-
-  <div class="app-container">
-
-    <!-- HUD -->
-    <div class="top-hud">
-      <div class="stat-pill" id="pill-energia" style="--delay:0s" onclick="tocarEnergia(this)">
-        <img src="https://i.ibb.co/N2QFSxDx/icone-energia-2.png">
-        <span id="v-e">0</span>
-      </div>
-      <div class="stat-pill" id="pill-cristais" style="--delay:2s" onclick="tocarCristais(this)">
-        <img src="https://i.ibb.co/Zzkm8F01/icone-cristal.png">
-        <span id="v-c">0</span>
-      </div>
-      <div class="hud-actions">
-        <span class="hud-icon bell-wrap" id="bell-btn" onclick="verNotificacoes()">🔔<span class="bell-badge" id="bell-badge" style="display:none"></span></span>
-        <span class="hud-icon" onclick="oraMsg('Suas configurações estão protegidas pela Sagrada Ordem.')">⚙️</span>
-        <span class="btn-trocar" onclick="trocarGuardiao()" title="Trocar Guardião">🔀</span>
-      </div>
-    </div>
-
-    <!-- Herói -->
-    <div class="hero-section">
-      <div id="xp-header" class="hero-name-badge" onclick="tocarNivel(this)">Herói · Nível 1</div>
-      <div class="xp-wrap">
-        <div class="xp-bar-container" onclick="tocarXP(this)">
-          <div id="xp-fill" class="xp-bar-fill"></div>
-          <div id="xp-text" class="xp-text">0 / 500 min</div>
-        </div>
-      </div>
-      <div class="hero-avatar-wrap" onclick="tocarHeroi(this)">
-        <img id="hero-img" class="hero-avatar-img" src="" style="height:210px; max-width:90%; display:block; margin:0 auto;">
-      </div>
-    </div>
-
-    <!-- Botões -->
-    <div class="action-grid">
-      <button class="btn-epic btn-read" onclick="fLeitura(event)">
-        <span style="font-size:1.4rem;">📖</span>
-        <span class="btn-label">Registrar Leitura</span>
-      </button>
-      <button class="btn-epic btn-forge" onclick="abrirForja(event)">
-        <span style="font-size:1.4rem;">⚒️</span>
-        <span class="btn-label">Forja de Cristais</span>
-      </button>
-    </div>
-
-    <!-- Oráculo -->
-    <div class="oracle-section">
-      <div class="oracle-avatar-wrap">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="oracle-avatar" onclick="tocarOraculo(this)">
-      </div>
-      <div id="ora-msg" class="speech-bubble">A sabedoria é o maior tesouro, Guardião. Use sua Energia com inteligência.</div>
-    </div>
-
-    <!-- Diário -->
-    <div class="diary-section">
-      <div class="diary-frame">
-        <div class="diary-title">✦ DIÁRIO DE AVENTURAS ✦</div>
-        <div id="hist-list" style="overflow-y:auto;"></div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="footer-menu">
-      <div class="menu-item" onclick="oraMsg('A Loja de Avatares abrirá em breve, Guardião!')">
-        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <path d="M24 3L40 10L40 30Q40 42 24 46Q8 42 8 30L8 10Z" fill="#0A1A30" stroke="#B8860B" stroke-width="2"/>
-          <path d="M24 3L40 10L40 30Q40 42 24 46Q8 42 8 30L8 10Z" fill="none" stroke="#FFD700" stroke-width="0.8" opacity="0.5"/>
-          <circle cx="24" cy="20" r="6" fill="#FFD700"/>
-          <rect x="21" y="26" width="6" height="8" rx="1" fill="#FFD700"/>
-          <ellipse cx="24" cy="36" rx="8" ry="4" fill="#FFD700" opacity="0.8"/>
-        </svg>Avatares
-      </div>
-      <div class="menu-item" onclick="oraMsg('O Baú de Artefatos está trancado... por ora.')">
-        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <line x1="9" y1="9" x2="39" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
-          <line x1="39" y1="9" x2="9" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
-          <rect x="4" y="21" width="10" height="6" rx="2" fill="#B8860B" stroke="#FFD700" stroke-width="1.2"/>
-          <rect x="34" y="21" width="10" height="6" rx="2" fill="#B8860B" stroke="#FFD700" stroke-width="1.2"/>
-          <polygon points="24,17 27,24 24,31 21,24" fill="#00D4FF" stroke="#0099BB" stroke-width="1"/>
-        </svg>Artefatos
-      </div>
-      <div class="menu-item" onclick="oraMsg('A Loja Épica exige Nível 5!')">
-        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <rect x="9" y="22" width="30" height="22" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
-          <rect x="9" y="12" width="9" height="12" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
-          <rect x="30" y="12" width="9" height="12" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
-          <rect x="9" y="9" width="2.5" height="5" fill="#FFD700"/>
-          <rect x="13" y="9" width="2.5" height="5" fill="#FFD700"/>
-          <rect x="30" y="9" width="2.5" height="5" fill="#FFD700"/>
-          <rect x="34" y="9" width="2.5" height="5" fill="#FFD700"/>
-          <rect x="19" y="30" width="10" height="14" rx="1" fill="#B8860B"/>
-          <polygon points="24,13 25.5,18 30,18 26.5,21 27.5,26 24,23 20.5,26 21.5,21 18,18 22.5,18" fill="#FFD700"/>
-        </svg>Loja Épica
-      </div>
-      <div class="menu-item" onclick="oraMsg('Vouchers de recompensa selados pela Ordem.')">
-        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <rect x="10" y="8" width="28" height="32" rx="3" fill="#D2B48C" stroke="#8B6914" stroke-width="1.5"/>
-          <ellipse cx="10" cy="24" rx="5" ry="16" fill="#C4A070" stroke="#8B6914" stroke-width="1.5"/>
-          <ellipse cx="38" cy="24" rx="5" ry="16" fill="#C4A070" stroke="#8B6914" stroke-width="1.5"/>
-          <line x1="16" y1="15" x2="32" y2="15" stroke="#7B4F1A" stroke-width="1.5"/>
-          <line x1="16" y1="19" x2="32" y2="19" stroke="#7B4F1A" stroke-width="1.5"/>
-          <line x1="16" y1="23" x2="27" y2="23" stroke="#7B4F1A" stroke-width="1.5"/>
-          <circle cx="24" cy="33" r="5" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/>
-          <text x="20.5" y="37" font-size="8" fill="#8B1A1A" font-family="serif" font-weight="bold">&#9733;</text>
-        </svg>Vouchers
-      </div>
-    </div>
-  </div>
-
-  </div>
-
-  <!-- =========== MODAL DE LEITURA =========== -->
-  <div id="reading-modal">
-    <button class="reading-close" onclick="fecharLeitura()">✕</button>
-    <div class="reading-scroll">
-      <div class="reading-title">📖 Registro de Leitura</div>
-      <div class="reading-subtitle">✦ Relate sua aventura de leitura ao Oráculo ✦</div>
-
-      <div class="reading-oracle-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="reading-oracle-img">
-        <div class="reading-oracle-bubble" id="reading-oracle-text">
-          Qual livro você leu hoje, Guardião? Cada página é um passo para o próximo nível!
-        </div>
-      </div>
-
-      <label class="reading-field-label">📚 Nome do Livro</label>
-      <input type="text" id="reading-book" class="reading-input" placeholder="Ex: Harry Potter, Narnia...">
-
-      <label class="reading-field-label">⚡ Minutos de Estudo</label>
-      <div class="reading-mins-row">
-        <input type="number" id="reading-mins" class="reading-input" placeholder="0" min="1" max="999">
-      </div>
-      <div class="min-preset-row">
-        <div class="min-preset" onclick="setMin(15)">15 min</div>
-        <div class="min-preset" onclick="setMin(20)">20 min</div>
-        <div class="min-preset" onclick="setMin(30)">30 min</div>
-        <div class="min-preset" onclick="setMin(45)">45 min</div>
-        <div class="min-preset" onclick="setMin(60)">1 hora</div>
-      </div>
-
-      <button class="btn-send-reading" onclick="enviarLeitura()">
-        <span>📜</span> Enviar para o Oráculo
-      </button>
-    </div>
-  </div>
-
-  <!-- =========== MODAL DA FORJA =========== -->
-  <div id="forge-modal">
-    <div class="forge-fire-bg"></div>
-    <button class="close-btn" onclick="fecharForja()">✕</button>
-
-    <div class="forge-oracle-row">
-      <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="forge-oracle-avatar">
-      <div id="ora-msg-forge">O calor da forja aumenta... Vamos criar cristais, Guardião!</div>
-    </div>
-
-    <div class="forge-title">⚔ A FORJA ÉPICA ⚔</div>
-    <div id="forge-display">0 💎</div>
-    <div class="forge-cost-label">Toque no martelo · 30 ⚡ = 10 💎</div>
-
-    <div style="position:relative; z-index:2; margin: 8px 0;">
-      <div class="sparks-container" id="sparks-container"></div>
-      <button onclick="addForge()" class="forge-btn-hammer" id="hammer-btn">⚒️</button>
-    </div>
-
-    <button onclick="confirmarForja()" class="btn-confirm-forge">⚔ CONCLUIR FORJA ⚔</button>
-  </div>
-
   <script>
-    /* ============================================================
-       MOTOR DE ÁUDIO v2 — Web Audio API avançado
-       Reverb sintético, ruído, distorção, ADSR completo
-    ============================================================ */
-    let audioCtx = null;
-    let masterGain = null;
-    let reverbNode = null;
-
-    function initAudio() {
-      if (audioCtx) return;
-      try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        masterGain = audioCtx.createGain();
-        masterGain.gain.value = 0.72;
-        masterGain.connect(audioCtx.destination);
-        reverbNode = _criarReverb(1.8, 3.5);
-        reverbNode.connect(masterGain);
-      } catch(e) {}
-    }
-
-    // Reverb sintético via ConvolverNode — sem arquivos de áudio
-    function _criarReverb(durSec, decay) {
-      const len = Math.floor(audioCtx.sampleRate * durSec);
-      const buf = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
-      for (let ch = 0; ch < 2; ch++) {
-        const d = buf.getChannelData(ch);
-        for (let i = 0; i < len; i++)
-          d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
-      }
-      const conv = audioCtx.createConvolver();
-      conv.buffer = buf;
-      return conv;
-    }
-
-    // Ruído branco (percussão, faísca, woosh)
-    function _criarRuido(durSec) {
-      const len = Math.floor(audioCtx.sampleRate * durSec);
-      const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
-      const d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-      const src = audioCtx.createBufferSource();
-      src.buffer = buf;
-      return src;
-    }
-
-    // Distorção (metal, erro)
-    function _criarDistorcao(amount) {
-      const node = audioCtx.createWaveShaper();
-      const curve = new Float32Array(256);
-      for (let i = 0; i < 256; i++) {
-        const x = (i * 2) / 256 - 1;
-        curve[i] = ((Math.PI + amount) * x) / (Math.PI + amount * Math.abs(x));
-      }
-      node.curve = curve; node.oversample = '4x';
-      return node;
-    }
-
-    // Nota base com ADSR — reverb opcional
-    function _nota(freq, tipo, dur, vol, atk, dcy, sus, rel, delay, comReverb) {
-      if (!audioCtx) return;
-      const t = audioCtx.currentTime + (delay || 0);
-      const osc = audioCtx.createOscillator();
-      const g   = audioCtx.createGain();
-      osc.connect(g);
-      g.connect(masterGain);
-      if (comReverb && reverbNode) g.connect(reverbNode);
-      osc.type = tipo || 'sine';
-      osc.frequency.value = freq;
-      const s = (sus != null ? sus : 0.6);
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(vol, t + (atk || 0.01));
-      g.gain.linearRampToValueAtTime(vol * s, t + (atk || 0.01) + (dcy || 0.05));
-      g.gain.setValueAtTime(vol * s, t + dur - (rel || 0.05));
-      g.gain.linearRampToValueAtTime(0, t + dur);
-      osc.start(t); osc.stop(t + dur + 0.05);
-    }
-
-    // ===== SONS DO JOGO =====
-
-    function soundButtonTap() {
-      if (!audioCtx) return;
-      _nota(900, 'sine', 0.07, 0.1, 0.003, 0.02, 0.2, 0.03);
-    }
-
-    function soundForgeHit() {
-      if (!audioCtx) return;
-      const t = audioCtx.currentTime;
-
-      // Thud grave — impacto físico
-      const thud = audioCtx.createOscillator();
-      const thudG = audioCtx.createGain();
-      thud.connect(thudG); thudG.connect(masterGain);
-      thud.type = 'sine';
-      thud.frequency.setValueAtTime(130, t);
-      thud.frequency.exponentialRampToValueAtTime(35, t + 0.18);
-      thudG.gain.setValueAtTime(0.9, t);
-      thudG.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-      thud.start(t); thud.stop(t + 0.22);
-
-      // Clang metálico — harmônicos com reverb
-      [820, 1240, 1680, 2480].forEach((f, i) => {
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        const vols = [0.28, 0.18, 0.1, 0.05];
-        const durs = [0.5, 0.38, 0.28, 0.18];
-        osc.connect(g); g.connect(reverbNode); g.connect(masterGain);
-        osc.type = 'sine';
-        osc.frequency.value = f + (Math.random() * 30 - 15);
-        g.gain.setValueAtTime(vols[i], t);
-        g.gain.exponentialRampToValueAtTime(0.001, t + durs[i]);
-        osc.start(t); osc.stop(t + durs[i] + 0.05);
-      });
-
-      // Woosh de faísca — ruído high-pass
-      const noise = _criarRuido(0.14);
-      const nf = audioCtx.createBiquadFilter();
-      const ng = audioCtx.createGain();
-      nf.type = 'highpass'; nf.frequency.value = 4500;
-      noise.connect(nf); nf.connect(ng); ng.connect(masterGain);
-      ng.gain.setValueAtTime(0.22, t);
-      ng.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-      noise.start(t); noise.stop(t + 0.15);
-    }
-
-    function soundError() {
-      if (!audioCtx) return;
-      const t = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const dist = _criarDistorcao(25);
-      const g = audioCtx.createGain();
-      osc.connect(dist); dist.connect(g); g.connect(masterGain);
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(230, t);
-      osc.frequency.linearRampToValueAtTime(100, t + 0.32);
-      g.gain.setValueAtTime(0.28, t);
-      g.gain.linearRampToValueAtTime(0, t + 0.32);
-      osc.start(t); osc.stop(t + 0.36);
-    }
-
-    function soundCrystalChime() {
-      if (!audioCtx) return;
-      [1047, 1319, 1568, 2093].forEach((f, i) => {
-        const at = audioCtx.currentTime + i * 0.1;
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.connect(g); g.connect(reverbNode); g.connect(masterGain);
-        osc.type = 'sine'; osc.frequency.value = f;
-        g.gain.setValueAtTime(0, at);
-        g.gain.linearRampToValueAtTime(0.22, at + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.001, at + 0.9);
-        osc.start(at); osc.stop(at + 1.0);
-      });
-    }
-
-    function soundLevelUp() {
-      if (!audioCtx) return;
-      const melody = [523, 659, 784, 659, 1047];
-      const bass   = [131, 165, 196, 165, 262];
-      melody.forEach((f, i) => {
-        _nota(f, 'sine', 0.45, 0.3, 0.01, 0.05, 0.8, 0.12, i * 0.15, true);
-        _nota(bass[i], 'triangle', 0.4, 0.18, 0.01, 0.05, 0.7, 0.1, i * 0.15, true);
-      });
-    }
-
-    // FANFARRA ÉPICA DA FORJA — 3 segundos de glória
-    function soundForgeEpic() {
-      if (!audioCtx) return;
-      const t = audioCtx.currentTime;
-
-      // Bombo de abertura
-      const kick = audioCtx.createOscillator();
-      const kickG = audioCtx.createGain();
-      kick.connect(kickG); kickG.connect(masterGain);
-      kick.type = 'sine';
-      kick.frequency.setValueAtTime(220, t);
-      kick.frequency.exponentialRampToValueAtTime(28, t + 0.35);
-      kickG.gain.setValueAtTime(1.1, t);
-      kickG.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
-      kick.start(t); kick.stop(t + 0.4);
-
-      // Ruído de explosão inicial
-      const expl = _criarRuido(0.2);
-      const explF = audioCtx.createBiquadFilter();
-      const explG = audioCtx.createGain();
-      explF.type = 'lowpass'; explF.frequency.value = 800;
-      expl.connect(explF); explF.connect(explG); explG.connect(masterGain);
-      explG.gain.setValueAtTime(0.5, t);
-      explG.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-      expl.start(t); expl.stop(t + 0.25);
-
-      // Melodia triunfal — orquestra sintética
-      const melodia = [
-        [523,  0],  [659, 180], [784, 340], [880, 480],
-        [1047, 640],[1319, 860],[1568, 1060],
-        [1047, 1280],[1568, 1480],[2093, 1700]
-      ];
-      melodia.forEach(([f, ms]) => {
-        const at = t + ms / 1000;
-        // Melodia (flautas)
-        _nota(f, 'sine', 0.38, 0.32, 0.015, 0.04, 0.75, 0.12, ms/1000, true);
-        // Baixo (trompetes)
-        _nota(f / 2, 'sawtooth', 0.32, 0.1, 0.01, 0.04, 0.6, 0.1, ms/1000, false);
-        // Cordas (triangle)
-        _nota(f * 1.5, 'triangle', 0.28, 0.08, 0.02, 0.05, 0.5, 0.1, ms/1000, true);
-      });
-
-      // Caixa (snare) nos tempos
-      [0, 380, 760, 1140, 1540, 1900].forEach(ms => {
-        const at = t + ms / 1000;
-        const sn = _criarRuido(0.12);
-        const snF = audioCtx.createBiquadFilter();
-        const snG = audioCtx.createGain();
-        snF.type = 'bandpass'; snF.frequency.value = 2200; snF.Q.value = 0.8;
-        sn.connect(snF); snF.connect(snG); snG.connect(masterGain);
-        snG.gain.setValueAtTime(0.18, at);
-        snG.gain.exponentialRampToValueAtTime(0.001, at + 0.1);
-        sn.start(at); sn.stop(at + 0.14);
-      });
-
-      // Prato final (cymbal crash)
-      const cymAt = t + 2.0;
-      const cym = _criarRuido(1.5);
-      const cymF = audioCtx.createBiquadFilter();
-      const cymG = audioCtx.createGain();
-      cymF.type = 'highpass'; cymF.frequency.value = 6000;
-      cym.connect(cymF); cymF.connect(cymG); cymG.connect(reverbNode);
-      cymG.gain.setValueAtTime(0.35, cymAt);
-      cymG.gain.exponentialRampToValueAtTime(0.001, cymAt + 1.2);
-      cym.start(cymAt); cym.stop(cymAt + 1.5);
-    }
-
-    // Utilitário inline — interações
-    function soundTone(freq, tipo, dur, vol, atk) {
-      if (!audioCtx) return;
-      _nota(freq, tipo || 'sine', dur, vol || 0.2, atk || 0.01, 0.05, 0.5, 0.05);
-    }
-    // Mantido para compatibilidade
-    function playTone(freq, type, duration, vol, attack) { soundTone(freq, type, duration, vol, attack); }
-
-    /* ============================================================
-       SISTEMA DE PARTÍCULAS — com anel de choque (shockwave)
-    ============================================================ */
-    const canvas = document.getElementById('particle-canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    function spawnParticle() {
-      const colors = ['rgba(255,215,0,', 'rgba(0,212,255,', 'rgba(255,180,50,', 'rgba(100,180,255,'];
-      const c = colors[Math.floor(Math.random() * colors.length)];
-      particles.push({
-        x: Math.random() * canvas.width, y: canvas.height + 10,
-        vx: (Math.random() - 0.5) * 0.5, vy: -(Math.random() * 0.8 + 0.3),
-        size: Math.random() * 3 + 1, opacity: Math.random() * 0.4 + 0.1,
-        color: c, life: 1, decay: Math.random() * 0.003 + 0.001
-      });
-    }
-
-    function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (Math.random() < 0.15) spawnParticle();
-      particles = particles.filter(p => p.life > 0);
-      particles.forEach(p => {
-        p.life -= p.decay;
-
-        // Anel de choque (shockwave)
-        if (p.type === 'ring') {
-          p.radius += (p.targetR - p.radius) * 0.14;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.strokeStyle = p.color + (p.opacity * p.life * p.life) + ')';
-          ctx.lineWidth = Math.max(1, 5 * p.life);
-          ctx.stroke();
-          return;
-        }
-
-        // Partícula normal
-        p.x += p.vx; p.y += p.vy;
-        if (p.gravity) p.vy += p.gravity;
-        ctx.beginPath();
-        if (p.shape === 'square') {
-          const s = p.size * 1.4;
-          ctx.rect(p.x - s/2, p.y - s/2, s, s);
-        } else {
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        }
-        ctx.fillStyle = p.color + (p.opacity * p.life) + ')';
-        ctx.fill();
-      });
-      requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
-
-    /* Faíscas genéricas */
-    function spawnSparks(x, y, count) {
-      for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 * i / count) + (Math.random() * 0.5);
-        const speed = Math.random() * 120 + 60;
-        particles.push({
-          x, y,
-          vx: Math.cos(angle) * speed * 0.016,
-          vy: Math.sin(angle) * speed * 0.016 - 2,
-          gravity: 0.06,
-          size: Math.random() * 4 + 2, opacity: 0.9,
-          color: ['rgba(255,200,0,', 'rgba(255,120,0,', 'rgba(255,255,150,'][Math.floor(Math.random()*3)],
-          life: 1, decay: Math.random() * 0.06 + 0.04
-        });
-      }
-    }
-
-    /* Anel de choque (shockwave) */
-    function spawnShockwave(x, y, color, targetR) {
-      particles.push({
-        type: 'ring', x, y,
-        radius: 5, targetR: targetR || 90,
-        color: color || 'rgba(255,215,0,',
-        opacity: 0.85, life: 1, decay: 0.045
-      });
-    }
-
-    /* Screen shake */
-    function screenShake(intensity, durationMs) {
-      const container = document.querySelector('.app-container');
-      let elapsed = 0;
-      const tick = setInterval(() => {
-        elapsed += 16;
-        if (elapsed >= durationMs) {
-          container.style.transform = '';
-          clearInterval(tick);
-          return;
-        }
-        const decay = 1 - elapsed / durationMs;
-        const x = (Math.random() - 0.5) * intensity * decay;
-        const y = (Math.random() - 0.5) * intensity * 0.5 * decay;
-        container.style.transform = `translate(${x}px,${y}px)`;
-      }, 16);
-    }
-
-    /* Embers sobindo na forja (modal aberto) */
-    function spawnForgeEmber() {
-      if (document.getElementById('forge-modal').style.display !== 'flex') return;
-      const x = Math.random() * window.innerWidth;
-      particles.push({
-        x, y: window.innerHeight + 5,
-        vx: (Math.random() - 0.5) * 1.2, vy: -(Math.random() * 1.5 + 0.5),
-        size: Math.random() * 3 + 1, opacity: Math.random() * 0.6 + 0.3,
-        color: ['rgba(255,80,0,', 'rgba(255,160,0,', 'rgba(255,220,100,'][Math.floor(Math.random()*3)],
-        life: 1, decay: Math.random() * 0.008 + 0.004,
-        shape: Math.random() > 0.5 ? 'square' : 'circle'
-      });
-    }
-    setInterval(spawnForgeEmber, 80);
-
-    /* ============================================================
-       FLOATING NUMBERS
-    ============================================================ */
-    function spawnFloat(text, color, x, y) {
-      const el = document.createElement('div');
-      el.className = 'float-number';
-      el.style.cssText = `left:${x - 20}px; top:${y - 20}px; color:${color};`;
-      el.textContent = text;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 1500);
-    }
-
-    /* ============================================================
-       VIBRAÇÃO
-    ============================================================ */
-    function vibrate(pattern) {
-      if (navigator.vibrate) navigator.vibrate(pattern);
-    }
-
-    /* ============================================================
-       RIPPLE NOS BOTÕES
-    ============================================================ */
-    function addRipple(btn, event) {
-      const rect = btn.getBoundingClientRect();
-      const r = document.createElement('span');
-      r.className = 'ripple';
-      const size = Math.max(rect.width, rect.height);
-      r.style.cssText = `width:${size}px; height:${size}px; left:${(event.clientX||rect.left+rect.width/2) - rect.left - size/2}px; top:${(event.clientY||rect.top+rect.height/2) - rect.top - size/2}px;`;
-      btn.appendChild(r);
-      setTimeout(() => r.remove(), 700);
-    }
-
-    /* ============================================================
-       FLASH DE TELA
-    ============================================================ */
-    function screenFlash() {
-      const f = document.getElementById('screen-flash');
-      f.classList.remove('flash-active');
-      void f.offsetWidth;
-      f.classList.add('flash-active');
-      setTimeout(() => f.classList.remove('flash-active'), 1100);
-    }
-
-    /* ============================================================
-       ORÁCULO — com efeito typewriter
-    ============================================================ */
-    let oraTimer = null;
-    function oraMsg(texto) {
-      const el = document.getElementById('ora-msg');
-      el.classList.remove('oracle-talking');
-      void el.offsetWidth;
-      el.classList.add('oracle-talking');
-
-      // Typewriter
-      if (oraTimer) clearTimeout(oraTimer);
-      el.textContent = '';
-      let i = 0;
-      function typeNext() {
-        if (i < texto.length) {
-          el.textContent += texto[i++];
-          oraTimer = setTimeout(typeNext, 22);
-        }
-      }
-      typeNext();
-    }
-
-    function setForgeMsg(texto) {
-      document.getElementById('ora-msg-forge').textContent = texto;
-    }
-
-    /* ============================================================
-       FIREBASE — configuração e inicialização
-    ============================================================ */
-    const firebaseConfig = {
-      apiKey: "AIzaSyABCdoTrqwRmj3wmiYGRJfTbcyoqyf5uME",
-      authDomain: "minutinhos.firebaseapp.com",
-      databaseURL: "https://minutinhos-default-rtdb.firebaseio.com",
-      projectId: "minutinhos",
-      storageBucket: "minutinhos.firebasestorage.app",
-      messagingSenderId: "205117538078",
-      appId: "1:205117538078:web:33a0c88a10c6b3d7f5930f"
-    };
+    const firebaseConfig = { apiKey:"AIzaSyABCdoTrqwRmj3wmiYGRJfTbcyoqyf5uME", authDomain:"minutinhos.firebaseapp.com", databaseURL:"https://minutinhos-default-rtdb.firebaseio.com", projectId:"minutinhos", storageBucket:"minutinhos.firebasestorage.app", messagingSenderId:"205117538078", appId:"1:205117538078:web:33a0c88a10c6b3d7f5930f" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
-    function sanitizeEmail(email) {
-      return email.replace(/\./g, '_');
+    function san(e) { return e.replace(/\./g,'_'); }
+    function verificarSenha() {
+      if (document.getElementById('senha-input').value === 'ordem2025') {
+        document.getElementById('senha-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        carregarDados();
+      } else { document.getElementById('senha-erro').style.display='block'; document.getElementById('senha-input').value=''; document.getElementById('senha-input').focus(); }
     }
-
-    /* ============================================================
-       GUARDIÕES — lista local fixa
-       Edite aqui se mudar os nomes ou avatares.
-    ============================================================ */
-    const GUARDIOES_LOCAL = [
-      {
-        email:     'israelvieiradias04@gmail.com',
-        nome:      'Israel',
-        avatarUrl: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'
-      },
-      {
-        email:     'izavieiradias@gmail.com',
-        nome:      'Iza',
-        avatarUrl: 'https://i.ibb.co/V077M1SY/avatar-girl-full-body-mod1-nobg-2.png'
-      },
-      {
-        email:     'douglasdias.dfd@gmail.com',
-        nome:      'Douglas',
-        avatarUrl: 'https://i.ibb.co/rR2qn4yf/avatar-dad-full-body-mod1-nobg-2.png'
-      }
-    ];
-
-    /* ============================================================
-       SISTEMA DE AUTENTICAÇÃO — Seleção de Guardião
-    ============================================================ */
-    let currentUserEmail = null;
-    const STORAGE_KEY = 'minutinhos_guardian';
-
-    function mostrarSelecao() {
-      document.getElementById('guardian-select').style.display = 'flex';
-      const cardsEl = document.getElementById('gs-cards');
-      cardsEl.innerHTML = '';
-
-      // Usa a lista local — sem chamada de rede, funciona em qualquer dispositivo
-      GUARDIOES_LOCAL.forEach((g, i) => {
-        const card = document.createElement('div');
-        card.className = 'gs-card gs-card-enter';
-        card.style.animationDelay = (i * 0.15) + 's';
-        card.innerHTML = `
-          <img class="gs-card-avatar" src="${g.avatarUrl}"
-               onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
-          <div class="gs-card-name">${g.nome}</div>
-          <div class="gs-card-label">Guardião da Ordem</div>`;
-        card.addEventListener('click', () => entrarComoGuardiao(g));
-        cardsEl.appendChild(card);
-      });
+    function toast(msg, tipo) { const t=document.getElementById('toast'); t.textContent=msg; t.className='show '+(tipo||''); setTimeout(()=>t.className='',3200); }
+    function calcStreak(trans, email) {
+      const dias = new Set(trans.filter(t=>t.email===email&&t.status==='Aprovado'&&t.tipo==='Leitura').map(t=>(t.data||'').substring(0,10)));
+      let s=0; const hoje=new Date();
+      for(let i=0;i<60;i++){const d=new Date(hoje);d.setDate(hoje.getDate()-i);const str=d.toISOString().substring(0,10);if(dias.has(str)){s++;}else if(i>0)break;}
+      return s;
     }
-
-    function entrarComoGuardiao(guardiao) {
-      initAudio();
-      vibrate([40, 20, 100]);
-      soundCrystalChime();
+    function diasDesde(data) { if(!data)return'—'; const d=Math.floor((Date.now()-new Date(data))/86400000); return d===0?'hoje':d===1?'ontem':d+' dias atrás'; }
+    function fmtData(iso) { if(!iso)return'—'; const d=new Date(iso); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+    async function carregarDados() {
+      const btn=document.getElementById('btn-refresh'); btn.disabled=true; btn.textContent='⏳ Carregando...';
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: guardiao.email, nome: guardiao.nome }));
-      } catch(e) {}
-      currentUserEmail = guardiao.email;
-
-      const wf = document.getElementById('welcome-flash');
-      document.getElementById('welcome-text').textContent = `⚔ Bem-vindo, ${guardiao.nome}! ⚔`;
-      wf.classList.remove('show'); void wf.offsetWidth; wf.classList.add('show');
-
-      const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-      spawnColorSparks(cx, cy, 30, ['rgba(255,215,0,', 'rgba(255,180,0,', 'rgba(255,255,150,']);
-      spawnShockwave(cx, cy, 'rgba(255,215,0,', 160);
-
-      setTimeout(() => {
-        document.getElementById('guardian-select').style.display = 'none';
-        loadData();
-        iniciarListeners();
-      }, 600);
+        const [uSnap,tSnap,cSnap]=await Promise.all([db.ref('usuarios').get(),db.ref('transacoes').get(),db.ref('config').get()]);
+        const usuarios=uSnap.exists()?uSnap.val():{};
+        const trans=tSnap.exists()?Object.entries(tSnap.val()).map(([k,v])=>({...v,_key:k})).filter(t=>t.email):[];
+        const config=cSnap.exists()?cSnap.val():{};
+        const metaL=Number(config.meta_leitura_semanal)||140, metaD=Number(config.meta_duolingo_semanal)||140;
+        const hoje=new Date(); const iS=new Date(hoje); iS.setDate(hoje.getDate()-hoje.getDay()); iS.setHours(0,0,0,0);
+        const guardioes=Object.values(usuarios).filter(u=>u.email).map(u=>{
+          const mt=trans.filter(t=>t.email===u.email);
+          const xp=mt.filter(t=>t.status==='Aprovado'&&t.tipo==='Leitura').reduce((s,t)=>s+Number(t.quantidade),0);
+          let lS=0,dS=0; mt.forEach(t=>{if(t.status==='Aprovado'&&new Date(t.data)>=iS){if(t.tipo==='Leitura')lS+=Number(t.quantidade);if(t.tipo==='Duolingo')dS+=Number(t.quantidade);}});
+          const ua=mt.filter(t=>t.status==='Aprovado').sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
+          return {nome:u.nome,email:u.email,avatarUrl:u.avatar_url,energia:Math.floor(Number(u.saldo_energia)),cristais:Math.floor(Number(u.saldo_cristais)),xp,nivel:Math.floor(xp/500)+1,xpN:xp%500,lS,dS,streak:calcStreak(trans,u.email),ua:ua?ua.data:null};
+        });
+        const pendentes=trans.filter(t=>t.status==='Pendente').map(t=>({key:t._key,email:t.email,nome:Object.values(usuarios).find(u=>u.email===t.email)?.nome||t.email,detalhes:t.detalhes,qtd:Number(t.quantidade)}));
+        const historico=trans.filter(t=>t.tipo).sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,12).map(t=>({...t,ng:Object.values(usuarios).find(u=>u.email===t.email)?.nome||t.email}));
+        renderDash(guardioes,metaL,metaD); renderPend(pendentes); renderHist(historico); renderSel(guardioes);
+      } catch(e){toast('❌ '+e.message,'error');}
+      finally{btn.disabled=false;btn.textContent='🔄 Atualizar Tudo';}
     }
-
-    function trocarGuardiao() {
-      try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
-      currentUserEmail = null;
-      listenerAtivo = false;
-      vibrate(40);
-      soundTone(400, 'sine', 0.15, 0.15, 0.005);
-      mostrarSelecao();
+    function renderDash(gs,metaL,metaD) {
+      const d=document.getElementById('dashboard-guardioes');
+      if(!gs.length){d.innerHTML='<div class="empty-msg">Nenhum guardião cadastrado.</div>';return;}
+      d.innerHTML=gs.map(g=>{
+        const pL=Math.min(100,Math.round(g.lS/metaL*100)), pX=Math.round(g.xpN/500*100), okL=pL>=100?'ok':'';
+        const str=g.streak>0?`<span class="gc-streak">🔥 ${g.streak} dia${g.streak>1?'s':''}</span>`:'';
+        return `<div class="guardiao-card">
+          <div class="gc-topo"><img class="gc-avatar" src="${g.avatarUrl}" onerror="this.style.display='none'"><div class="gc-info"><div class="gc-nome">${g.nome}</div><div class="gc-nivel">⭐ Nível ${g.nivel} · ${g.xp} XP total</div></div>${str}</div>
+          <div class="gc-saldos"><div class="gc-saldo-pill gc-energia"><div class="gc-saldo-valor">${g.energia}</div><div class="gc-saldo-label">⚡ Energia</div></div><div class="gc-saldo-pill gc-cristais"><div class="gc-saldo-valor">${g.cristais}</div><div class="gc-saldo-label">💎 Cristais</div></div></div>
+          <div class="gc-stats"><div class="gc-stat">📖 Leitura: <span>${g.lS}/${metaL} min</span></div><div class="gc-stat">🦜 Duolingo: <span>${g.dS}/${metaD} min</span></div><div class="gc-stat">📊 XP nível: <span>${g.xpN}/500</span></div><div class="gc-stat">🕐 Última: <span>${diasDesde(g.ua)}</span></div></div>
+          <div class="gc-progress-label"><span>📖 Progresso semanal</span><span>${pL}%</span></div><div class="gc-progress-bar"><div class="gc-progress-fill ${okL}" style="width:${pL}%"></div></div>
+          <div class="gc-progress-label"><span>⭐ Próximo nível</span><span>${pX}%</span></div><div class="gc-progress-bar"><div class="gc-progress-fill" style="width:${pX}%;background:linear-gradient(90deg,#1565C0,#00D4FF)"></div></div>
+        </div>`;
+      }).join('');
     }
-
-    /* ============================================================
-       CARREGAR DADOS
-    ============================================================ */
-    let currentEnergy = 0;
-    let currentLevel = 1;
-
-    function animateNumber(el, from, to) {
-      const diff = to - from;
-      const steps = 30;
-      let step = 0;
-      const timer = setInterval(() => {
-        step++;
-        el.textContent = Math.floor(from + diff * (step / steps));
-        if (step >= steps) { el.textContent = to; clearInterval(timer); }
-      }, 30);
+    function renderPend(ps) {
+      const d=document.getElementById('lista-pendentes'), b=document.getElementById('badge-pend');
+      if(!ps.length){b.style.display='none';d.innerHTML='<div class="empty-msg" style="color:#27ae60;">✅ Nenhuma missão aguardando!</div>';return;}
+      b.style.display='inline';b.textContent=ps.length; d.innerHTML='';
+      ps.forEach(p=>{const el=document.createElement('div');el.className='pendente-item';el.id='pend-'+p.key;el.innerHTML=`<div class="pendente-info"><div class="pendente-nome">${p.nome}</div><div class="pendente-detalhe">📖 ${p.detalhes} · ${p.qtd} min</div></div><div class="pendente-acoes"><button class="btn btn-ok">✓</button><button class="btn btn-del">✗</button></div>`;el.querySelectorAll('button')[0].onclick=()=>decidir(p.key,p.qtd,p.email,'APROVAR');el.querySelectorAll('button')[1].onclick=()=>decidir(p.key,0,p.email,'REPROVAR');d.appendChild(el);});
     }
-
-    async function loadData() {
+    function renderHist(hs) {
+      const d=document.getElementById('historico-recente');
+      if(!hs.length){d.innerHTML='<div class="empty-msg">Sem histórico ainda.</div>';return;}
+      const ic={Leitura:'📖',Forja:'⚒️',Duolingo:'🦜',Gasto:'💸'};
+      d.innerHTML=hs.map(h=>{const sc=h.status==='Pendente'?'hist-pendente':h.status==='Aprovado'?'hist-aprovado':'hist-reprovado';const sn=h.tipo==='Gasto'?'−':'+';return`<div class="hist-item"><span>${ic[h.tipo]||'•'}</span><span class="hist-nome">${h.ng}</span><span class="hist-detalhe">${h.detalhes||h.tipo}</span><span class="hist-qtd ${sc}">${sn}${h.quantidade}</span><span style="font-size:0.68rem;color:#bbb;margin-left:6px;white-space:nowrap">${fmtData(h.data)}</span></div>`;}).join('');
+    }
+    function renderSel(gs) { ['sel-duo','sel-gasto'].forEach(id=>{const s=document.getElementById(id);s.innerHTML='<option value="">Selecione o Guardião...</option>';gs.forEach(g=>s.innerHTML+=`<option value="${g.email}">${g.nome}</option>`);}); }
+    async function decidir(key,qtd,emailH,acao) {
+      const row=document.getElementById('pend-'+key); if(row)row.querySelectorAll('button').forEach(b=>b.disabled=true);
       try {
-        const userKey = sanitizeEmail(currentUserEmail);
-        const userSnap = await db.ref('usuarios/' + userKey).get();
-        if (!userSnap.exists()) {
-          oraMsg('⚠️ Guardião não encontrado no banco da Ordem.');
-          return;
+        const tRef=db.ref('transacoes/'+key), tSnap=await tRef.get(), t=tSnap.val(), em=t.email;
+        if(acao==='APROVAR'){
+          const uSnap=await db.ref('usuarios/'+san(em)).get(), u=uSnap.val();
+          await db.ref('usuarios/'+san(em)).update({saldo_energia:Number(u.saldo_energia)+Number(t.quantidade)});
+          await tRef.update({status:'Aprovado'});
+          await db.ref('notificacoes/'+san(em)).push({tipo:'leitura_aprovada',titulo:'📖 Leitura Aprovada!',mensagem:`O Mestre aprovou "${t.detalhes}"! +${t.quantidade} ⚡ creditados!`,quantidade:Number(t.quantidade),timestamp:new Date().toISOString()});
+          toast('✅ Leitura aprovada!','success');
+        } else {
+          await tRef.update({status:'Reprovado'});
+          await db.ref('notificacoes/'+san(em)).push({tipo:'leitura_reprovada',titulo:'📖 Leitura Reprovada',mensagem:`O Mestre não aprovou "${t.detalhes}" desta vez. Tente novamente!`,quantidade:0,timestamp:new Date().toISOString()});
+          toast('❌ Leitura reprovada.','error');
         }
-        const userData = userSnap.val();
-
-        // Busca transações para calcular XP e histórico
-        const transSnap = await db.ref('transacoes').get();
-        const transMap = transSnap.exists() ? transSnap.val() : {};
-        const trans = Object.values(transMap);
-        const emailLower = currentUserEmail.toLowerCase();
-
-        const xpTotal = trans
-          .filter(t => t.email === emailLower && t.status === 'Aprovado' && t.tipo === 'Leitura')
-          .reduce((sum, t) => sum + Number(t.quantidade), 0);
-
-        const myTrans = trans
-          .filter(t => t.email === emailLower)
-          .sort((a, b) => new Date(b.data) - new Date(a.data))
-          .slice(0, 6)
-          .map(t => ({ tipo: t.tipo, qtd: Math.floor(Number(t.quantidade)), status: t.status }));
-
-        const d = {
-          nome:      userData.nome,
-          energia:   Math.floor(Number(userData.saldo_energia)),
-          cristais:  Math.floor(Number(userData.saldo_cristais)),
-          avatarUrl: userData.avatar_url,
-          historico: myTrans,
-          xp: {
-            total:   xpTotal,
-            nivel:   Math.floor(xpTotal / 500) + 1,
-            atual:   xpTotal % 500,
-            proximo: 500
-          }
-        };
-
-        const prevLevel = currentLevel;
-        currentEnergy = d.energia;
-
-        // Animação de contagem nos stats
-        const eEl = document.getElementById('v-e');
-        const cEl = document.getElementById('v-c');
-        const prevE = parseInt(eEl.textContent) || 0;
-        const prevC = parseInt(cEl.textContent) || 0;
-        animateNumber(eEl, prevE, d.energia);
-        animateNumber(cEl, prevC, d.cristais);
-
-        // Pulso nos pills se mudou
-        if (d.energia !== prevE) {
-          document.getElementById('pill-energia').classList.remove('pop');
-          void document.getElementById('pill-energia').offsetWidth;
-          document.getElementById('pill-energia').classList.add('pop');
-        }
-
-        // Nível e XP
-        currentLevel = d.xp.nivel;
-        document.getElementById('xp-header').textContent = `${d.nome}  ·  Nível ${d.xp.nivel}`;
-        document.getElementById('xp-text').textContent = `${d.xp.total} / ${d.xp.proximo} min`;
-        document.getElementById('xp-fill').style.width = (d.xp.atual / 500 * 100) + '%';
-
-        // Level Up!
-        if (prevLevel > 1 && d.xp.nivel > prevLevel) {
-          const ov = document.getElementById('levelup-overlay');
-          document.getElementById('levelup-num').textContent = `Você alcançou o Nível ${d.xp.nivel}!`;
-          ov.classList.remove('show'); void ov.offsetWidth; ov.classList.add('show');
-          soundLevelUp(); screenFlash();
-          vibrate([200, 100, 200, 100, 400]);
-        }
-
-        // Avatar
-        document.getElementById('hero-img').src = d.avatarUrl;
-
-        // Histórico
-        const list = document.getElementById('hist-list');
-        if (!d.historico.length) {
-          list.innerHTML = '<div style="text-align:center; color:#888; font-size:0.8rem; margin-top:10px;">Nenhuma aventura registrada ainda...</div>';
-          return;
-        }
-        list.innerHTML = '';
-        d.historico.forEach((h, i) => {
-          const icone = h.tipo === 'Leitura' ? '📖' : h.tipo === 'Forja' ? '⚒️' : '🦜';
-          const statusClass = h.status === 'Pendente' ? 'entry-status-pendente' : 'entry-status-aprovado';
-          const div = document.createElement('div');
-          div.className = 'diary-entry';
-          div.style.animationDelay = (i * 0.05) + 's';
-          div.innerHTML = `<span>${icone} ${h.tipo} (+${h.qtd} min)</span><span class="${statusClass}">${h.status}</span>`;
-          list.appendChild(div);
-        });
-
-        // Mensagem do oráculo ao carregar
-        const msgs = [
-          'A sabedoria é o maior tesouro, Guardião.',
-          `Bem-vindo, ${d.nome}! Que sua jornada seja épica.`,
-          'Os cristais aguardam sua forja, Guardião!',
-          'Leia mais. Cresça mais. A Ordem conta com você.'
-        ];
-        oraMsg(msgs[Math.floor(Math.random() * msgs.length)]);
-      } catch(err) {
-        oraMsg('⚠️ Não consegui conectar ao servidor. Tente novamente.');
-        console.error('loadData error:', err);
-      }
+        if(row)row.remove();
+        const pd=document.getElementById('lista-pendentes');
+        if(pd&&!pd.querySelector('.pendente-item')){document.getElementById('badge-pend').style.display='none';pd.innerHTML='<div class="empty-msg" style="color:#27ae60;">✅ Nenhuma missão aguardando!</div>';}
+      } catch(e){toast('❌ '+e.message,'error');if(row)row.querySelectorAll('button').forEach(b=>b.disabled=false);}
     }
-
-    /* ============================================================
-       FORJA
-    ============================================================ */
-    let forgeAcc = 0;
-
-    function abrirForja(event) {
-      soundButtonTap();
-      if (event) addRipple(event.currentTarget, event);
-      vibrate(50);
-      document.getElementById('forge-modal').style.display = 'flex';
-      forgeAcc = 0;
-      atualizarForgeUI();
-      setForgeMsg('O calor da forja aumenta... Vamos criar cristais, Guardião!');
-    }
-
-    function fecharForja() {
-      document.getElementById('forge-modal').style.display = 'none';
-      loadData();
-    }
-
-    function addForge() {
-      if (currentEnergy >= 30) {
-        currentEnergy -= 30;
-        forgeAcc += 10;
-
-        // Animação do martelo
-        const hammer = document.getElementById('hammer-btn');
-        hammer.classList.remove('hammer-hit');
-        void hammer.offsetWidth;
-        hammer.classList.add('hammer-hit');
-        setTimeout(() => hammer.classList.remove('hammer-hit'), 260);
-
-        const rect = hammer.getBoundingClientRect();
-        const hx = rect.left + rect.width / 2;
-        const hy = rect.top + rect.height / 2;
-
-        // Faíscas + shockwave + screen shake
-        spawnSparks(hx, hy, 20);
-        spawnShockwave(hx, hy, 'rgba(255,180,0,', 100);
-
-        // Pop no display de cristais
-        const fd = document.getElementById('forge-display');
-        fd.classList.remove('crystal-pop');
-        void fd.offsetWidth;
-        fd.classList.add('crystal-pop');
-
-        spawnFloat('+10 💎', '#00D4FF', hx, hy - 30);
-        soundForgeHit();
-        screenShake(7, 300);
-        vibrate(60);
-        atualizarForgeUI();
-      } else {
-        soundError();
-        vibrate([100, 50, 100]);
-        setForgeMsg('⚡ Energia insuficiente! Leia mais livros para ganhar energia, Guardião.');
-
-        const pill = document.getElementById('pill-energia');
-        pill.style.transition = 'none';
-        let shakes = 0;
-        const shakeTimer = setInterval(() => {
-          pill.style.transform = shakes % 2 === 0 ? 'translateX(6px)' : 'translateX(-6px)';
-          shakes++;
-          if (shakes > 7) { clearInterval(shakeTimer); pill.style.transform = ''; }
-        }, 55);
-      }
-    }
-
-    function atualizarForgeUI() {
-      document.getElementById('forge-display').textContent = forgeAcc + ' 💎';
-      document.getElementById('v-e').textContent = currentEnergy;
-    }
-
-    function confirmarForja() {
-      if (forgeAcc === 0) { fecharForja(); return; }
-      setForgeMsg('As chamas da Ordem selam a forja... Aguarde!');
-      vibrate([50, 30, 50]);
-
-      (async () => {
-        try {
-          const userKey = sanitizeEmail(currentUserEmail);
-          const userRef = db.ref('usuarios/' + userKey);
-          const snap = await userRef.get();
-          const userData = snap.val();
-          const custo = (forgeAcc / 10) * 30;
-          if (Number(userData.saldo_energia) < custo) {
-            setForgeMsg('⚡ Energia insuficiente! Leia mais livros primeiro.'); return;
-          }
-          await userRef.update({
-            saldo_energia: Number(userData.saldo_energia) - custo,
-            saldo_cristais: Number(userData.saldo_cristais) + forgeAcc
-          });
-          await db.ref('transacoes').push({
-            data: new Date().toISOString(),
-            email: currentUserEmail,
-            tipo: 'Forja',
-            quantidade: forgeAcc,
-            detalhes: `Forja Épica de ${forgeAcc} cristais`,
-            status: 'Aprovado'
-          });
-          setForgeMsg(`⚒️ Forja concluída! +${forgeAcc} Cristais adquiridos!`);
-        } catch(err) {
-          setForgeMsg('❌ Erro de conexão. Tente novamente.'); return;
-        }
-
-        soundForgeEpic(); screenFlash(); screenShake(14, 600);
-        vibrate([80,40,80,40,250,60,400,80,700]);
-
-        const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-        [0, 200, 400].forEach(delay => {
-          setTimeout(() => spawnShockwave(cx, cy, 'rgba(255,200,0,', 140 + delay/3), delay);
-        });
-
-        const fwCores = ['255,215,0','255,100,0','0,212,255','255,80,130','80,255,160','255,255,100'];
-        [0,250,500,750,1000,1300,1600,1900,2200,2500,2800,3100].forEach(ms => {
-          setTimeout(() => {
-            const px = Math.random() * window.innerWidth * 0.8 + window.innerWidth * 0.1;
-            const py = Math.random() * window.innerHeight * 0.5 + 60;
-            const cor = fwCores[Math.floor(Math.random() * fwCores.length)];
-            spawnColorSparks(px, py, 24, [`rgba(${cor},`]);
-            spawnShockwave(px, py, `rgba(${cor},`, 70);
-            for (let i = 0; i < 18; i++) {
-              const angle = (Math.PI * 2 * i / 18), dist = 70 + Math.random() * 80;
-              const el = document.createElement('div');
-              el.className = 'firework-particle';
-              el.style.cssText = `left:${px}px;top:${py}px;background:rgb(${cor});
-                box-shadow:0 0 6px rgb(${cor}),0 0 14px rgb(${cor});
-                --dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist+20}px;
-                --dur:${0.65+Math.random()*0.45}s;`;
-              document.body.appendChild(el);
-              setTimeout(() => el.remove(), 1200);
-            }
-          }, ms);
-        });
-
-        spawnFloat(`+${forgeAcc} 💎`, '#FFD700', cx, cy - 50);
-        setTimeout(() => spawnFloat('⚔ ÉPICO! ⚔', '#FF8C00', cx, cy + 20), 500);
-        setTimeout(() => spawnFloat('✨ GLÓRIA! ✨', '#FFD700', cx, cy - 10), 1000);
-        setTimeout(fecharForja, 4000);
-      })();
-    }
-
-    /* ============================================================
-       MODAL DE LEITURA PERSONALIZADO
-    ============================================================ */
-    function fLeitura(event) {
-      soundButtonTap();
-      if (event) addRipple(event.currentTarget, event);
-      vibrate(40);
-      document.getElementById('reading-book').value = '';
-      document.getElementById('reading-mins').value = '';
-      document.querySelectorAll('.min-preset').forEach(p => p.classList.remove('selected'));
-      document.getElementById('reading-oracle-text').textContent =
-        'Qual tomo mágico você leu hoje, Guardião? Cada página é um passo para o próximo nível!';
-      document.getElementById('reading-modal').style.display = 'flex';
-      setTimeout(() => document.getElementById('reading-book').focus(), 100);
-    }
-
-    function fecharLeitura() {
-      document.getElementById('reading-modal').style.display = 'none';
-    }
-
-    function setMin(val) {
-      document.getElementById('reading-mins').value = val;
-      document.querySelectorAll('.min-preset').forEach(p => {
-        p.classList.toggle('selected', parseInt(p.textContent) === val || p.textContent === '1 hora' && val === 60);
-      });
-      soundTone(660, 'sine', 0.15, 0.15, 0.005);
-      vibrate(20);
-    }
-
-    function enviarLeitura() {
-      const livro = document.getElementById('reading-book').value.trim();
-      const min   = parseInt(document.getElementById('reading-mins').value);
-
-      if (!livro) {
-        document.getElementById('reading-oracle-text').textContent = '⚠️ Diga-me o nome do livro, Guardião! Não posso registrar sem saber qual você leu!';
-        soundError(); vibrate([80, 40, 80]);
-        document.getElementById('reading-book').focus();
-        return;
-      }
-      if (!min || min < 1) {
-        document.getElementById('reading-oracle-text').textContent = '⚠️ Quantos minutos você leu, Guardião? Todo minuto conta para subir de nível!';
-        soundError(); vibrate([80, 40, 80]);
-        document.getElementById('reading-mins').focus();
-        return;
-      }
-
-      document.getElementById('reading-oracle-text').textContent = `📜 Registrando ${min} minutos de "${livro}"... Aguardando aprovação do Mestre!`;
-      soundCrystalChime();
-      vibrate([60, 30, 120]);
-
-      db.ref('transacoes').push({
-        data: new Date().toISOString(),
-        email: currentUserEmail,
-        tipo: 'Leitura',
-        quantidade: min,
-        detalhes: livro,
-        status: 'Pendente'
-      }).then(() => {
-        fecharLeitura();
-        oraMsg(`📜 "${livro}" registrado! ${min} min aguardando aprovação do Mestre.`);
-        vibrate([100, 50, 200]);
-        spawnFloat('+' + min + ' ⚡', '#FF8C00', window.innerWidth / 2, window.innerHeight / 3);
-        loadData();
-      }).catch(() => {
-        document.getElementById('reading-oracle-text').textContent = '❌ Erro ao registrar. Tente novamente.';
-        soundError();
-      });
-    }
-
-    /* ============================================================
-       AVATAR DO HERÓI INTERATIVO
-    ============================================================ */
-    const MSGS_HEROI = [
-      ['⚔️ Você está crescendo cada vez mais, Guardião! Continue assim!', false],
-      ['🛡️ Seu avatar representa toda a sua força e dedicação!', false],
-      ['✨ A Ordem se orgulha de você, Guardião das Letras!', false],
-      ['📚 Cada livro lido deixa seu Guardião mais poderoso!', false],
-      ['🌟 Você é um verdadeiro Guardião da Ordem!', false],
-      ['⚡ Sua energia é lendária! Continue lendo, Guardião!', false],
-    ];
-    let msgHIdx = 0;
-    function tocarHeroi(wrap) {
-      vibrate([40, 20, 80]);
-      soundTone(392, 'sine', 0.5, 0.22, 0.01);
-      setTimeout(() => soundTone(523, 'sine', 0.45, 0.2, 0.01), 120);
-      setTimeout(() => soundTone(659, 'sine', 0.4, 0.18, 0.01), 240);
-
-      wrap.classList.remove('hero-glow');
-      void wrap.offsetWidth;
-      wrap.classList.add('hero-glow');
-      setTimeout(() => wrap.classList.remove('hero-glow'), 900);
-
-      // Aureola de estrelinhas ao redor do herói
-      const rect = wrap.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-      const emos = ['⭐','✨','🌟','💫'];
-      for (let i = 0; i < 8; i++) {
-        const angle = (Math.PI * 2 * i / 8);
-        const r = 80;
-        setTimeout(() => spawnFloat(
-          emos[i % emos.length], '#FFD700',
-          cx + Math.cos(angle) * r,
-          cy + Math.sin(angle) * r - 20
-        ), i * 60);
-      }
-      spawnColorSparks(cx, cy - 30, 20, ['rgba(255,215,0,', 'rgba(255,255,150,', 'rgba(200,200,255,']);
-
-      oraMsg(MSGS_HEROI[msgHIdx % MSGS_HEROI.length][0]);
-      msgHIdx++;
-    }
-
-    /* ============================================================
-       INICIALIZAÇÃO
-    ============================================================ */
-    /* ============================================================
-       INTERATIVIDADE DO AMBIENTE
-    ============================================================ */
-
-    // — ENERGIA —
-    const MSGS_ENERGIA = [
-      ['⚡ Energia vem da leitura, Guardião! Pegue um livro!', false],
-      ['⚡ Cada minuto lido é uma faísca de poder!', false],
-      ['⚡ Guarde sua energia para as forjas maiores!', false],
-      ['⚡ A energia da leitura nunca some, só cresce!', false],
-      ['⚡ Um Guardião sem energia é um Guardião em repouso. Leia mais!', false],
-    ];
-    let msgEIdx = 0;
-    function tocarEnergia(el) {
-      vibrate(40);
-      soundTone(330, 'sine', 0.18, 0.25, 0.005);
-      // Glow laranja
-      el.classList.remove('energia-glow');
-      void el.offsetWidth;
-      el.classList.add('energia-glow');
-      setTimeout(() => el.classList.remove('energia-glow'), 700);
-      // Partículas laranjas
-      const rect = el.getBoundingClientRect();
-      spawnColorSparks(rect.left + rect.width/2, rect.top + rect.height/2, 10, ['rgba(255,140,0,', 'rgba(255,200,80,', 'rgba(255,80,0,']);
-      // Floating
-      spawnFloat('⚡', '#FF8C00', rect.left + rect.width/2, rect.top);
-      // Mensagem
-      oraMsg(MSGS_ENERGIA[msgEIdx % MSGS_ENERGIA.length][0]);
-      msgEIdx++;
-    }
-
-    // — CRISTAIS —
-    const MSGS_CRISTAIS = [
-      ['💎 Cristais são a moeda da Ordem! Forje mais na Forja Épica!', false],
-      ['💎 Os cristais brilham para os que estudam com afinco!', false],
-      ['💎 Cada cristal é um minuto de leitura transformado em poder!', false],
-      ['💎 Guarde seus cristais com sabedoria, Guardião!', false],
-      ['💎 Com cristais você conquista tempo de tela. Continue lendo!', false],
-    ];
-    let msgCIdx = 0;
-    function tocarCristais(el) {
-      vibrate(40);
-      soundCrystalChime();
-      // Glow azul
-      el.classList.remove('cristal-glow');
-      void el.offsetWidth;
-      el.classList.add('cristal-glow');
-      setTimeout(() => el.classList.remove('cristal-glow'), 700);
-      // Partículas azuis/ciano
-      const rect = el.getBoundingClientRect();
-      spawnColorSparks(rect.left + rect.width/2, rect.top + rect.height/2, 10, ['rgba(0,212,255,', 'rgba(100,220,255,', 'rgba(0,150,255,']);
-      spawnFloat('💎', '#00D4FF', rect.left + rect.width/2, rect.top);
-      oraMsg(MSGS_CRISTAIS[msgCIdx % MSGS_CRISTAIS.length][0]);
-      msgCIdx++;
-    }
-
-    // — NÍVEL / NOME —
-    const MSGS_NIVEL = [
-      ['🌟 Cada livro lido eleva seu nível na Ordem dos Guardiões!', false],
-      ['🌟 O seu nível reflete sua dedicação, Guardião. Orgulho!', false],
-      ['🌟 500 minutos de leitura para subir de nível. Você consegue!', false],
-      ['🌟 Guardiões lendários começaram do nível 1 como você!', false],
-      ['🌟 Seu nome ecoa nos salões da Ordem. Continue sua jornada!', false],
-    ];
-    let msgNIdx = 0;
-    function tocarNivel(el) {
-      vibrate([30, 20, 60]);
-      soundTone(523, 'sine', 0.5, 0.25, 0.01);
-      setTimeout(() => soundTone(659, 'sine', 0.4, 0.2, 0.01), 100);
-      // Badge shine
-      el.classList.remove('badge-shine');
-      void el.offsetWidth;
-      el.classList.add('badge-shine');
-      setTimeout(() => el.classList.remove('badge-shine'), 750);
-      // Estrelinhas douradas pelo badge
-      const rect = el.getBoundingClientRect();
-      spawnColorSparks(rect.left + rect.width/2, rect.top + rect.height/2, 12, ['rgba(255,215,0,', 'rgba(255,255,150,', 'rgba(255,180,0,']);
-      spawnFloat('⭐', '#FFD700', rect.left + rect.width/2, rect.top - 10);
-      oraMsg(MSGS_NIVEL[msgNIdx % MSGS_NIVEL.length][0]);
-      msgNIdx++;
-    }
-
-    // — BARRA DE XP —
-    const MSGS_XP = [
-      ['📊 Cada minuto lido enche sua barra de XP! Continue!', false],
-      ['📊 Ao completar 500 minutos, você sobe de nível, Guardião!', false],
-      ['📊 Sua barra de poder cresce com cada página virada!', false],
-      ['📊 Você está no caminho certo para a glória, Guardião!', false],
-      ['📊 Registre suas leituras e veja a barra crescer!', false],
-    ];
-    let msgXIdx = 0;
-    function tocarXP(el) {
-      vibrate(30);
-      // Tom ascendente
-      soundTone(400, 'sine', 0.3, 0.2, 0.005);
-      setTimeout(() => soundTone(500, 'sine', 0.25, 0.18, 0.005), 120);
-      // Pulse na barra
-      el.classList.remove('xp-pulse');
-      void el.offsetWidth;
-      el.classList.add('xp-pulse');
-      setTimeout(() => el.classList.remove('xp-pulse'), 600);
-      // Mini partículas azuis saindo da barra
-      const rect = el.getBoundingClientRect();
-      const fillW = document.getElementById('xp-fill').offsetWidth;
-      spawnColorSparks(rect.left + fillW, rect.top + rect.height/2, 8, ['rgba(0,212,255,', 'rgba(80,180,255,', 'rgba(0,100,255,']);
-      oraMsg(MSGS_XP[msgXIdx % MSGS_XP.length][0]);
-      msgXIdx++;
-    }
-
-    // — ORÁCULO —
-    const MSGS_ORACULO = [
-      ['Ehehe! Você me tocou! Sou o Oráculo da Ordem, guardião do conhecimento!', true],
-      ['Sou feito de sabedoria ancestral e um pouquinho de magia... hehe!', true],
-      ['Cuido de todos os Guardiões com carinho. Leia muito e me deixe feliz!', true],
-      ['Psiu... entre nós: quem lê mais, sempre vence! É segredo da Ordem!', true],
-      ['Ei! Eu vi você terminar aquele livro! Que Guardião incrível!', true],
-      ['Minhas profecias nunca falham: você vai subir de nível em breve!', true],
-      ['Obrigado por cuidar de mim, Guardião. Juntos somos mais fortes!', true],
-    ];
-    let msgOIdx = 0;
-    function tocarOraculo(el) {
-      vibrate([30, 30, 80]);
-      // Som mágico especial — acorde
-      [440, 554, 659, 880].forEach((f, i) => setTimeout(() => soundTone(f, 'sine', 0.5, 0.2, 0.01), i * 60));
-      // Animação de empolgação
-      el.classList.remove('oracle-excited');
-      void el.offsetWidth;
-      el.classList.add('oracle-excited');
-      setTimeout(() => el.classList.remove('oracle-excited'), 750);
-      // Partículas douradas e coloridas ao redor do oráculo
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
-      spawnColorSparks(cx, cy, 18, ['rgba(255,215,0,', 'rgba(255,255,150,', 'rgba(200,150,255,', 'rgba(150,220,255,']);
-      // Estrelinhas flutuando
-      ['✨','⭐','🌟'].forEach((s, i) => setTimeout(() =>
-        spawnFloat(s, '#FFD700', cx + (i-1)*25, cy - 10), i * 100));
-      oraMsg(MSGS_ORACULO[msgOIdx % MSGS_ORACULO.length][0]);
-      msgOIdx++;
-    }
-
-    // Helper: spawnColorSparks com cores customizadas
-    function spawnColorSparks(x, y, count, colors) {
-      for (let i = 0; i < count; i++) {
-        const angle = (Math.PI * 2 * i / count) + (Math.random() * 0.5);
-        const speed = Math.random() * 110 + 50;
-        particles.push({
-          x, y,
-          vx: Math.cos(angle) * speed * 0.016,
-          vy: Math.sin(angle) * speed * 0.016 - 1.5,
-          size: Math.random() * 4 + 2,
-          opacity: 0.95,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          life: 1, decay: Math.random() * 0.055 + 0.035
-        });
-      }
-    }
-
-    // Helper: tom rápido genérico — mantido para compatibilidade (usa o novo motor)
-    // soundTone já está definido no motor de áudio acima
-
-    // ── Registro do Service Worker (PWA) ──
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    }
-
-
-    /* ============================================================
-       SINO + ORÁCULO — notificações do Mestre em tempo real
-    ============================================================ */
-    let listenerAtivo    = false;
-    let filaNotificacoes = [];
-
-    function iniciarListeners() {
-      if (listenerAtivo) return;
-      listenerAtivo = true;
-      const emailKey = sanitizeEmail(currentUserEmail);
-
-      // Saldo em tempo real (pula o primeiro disparo)
-      let primeiroSaldo = true;
-      db.ref('usuarios/' + emailKey).on('value', snap => {
-        if (primeiroSaldo) { primeiroSaldo = false; return; }
-        if (!snap.exists()) return;
-        const data = snap.val();
-        const newE = Math.floor(Number(data.saldo_energia));
-        const newC = Math.floor(Number(data.saldo_cristais));
-        animateNumber(document.getElementById('v-e'), currentEnergy, newE);
-        animateNumber(document.getElementById('v-c'), parseInt(document.getElementById('v-c').textContent)||0, newC);
-        currentEnergy = newE;
-        ['pill-energia','pill-cristais'].forEach(id => {
-          const el = document.getElementById(id);
-          el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-        });
-      });
-
-      // Notificações — enfileira e toca sino
-      db.ref('notificacoes/' + emailKey).on('child_added', snap => {
-        const notif = snap.val();
-        if (!notif) return;
-        filaNotificacoes.push(notif);
-        snap.ref.remove();
-        tocarSino(notif);
-      });
-    }
-
-    function tocarSino(notif) {
-      initAudio();
-      vibrate([60, 30, 60, 30, 120]);
-      [1318, 1047, 880].forEach((f, i) =>
-        setTimeout(() => soundTone(f, 'sine', 0.3, 0.22, 0.01), i * 150)
-      );
-      // Animação no sino
-      const bell = document.getElementById('bell-btn');
-      bell.classList.remove('bell-ringing');
-      void bell.offsetWidth;
-      bell.classList.add('bell-ringing');
-      setTimeout(() => bell.classList.remove('bell-ringing'), 1600);
-      // Badge
-      atualizarBadge();
-      // Partículas ao redor do sino
-      const rect = bell.getBoundingClientRect();
-      spawnColorSparks(rect.left + rect.width/2, rect.bottom + 5, 12,
-        ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
-      // Oráculo fala a mensagem imediatamente
-      if (notif) {
-        const icones = { duolingo:'🦜', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
-        oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
-        // Efeitos adicionais por tipo
-        const cx = window.innerWidth/2, cy = window.innerHeight/2;
-        if (notif.tipo === 'duolingo') {
-          soundCrystalChime();
-          setTimeout(() => {
-            spawnColorSparks(cx, cy - 80, 20, ['rgba(255,215,0,','rgba(0,212,255,','rgba(255,180,50,']);
-            spawnShockwave(cx, cy - 80, 'rgba(255,215,0,', 100);
-          }, 500);
-        } else if (notif.tipo === 'leitura_aprovada') {
-          setTimeout(() => { soundLevelUp(); screenFlash(); }, 400);
-          setTimeout(() => spawnColorSparks(cx, cy-80, 24, ['rgba(0,255,120,','rgba(255,215,0,']), 500);
-        } else if (notif.tipo === 'leitura_reprovada') {
-          setTimeout(() => soundError(), 300);
-        } else if (notif.tipo === 'gasto') {
-          [1047,784,523].forEach((f,i) => setTimeout(()=>soundTone(f,'sine',0.3,0.2,0.01), i*120+300));
-          setTimeout(() => spawnColorSparks(cx, cy-80, 15, ['rgba(0,212,255,','rgba(100,200,255,']), 500);
-        }
-      }
-    }
-
-    function verNotificacoes() {
-      if (!filaNotificacoes.length) {
-        vibrate(20);
-        oraMsg('Nenhuma nova mensagem do Mestre, Guardião! O sino toca quando houver novidades. 🔔');
-        return;
-      }
-      // Mostra todas as mensagens em sequência
-      const msgs = filaNotificacoes.map(n => {
-        const ic = { duolingo:'🦜', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
-        return `${ic[n.tipo]||'⚔️'} ${n.mensagem}`;
-      });
-      oraMsg(msgs.join(' ✦ '));
-      filaNotificacoes = [];
-      atualizarBadge();
-      vibrate([30, 20, 50]);
-      soundTone(880, 'sine', 0.15, 0.15, 0.005);
-    }
-
-    function atualizarBadge() {
-      const badge = document.getElementById('bell-badge');
-      if (filaNotificacoes.length > 0) {
-        badge.style.display = 'block';
-      } else {
-        badge.style.display = 'none';
-      }
-    }
-
-    window.onload = function() {
-      // AudioContext só após interação (política do browser)
-      document.addEventListener('touchstart', () => initAudio(), { once: true });
-      document.addEventListener('click',      () => initAudio(), { once: true });
-
-      // Verifica guardião salvo no localStorage
+    async function addDuo() {
+      const email=document.getElementById('sel-duo').value, min=parseInt(document.getElementById('val-duo').value);
+      if(!email){toast('⚠️ Selecione um Guardião!','error');return;} if(!min||min<1){toast('⚠️ Informe os minutos.','error');return;}
       try {
-        const salvo = localStorage.getItem(STORAGE_KEY);
-        if (salvo) {
-          const dados = JSON.parse(salvo);
-          if (dados && dados.email) {
-            currentUserEmail = dados.email;
-            document.getElementById('guardian-select').style.display = 'none';
-            loadData();
-            iniciarListeners();
-            return;
-          }
-        }
-      } catch(e) {}
-
-      // Nenhum guardião salvo — mostra tela de seleção
-      mostrarSelecao();
-    };
+        const snap=await db.ref('usuarios/'+san(email)).get(), u=snap.val();
+        await db.ref('usuarios/'+san(email)).update({saldo_energia:Number(u.saldo_energia)+min});
+        await db.ref('transacoes').push({data:new Date().toISOString(),email,tipo:'Duolingo',quantidade:min,detalhes:'Duolingo (Mestre)',status:'Aprovado'});
+        await db.ref('notificacoes/'+san(email)).push({tipo:'duolingo',titulo:'🦜 Duolingo Creditado!',mensagem:`O Mestre creditou +${min} minutos de Duolingo! +${min} ⚡ de Energia para você!`,quantidade:min,timestamp:new Date().toISOString()});
+        toast(`✅ +${min} min para ${u.nome}!`,'success'); document.getElementById('val-duo').value='';
+      } catch(e){toast('❌ '+e.message,'error');}
+    }
+    async function addGasto() {
+      const email=document.getElementById('sel-gasto').value, qtd=parseInt(document.getElementById('val-gasto').value);
+      if(!email){toast('⚠️ Selecione um Guardião!','error');return;} if(!qtd||qtd<1){toast('⚠️ Informe a quantidade.','error');return;}
+      try {
+        const snap=await db.ref('usuarios/'+san(email)).get(), u=snap.val(), saldo=Number(u.saldo_cristais);
+        if(saldo<qtd){toast(`⚠️ Apenas ${saldo} cristais disponíveis.`,'error');return;}
+        await db.ref('usuarios/'+san(email)).update({saldo_cristais:saldo-qtd});
+        await db.ref('transacoes').push({data:new Date().toISOString(),email,tipo:'Gasto',quantidade:qtd,detalhes:'Tempo de Tela (Mestre)',status:'Aprovado'});
+        await db.ref('notificacoes/'+san(email)).push({tipo:'gasto',titulo:'💎 Cristais Usados!',mensagem:`${qtd} cristais foram trocados por tempo de tela. Aproveite! 🎮`,quantidade:qtd,timestamp:new Date().toISOString()});
+        toast(`💎 ${qtd} cristais de ${u.nome} removidos.`,'success'); document.getElementById('val-gasto').value='';
+      } catch(e){toast('❌ '+e.message,'error');}
+    }
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
   </script>
 </body>
 </html>
