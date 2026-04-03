@@ -697,18 +697,6 @@
       </div>
     </div>
   </div>
-
-
-  <!-- =========== NOTIFICAÇÃO DO MESTRE =========== -->
-  <div id="notif-overlay">
-    <div class="notif-box">
-      <span class="notif-big-icon" id="notif-icon">⚡</span>
-      <div class="notif-from">✦ MENSAGEM DO MESTRE ✦</div>
-      <div class="notif-title" id="notif-title">Título</div>
-      <div class="notif-msg" id="notif-msg">Mensagem aqui</div>
-      <button class="notif-btn" onclick="fecharNotif()">⚔ ENTENDIDO! ⚔</button>
-    </div>
-  </div>
   <!-- Canvas de Partículas Mágicas -->
   <canvas id="particle-canvas"></canvas>
 
@@ -733,7 +721,7 @@
         <span id="v-c">0</span>
       </div>
       <div class="hud-actions">
-        <span class="hud-icon" onclick="oraMsg('O Mestre ainda não enviou novas cartas, Guardião.')">🔔</span>
+        <span class="hud-icon bell-wrap" id="bell-btn" onclick="verNotificacoes()">🔔<span class="bell-badge" id="bell-badge" style="display:none">0</span></span>
         <span class="hud-icon" onclick="oraMsg('Suas configurações estão protegidas pela Sagrada Ordem.')">⚙️</span>
         <span class="btn-trocar" onclick="trocarGuardiao()" title="Trocar Guardião">🔀</span>
       </div>
@@ -1964,16 +1952,17 @@
 
 
     /* ============================================================
-       NOTIFICAÇÕES DO MESTRE — tempo real via Firebase
+       SINO + ORÁCULO — notificações do Mestre em tempo real
     ============================================================ */
-    let listenerAtivo = false;
+    let listenerAtivo    = false;
+    let filaNotificacoes = [];
 
     function iniciarListeners() {
       if (listenerAtivo) return;
       listenerAtivo = true;
       const emailKey = sanitizeEmail(currentUserEmail);
 
-      // Listener de saldo em tempo real (pula o primeiro disparo)
+      // Saldo em tempo real (pula o primeiro disparo)
       let primeiroSaldo = true;
       db.ref('usuarios/' + emailKey).on('value', snap => {
         if (primeiroSaldo) { primeiroSaldo = false; return; }
@@ -1984,44 +1973,90 @@
         animateNumber(document.getElementById('v-e'), currentEnergy, newE);
         animateNumber(document.getElementById('v-c'), parseInt(document.getElementById('v-c').textContent)||0, newC);
         currentEnergy = newE;
-        // Pulso nos pills
         ['pill-energia','pill-cristais'].forEach(id => {
           const el = document.getElementById(id);
           el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
         });
       });
 
-      // Listener de notificações — exibe ao chegar
+      // Notificações — enfileira e toca sino
       db.ref('notificacoes/' + emailKey).on('child_added', snap => {
         const notif = snap.val();
-        if (notif) { mostrarNotificacao(notif); snap.ref.remove(); }
+        if (!notif) return;
+        filaNotificacoes.push(notif);
+        snap.ref.remove();
+        tocarSino(notif);
       });
     }
 
-    function mostrarNotificacao(notif) {
+    function tocarSino(notif) {
       initAudio();
-      const icones = { duolingo:'🦜', gasto:'💎', leitura_aprovada:'📖', leitura_reprovada:'📖' };
-      document.getElementById('notif-icon').textContent  = icones[notif.tipo] || '⚔️';
-      document.getElementById('notif-title').textContent = notif.titulo   || 'Mensagem do Mestre!';
-      document.getElementById('notif-msg').textContent   = notif.mensagem || '';
-      const overlay = document.getElementById('notif-overlay');
-      overlay.classList.add('notif-show');
-      // Efeitos
-      vibrate([80, 40, 80, 40, 200]);
-      if (notif.tipo === 'duolingo') {
-        soundCrystalChime();
-        spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 24, ['rgba(255,215,0,','rgba(0,212,255,','rgba(255,180,50,']);
-        spawnShockwave(window.innerWidth/2, window.innerHeight/3, 'rgba(255,215,0,', 120);
-      } else if (notif.tipo === 'gasto') {
-        [1047,784,523].forEach((f,i) => setTimeout(()=>soundTone(f,'sine',0.3,0.2,0.01), i*120));
-        spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 18, ['rgba(0,212,255,','rgba(100,200,255,']);
+      vibrate([60, 30, 60, 30, 120]);
+      [1318, 1047, 880].forEach((f, i) =>
+        setTimeout(() => soundTone(f, 'sine', 0.3, 0.22, 0.01), i * 150)
+      );
+      // Animação no sino
+      const bell = document.getElementById('bell-btn');
+      bell.classList.remove('bell-ringing');
+      void bell.offsetWidth;
+      bell.classList.add('bell-ringing');
+      setTimeout(() => bell.classList.remove('bell-ringing'), 1600);
+      // Badge
+      atualizarBadge();
+      // Partículas ao redor do sino
+      const rect = bell.getBoundingClientRect();
+      spawnColorSparks(rect.left + rect.width/2, rect.bottom + 5, 12,
+        ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
+      // Oráculo fala a mensagem imediatamente
+      if (notif) {
+        const icones = { duolingo:'🦜', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
+        oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
+        // Efeitos adicionais por tipo
+        const cx = window.innerWidth/2, cy = window.innerHeight/2;
+        if (notif.tipo === 'duolingo') {
+          soundCrystalChime();
+          setTimeout(() => {
+            spawnColorSparks(cx, cy - 80, 20, ['rgba(255,215,0,','rgba(0,212,255,','rgba(255,180,50,']);
+            spawnShockwave(cx, cy - 80, 'rgba(255,215,0,', 100);
+          }, 500);
+        } else if (notif.tipo === 'leitura_aprovada') {
+          setTimeout(() => { soundLevelUp(); screenFlash(); }, 400);
+          setTimeout(() => spawnColorSparks(cx, cy-80, 24, ['rgba(0,255,120,','rgba(255,215,0,']), 500);
+        } else if (notif.tipo === 'leitura_reprovada') {
+          setTimeout(() => soundError(), 300);
+        } else if (notif.tipo === 'gasto') {
+          [1047,784,523].forEach((f,i) => setTimeout(()=>soundTone(f,'sine',0.3,0.2,0.01), i*120+300));
+          setTimeout(() => spawnColorSparks(cx, cy-80, 15, ['rgba(0,212,255,','rgba(100,200,255,']), 500);
+        }
       }
     }
 
-    function fecharNotif() {
-      document.getElementById('notif-overlay').classList.remove('notif-show');
-      vibrate(30);
-      soundTone(523, 'sine', 0.12, 0.1, 0.005);
+    function verNotificacoes() {
+      if (!filaNotificacoes.length) {
+        vibrate(20);
+        oraMsg('Nenhuma nova mensagem do Mestre, Guardião! O sino toca quando houver novidades. 🔔');
+        return;
+      }
+      // Mostra todas as mensagens em sequência
+      const msgs = filaNotificacoes.map(n => {
+        const ic = { duolingo:'🦜', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
+        return `${ic[n.tipo]||'⚔️'} ${n.mensagem}`;
+      });
+      oraMsg(msgs.join(' ✦ '));
+      filaNotificacoes = [];
+      atualizarBadge();
+      vibrate([30, 20, 50]);
+      soundTone(880, 'sine', 0.15, 0.15, 0.005);
+    }
+
+    function atualizarBadge() {
+      const badge = document.getElementById('bell-badge');
+      if (filaNotificacoes.length > 0) {
+        badge.style.display = 'flex';
+        badge.textContent   = filaNotificacoes.length;
+      } else {
+        badge.style.display = 'none';
+      }
     }
 
     window.onload = function() {
