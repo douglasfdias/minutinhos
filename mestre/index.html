@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Painel do Mestre — Ordem dos Guardiões</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest-mestre.json">
   <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Mestre">
-  <link rel="apple-touch-icon" href="../icon-mestre-192.png">
+  <link rel="apple-touch-icon" href="icon-mestre-192.png">
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <style>
@@ -182,9 +182,11 @@
     <!-- DUOLINGO -->
     <div class="card">
       <h3>🦜 Creditar Duolingo</h3>
-      <p class="card-hint">Credita Energia imediatamente + notifica o Guardião.</p>
+      <p class="card-hint">Use a data correta para não quebrar o streak do Guardião!</p>
       <select id="sel-duo"><option value="">Selecione o Guardião...</option></select>
-      <input type="number" id="val-duo" placeholder="Minutos (ex: 30)" min="1">
+      <input type="number" id="val-duo" placeholder="Minutos estudados (ex: 30)" min="1">
+      <label style="font-size:0.78rem;font-weight:700;color:#555;margin-top:6px;display:block;">📅 Data da atividade</label>
+      <input type="date" id="data-duo" style="padding:11px 12px;border:1.5px solid #ddd;border-radius:9px;width:100%;font-size:1rem;margin:5px 0;background:white;outline:none;">
       <button class="btn btn-ok btn-wide" onclick="addDuo()">⚡ Creditar Energia</button>
     </div>
 
@@ -245,10 +247,21 @@
 
       <!-- ABA CONFIG -->
       <div class="tab-panel" id="tab-config">
+        <p style="font-size:0.72rem;font-weight:700;color:#e67e22;margin-bottom:8px">⚙️ ECONOMIA GERAL</p>
         <div class="config-row"><span class="config-lbl">📖 Meta leitura semanal (min)</span><input id="cfg-leitura" type="number" min="0"></div>
         <div class="config-row"><span class="config-lbl">🦜 Meta Duolingo semanal (min)</span><input id="cfg-duolingo" type="number" min="0"></div>
         <div class="config-row"><span class="config-lbl">⚡ Custo da Forja (energia)</span><input id="cfg-custo-forja" type="number" min="0"></div>
         <div class="config-row"><span class="config-lbl">💎 Ganho da Forja (cristais)</span><input id="cfg-ganho-forja" type="number" min="0"></div>
+        <p style="font-size:0.72rem;font-weight:700;color:#e67e22;margin:14px 0 8px">🔥 STREAK DE LEITURA</p>
+        <div class="config-row"><span class="config-lbl">📅 Mínimo diário (min)</span><input id="cfg-min-leitura" type="number" min="1"></div>
+        <div class="config-row"><span class="config-lbl">🎁 Bônus 3 dias (⚡)</span><input id="cfg-bonus-3d" type="number" min="0"></div>
+        <div class="config-row"><span class="config-lbl">🎁 Bônus 7 dias (⚡)</span><input id="cfg-bonus-7d" type="number" min="0"></div>
+        <div class="config-row"><span class="config-lbl">🎁 Bônus 14 dias (⚡)</span><input id="cfg-bonus-14d" type="number" min="0"></div>
+        <div class="config-row"><span class="config-lbl">🎁 Bônus 30 dias (⚡)</span><input id="cfg-bonus-30d" type="number" min="0"></div>
+        <p style="font-size:0.72rem;font-weight:700;color:#e67e22;margin:14px 0 8px">🦜 STREAK DE DUOLINGO</p>
+        <div class="config-row"><span class="config-lbl">📅 Mínimo diário (min)</span><input id="cfg-min-duo" type="number" min="1"></div>
+        <div class="config-row"><span class="config-lbl">🎯 Meta semanal (dias)</span><input id="cfg-meta-duo-dias" type="number" min="1" max="7"></div>
+        <div class="config-row"><span class="config-lbl">💎 Recompensa semanal</span><input id="cfg-recompensa-duo" type="number" min="0"></div>
         <button class="btn btn-save btn-wide" onclick="salvarConfig()">💾 Salvar Configurações</button>
       </div>
     </div>
@@ -308,7 +321,14 @@
     let _usuarios = {}, _trans = [], _config = {};
 
     /* ── CARREGAR DADOS ── */
+    function iniciarCamposData() {
+      const hoje = new Date().toISOString().substring(0,10);
+      const el = document.getElementById('data-duo');
+      if (el && !el.value) el.value = hoje;
+    }
+
     async function carregarDados() {
+      iniciarCamposData();
       const btn = document.getElementById('btn-refresh');
       btn.disabled = true; btn.textContent = '⏳ Carregando...';
       try {
@@ -426,16 +446,29 @@
 
     /* ── DUOLINGO ── */
     async function addDuo() {
-      const email=document.getElementById('sel-duo').value, min=parseInt(document.getElementById('val-duo').value);
+      const email = document.getElementById('sel-duo').value;
+      const min   = parseInt(document.getElementById('val-duo').value);
+      const dataEl = document.getElementById('data-duo');
+      const dataAferida = dataEl.value || new Date().toISOString().substring(0,10);
       if (!email) { toast('⚠️ Selecione um Guardião!','error'); return; }
       if (!min||min<1) { toast('⚠️ Informe os minutos.','error'); return; }
       try {
         const snap=await db.ref('usuarios/'+san(email)).get(), u=snap.val();
         await db.ref('usuarios/'+san(email)).update({saldo_energia:Number(u.saldo_energia)+min});
-        await db.ref('transacoes').push({data:new Date().toISOString(),email,tipo:'Duolingo',quantidade:min,detalhes:'Duolingo (Mestre)',status:'Aprovado'});
-        await db.ref('notificacoes/'+san(email)).push({tipo:'duolingo',titulo:'🦜 Duolingo Creditado!',mensagem:`O Mestre creditou +${min} min de Duolingo! +${min} ⚡ de Energia!`,quantidade:min,timestamp:new Date().toISOString()});
-        toast(`✅ +${min} min para ${u.nome}!`,'success');
+        await db.ref('transacoes').push({
+          data: new Date().toISOString(),
+          data_aferida: dataAferida + 'T12:00:00',
+          email, tipo:'Duolingo', quantidade:min,
+          detalhes:`Duolingo (Mestre) — ${dataAferida}`, status:'Aprovado'
+        });
+        await db.ref('notificacoes/'+san(email)).push({
+          tipo:'duolingo', titulo:'🦜 Duolingo Creditado!',
+          mensagem:`O Mestre creditou +${min} min de Duolingo (${dataAferida})! +${min} ⚡ de Energia!`,
+          quantidade:min, timestamp:new Date().toISOString()
+        });
+        toast(`✅ +${min} min para ${u.nome} (${dataAferida})!`,'success');
         document.getElementById('val-duo').value='';
+        dataEl.value = new Date().toISOString().substring(0,10);
       } catch(e) { toast('❌ '+e.message,'error'); }
     }
 
@@ -560,26 +593,42 @@
 
     /* ── GESTÃO: CONFIG ── */
     function renderConfig() {
-      document.getElementById('cfg-leitura').value     = _config.meta_leitura_semanal  || 140;
-      document.getElementById('cfg-duolingo').value    = _config.meta_duolingo_semanal || 140;
-      document.getElementById('cfg-custo-forja').value = _config.custo_forja           || 30;
-      document.getElementById('cfg-ganho-forja').value = _config.ganho_forja           || 10;
+      document.getElementById('cfg-leitura').value        = _config.meta_leitura_semanal   || 140;
+      document.getElementById('cfg-duolingo').value       = _config.meta_duolingo_semanal  || 140;
+      document.getElementById('cfg-custo-forja').value    = _config.custo_forja            || 30;
+      document.getElementById('cfg-ganho-forja').value    = _config.ganho_forja            || 10;
+      document.getElementById('cfg-min-leitura').value    = _config.min_leitura_diaria     || 15;
+      document.getElementById('cfg-bonus-3d').value       = _config.bonus_leitura_3d       || 20;
+      document.getElementById('cfg-bonus-7d').value       = _config.bonus_leitura_7d       || 40;
+      document.getElementById('cfg-bonus-14d').value      = _config.bonus_leitura_14d      || 60;
+      document.getElementById('cfg-bonus-30d').value      = _config.bonus_leitura_30d      || 90;
+      document.getElementById('cfg-min-duo').value        = _config.min_duolingo_diario    || 15;
+      document.getElementById('cfg-meta-duo-dias').value  = _config.meta_duo_semanal_dias  || 7;
+      document.getElementById('cfg-recompensa-duo').value = _config.recompensa_duo_semanal || 20;
     }
 
     async function salvarConfig() {
       try {
         await db.ref('config').update({
-          meta_leitura_semanal:  Number(document.getElementById('cfg-leitura').value),
-          meta_duolingo_semanal: Number(document.getElementById('cfg-duolingo').value),
-          custo_forja:           Number(document.getElementById('cfg-custo-forja').value),
-          ganho_forja:           Number(document.getElementById('cfg-ganho-forja').value)
+          meta_leitura_semanal:   Number(document.getElementById('cfg-leitura').value),
+          meta_duolingo_semanal:  Number(document.getElementById('cfg-duolingo').value),
+          custo_forja:            Number(document.getElementById('cfg-custo-forja').value),
+          ganho_forja:            Number(document.getElementById('cfg-ganho-forja').value),
+          min_leitura_diaria:     Number(document.getElementById('cfg-min-leitura').value),
+          bonus_leitura_3d:       Number(document.getElementById('cfg-bonus-3d').value),
+          bonus_leitura_7d:       Number(document.getElementById('cfg-bonus-7d').value),
+          bonus_leitura_14d:      Number(document.getElementById('cfg-bonus-14d').value),
+          bonus_leitura_30d:      Number(document.getElementById('cfg-bonus-30d').value),
+          min_duolingo_diario:    Number(document.getElementById('cfg-min-duo').value),
+          meta_duo_semanal_dias:  Number(document.getElementById('cfg-meta-duo-dias').value),
+          recompensa_duo_semanal: Number(document.getElementById('cfg-recompensa-duo').value),
         });
         toast('✅ Configurações salvas!','success');
         await carregarDados();
       } catch(e) { toast('❌ '+e.message,'error'); }
     }
 
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js').catch(()=>{});
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
   </script>
 </body>
 </html>
