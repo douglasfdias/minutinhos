@@ -684,6 +684,82 @@
       25%    { transform: rotate(-18deg) scale(1.2); }
       75%    { transform: rotate(14deg) scale(1.2); }
     }
+
+    /* ============ STREAK DE LEITURA ============ */
+    .streak-section {
+      padding: 4px 15px 0;
+      flex-shrink: 0;
+    }
+    .streak-leitura-wrap {
+      display: flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, rgba(255,80,0,0.12), rgba(255,140,0,0.08));
+      border: 1.5px solid rgba(255,120,0,0.3);
+      border-radius: 12px; padding: 7px 13px;
+      cursor: pointer; -webkit-user-select: none;
+      transition: transform 0.1s;
+    }
+    .streak-leitura-wrap:active { transform: scale(0.97); }
+    .streak-fire { font-size: 1.4rem; line-height: 1; }
+    .streak-leitura-info { flex: 1; }
+    .streak-leitura-num {
+      font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 900;
+      color: #FF8C00; text-shadow: 0 0 8px rgba(255,140,0,0.5);
+    }
+    .streak-leitura-label { font-size: 0.62rem; color: rgba(255,200,150,0.7); font-weight: 700; }
+    .streak-leitura-wrap.streak-pulse { animation: streak-pulse-anim 0.5s ease-out; }
+    @keyframes streak-pulse-anim {
+      0%  { box-shadow: 0 0 0 rgba(255,120,0,0); }
+      40% { box-shadow: 0 0 20px rgba(255,120,0,0.8); border-color: #FF8C00; }
+      100%{ box-shadow: 0 0 0 rgba(255,120,0,0); }
+    }
+
+    /* ============ STREAK DUOLINGO (CABEÇAS) ============ */
+    .streak-duo-section {
+      padding: 4px 15px 0;
+      flex-shrink: 0;
+    }
+    .streak-duo-wrap {
+      background: linear-gradient(135deg, rgba(0,180,100,0.1), rgba(0,212,100,0.06));
+      border: 1.5px solid rgba(0,200,100,0.25);
+      border-radius: 12px; padding: 7px 13px;
+    }
+    .streak-duo-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 7px;
+    }
+    .streak-duo-title {
+      font-family: 'Cinzel', serif; font-size: 0.68rem; font-weight: 700;
+      color: rgba(100,255,160,0.8); letter-spacing: 0.06em;
+    }
+    .streak-duo-record {
+      font-size: 0.62rem; color: rgba(255,200,100,0.7); font-weight: 700;
+    }
+    .streak-duo-heads {
+      display: flex; gap: 5px; justify-content: center; align-items: center;
+    }
+    .duo-head {
+      width: 36px; height: 36px; border-radius: 50%;
+      object-fit: cover; border: 2px solid rgba(255,255,255,0.1);
+      filter: grayscale(1) brightness(0.5);
+      transition: filter 0.4s ease, transform 0.3s ease, border-color 0.3s;
+    }
+    .duo-head.active {
+      filter: grayscale(0) brightness(1);
+      border-color: #FFD700;
+      transform: scale(1.08);
+    }
+    .duo-head.active-today {
+      filter: grayscale(0) brightness(1.1);
+      border-color: #00FF88;
+      transform: scale(1.12);
+      box-shadow: 0 0 10px rgba(0,255,136,0.6);
+    }
+    .streak-duo-progress {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 6px;
+    }
+    .streak-duo-days { font-size: 0.7rem; color: rgba(200,255,200,0.7); font-weight: 700; }
+    .streak-duo-reward { font-size: 0.68rem; color: rgba(0,212,255,0.8); font-weight: 700; }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -752,7 +828,34 @@
         </div>
       </div>
       <div class="hero-avatar-wrap" onclick="tocarHeroi(this)">
-        <img id="hero-img" class="hero-avatar-img" src="" style="height:210px; max-width:90%; display:block; margin:0 auto;">
+        <img id="hero-img" class="hero-avatar-img" src="" style="height:190px; max-width:90%; display:block; margin:0 auto;">
+      </div>
+    </div>
+
+    <!-- Streak de Leitura -->
+    <div class="streak-section">
+      <div class="streak-leitura-wrap" id="streak-leitura-wrap" onclick="tocarStreakLeitura()">
+        <span class="streak-fire" id="streak-fire">🔥</span>
+        <div class="streak-leitura-info">
+          <div class="streak-leitura-num" id="streak-leitura-num">0 dias</div>
+          <div class="streak-leitura-label" id="streak-leitura-label">Leia hoje para manter sua sequência!</div>
+        </div>
+        <span id="streak-leitura-record" style="font-size:0.62rem;color:rgba(255,200,100,0.6);font-weight:700;text-align:right;"></span>
+      </div>
+    </div>
+
+    <!-- Streak Duolingo -->
+    <div class="streak-duo-section">
+      <div class="streak-duo-wrap">
+        <div class="streak-duo-top">
+          <span class="streak-duo-title">🦜 ORÁCULO DO SABER</span>
+          <span class="streak-duo-record" id="duo-record">Recorde: 0 dias</span>
+        </div>
+        <div class="streak-duo-heads" id="duo-heads"></div>
+        <div class="streak-duo-progress">
+          <span class="streak-duo-days" id="duo-days-label">0 / 7 dias esta semana</span>
+          <span class="streak-duo-reward" id="duo-reward-label">🎯 Complete para +20 💎</span>
+        </div>
       </div>
     </div>
 
@@ -1531,14 +1634,49 @@
           list.appendChild(div);
         });
 
-        // Mensagem do oráculo ao carregar
-        const msgs = [
-          'A sabedoria é o maior tesouro, Guardião.',
-          `Bem-vindo, ${d.nome}! Que sua jornada seja épica.`,
-          'Os cristais aguardam sua forja, Guardião!',
-          'Leia mais. Cresça mais. A Ordem conta com você.'
-        ];
-        oraMsg(msgs[Math.floor(Math.random() * msgs.length)]);
+        // ── Streak config do Firebase ──
+        const cfgSnap = await db.ref('config').get();
+        const cfg = cfgSnap.exists() ? cfgSnap.val() : {};
+        if (cfg.min_leitura_diaria)     streakConfig.min_leitura_diaria     = Number(cfg.min_leitura_diaria);
+        if (cfg.min_duolingo_diario)    streakConfig.min_duolingo_diario    = Number(cfg.min_duolingo_diario);
+        if (cfg.meta_duo_semanal_dias)  streakConfig.meta_duo_semanal_dias  = Number(cfg.meta_duo_semanal_dias);
+        if (cfg.recompensa_duo_semanal) streakConfig.recompensa_duo_semanal = Number(cfg.recompensa_duo_semanal);
+        if (cfg.bonus_leitura_3d)       streakConfig.bonus_leitura_3d       = Number(cfg.bonus_leitura_3d);
+        if (cfg.bonus_leitura_7d)       streakConfig.bonus_leitura_7d       = Number(cfg.bonus_leitura_7d);
+        if (cfg.bonus_leitura_14d)      streakConfig.bonus_leitura_14d      = Number(cfg.bonus_leitura_14d);
+        if (cfg.bonus_leitura_30d)      streakConfig.bonus_leitura_30d      = Number(cfg.bonus_leitura_30d);
+
+        // ── Calcular streaks ──
+        const allTrans = Object.values(transMap);
+        const streakLeitura = calcStreakLeitura(allTrans, emailLower, streakConfig.min_leitura_diaria);
+        const duoData       = calcStreakDuo(allTrans, emailLower, streakConfig.min_duolingo_diario);
+
+        // ── Renderizar streaks ──
+        atualizarStreakUI(streakLeitura, duoData, streakConfig, d.nome);
+
+        // ── Verificar marcos e recompensas ──
+        await verificarMarcosLeitura(streakLeitura, d.nome);
+        await verificarMetaDuo(duoData.diasBatidos, streakConfig.meta_duo_semanal_dias, d.nome);
+
+        // ── Oráculo contextual ──
+        let msgOra;
+        if (streakLeitura >= 7) {
+          msgOra = `🔥 ${streakLeitura} dias seguidos! Você é incrível, ${d.nome}!`;
+        } else if (streakLeitura > 0) {
+          const faltam = (streakLeitura < 3 ? 3 : streakLeitura < 7 ? 7 : 14) - streakLeitura;
+          msgOra = `🔥 ${streakLeitura} dia${streakLeitura>1?'s':''} de sequência! Faltam ${faltam} para o próximo marco!`;
+        } else if (duoData.diasBatidos > 0) {
+          msgOra = `🦜 ${duoData.diasBatidos} dia${duoData.diasBatidos>1?'s':''} de Duolingo esta semana! Continue assim!`;
+        } else {
+          const msgs = [
+            `Bem-vindo, ${d.nome}! Que sua jornada seja épica.`,
+            'A sabedoria é o maior tesouro, Guardião.',
+            'Leia mais. Cresça mais. A Ordem conta com você.'
+          ];
+          msgOra = msgs[Math.floor(Math.random() * msgs.length)];
+        }
+        oraMsg(msgOra);
+
       } catch(err) {
         oraMsg('⚠️ Não consegui conectar ao servidor. Tente novamente.');
         console.error('loadData error:', err);
@@ -1959,6 +2097,285 @@
 
     // Helper: tom rápido genérico — mantido para compatibilidade (usa o novo motor)
     // soundTone já está definido no motor de áudio acima
+
+
+    /* ============================================================
+       STREAK — Cálculo e renderização
+    ============================================================ */
+
+    // Configuração padrão (sobrescrita pelo Firebase config)
+    let streakConfig = {
+      min_leitura_diaria:     15,
+      min_duolingo_diario:    15,
+      meta_duo_semanal_dias:  7,
+      recompensa_duo_semanal: 20,   // cristais
+      bonus_leitura_3d:  20,
+      bonus_leitura_7d:  40,
+      bonus_leitura_14d: 60,
+      bonus_leitura_30d: 90
+    };
+
+    // Normaliza data para string YYYY-MM-DD no fuso local
+    function toLocalDateStr(dateVal) {
+      const d = dateVal ? new Date(dateVal) : new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const day = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+
+    // Início da semana atual (segunda-feira)
+    function getInicioSemana() {
+      const hoje = new Date();
+      const dow  = hoje.getDay(); // 0=dom,1=seg,...,6=sab
+      const diff = dow === 0 ? -6 : 1 - dow; // volta até segunda
+      const seg  = new Date(hoje);
+      seg.setDate(hoje.getDate() + diff);
+      seg.setHours(0,0,0,0);
+      return seg;
+    }
+
+    // Calcula streak contínuo de leitura (por data de REGISTRO)
+    function calcStreakLeitura(trans, email, minDiario) {
+      const dias = new Set(
+        trans.filter(t =>
+          t.email === email &&
+          (t.status === 'Aprovado' || t.status === 'Pendente') &&
+          t.tipo === 'Leitura' &&
+          Number(t.quantidade) >= minDiario
+        ).map(t => toLocalDateStr(t.data_registro || t.data))
+      );
+      let streak = 0;
+      const hoje = new Date();
+      for (let i = 0; i < 365; i++) {
+        const d = new Date(hoje);
+        d.setDate(hoje.getDate() - i);
+        const str = toLocalDateStr(d);
+        if (dias.has(str)) {
+          streak++;
+        } else if (i === 0) {
+          // hoje ainda pode não ter registrado — verifica ontem
+          continue;
+        } else {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    // Calcula dias de Duolingo desta semana e recorde contínuo
+    function calcStreakDuo(trans, email, minDiario) {
+      const inicioSemana = getInicioSemana();
+
+      // Agrupa minutos de Duolingo por data (usa data_aferida se existir)
+      const minPorDia = {};
+      trans.filter(t => t.email === email && t.tipo === 'Duolingo' && t.status === 'Aprovado')
+        .forEach(t => {
+          const dateStr = toLocalDateStr(t.data_aferida || t.data);
+          minPorDia[dateStr] = (minPorDia[dateStr] || 0) + Number(t.quantidade);
+        });
+
+      // Dias desta semana que bateram o mínimo
+      const diasSemana = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(inicioSemana);
+        d.setDate(inicioSemana.getDate() + i);
+        const str = toLocalDateStr(d);
+        diasSemana.push({ dateStr: str, bateu: (minPorDia[str] || 0) >= minDiario });
+      }
+      const diasBatidos = diasSemana.filter(d => d.bateu).length;
+
+      // Recorde contínuo
+      const diasComMeta = new Set(Object.keys(minPorDia).filter(k => minPorDia[k] >= minDiario));
+      let record = 0, current = 0;
+      const hoje = new Date();
+      for (let i = 0; i < 365; i++) {
+        const d = new Date(hoje); d.setDate(hoje.getDate() - i);
+        const str = toLocalDateStr(d);
+        if (diasComMeta.has(str)) {
+          current++;
+          record = Math.max(record, current);
+        } else if (i > 0) {
+          current = 0;
+        }
+      }
+
+      return { diasSemana, diasBatidos, record };
+    }
+
+    // Renderiza as cabeças do Oráculo
+    function renderDuoHeads(diasSemana, metaDias) {
+      const container = document.getElementById('duo-heads');
+      container.innerHTML = '';
+      const hoje = toLocalDateStr();
+      diasSemana.slice(0, metaDias).forEach((dia, i) => {
+        const img = document.createElement('img');
+        img.className = 'duo-head';
+        if (dia.bateu) {
+          img.src = 'https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png';
+          img.className = 'duo-head ' + (dia.dateStr === hoje ? 'active-today' : 'active');
+        } else {
+          img.src = 'https://i.ibb.co/dJswj4h4/duolingo-oraculo-head-sad-1.png';
+        }
+        img.style.animationDelay = (i * 0.06) + 's';
+        container.appendChild(img);
+      });
+    }
+
+    // Marcos já recebidos (evita dar recompensa dupla)
+    let marcosLeituraRecebidos = new Set();
+
+    async function verificarMarcosLeitura(streak, nome) {
+      if (!currentUserEmail || streak === 0) return;
+      const marcos = [
+        { dias: 3,  bonus: streakConfig.bonus_leitura_3d  },
+        { dias: 7,  bonus: streakConfig.bonus_leitura_7d  },
+        { dias: 14, bonus: streakConfig.bonus_leitura_14d },
+        { dias: 30, bonus: streakConfig.bonus_leitura_30d },
+      ];
+      for (const marco of marcos) {
+        if (streak >= marco.dias && !marcosLeituraRecebidos.has(marco.dias)) {
+          marcosLeituraRecebidos.add(marco.dias);
+          // Credita energia
+          const userKey = sanitizeEmail(currentUserEmail);
+          const snap    = await db.ref('usuarios/' + userKey).get();
+          const u       = snap.val();
+          await db.ref('usuarios/' + userKey).update({
+            saldo_energia: Number(u.saldo_energia) + marco.bonus
+          });
+          await db.ref('transacoes').push({
+            data: new Date().toISOString(),
+            email: currentUserEmail,
+            tipo: 'Bonus',
+            quantidade: marco.bonus,
+            detalhes: `🔥 Streak de leitura: ${marco.dias} dias!`,
+            status: 'Aprovado'
+          });
+          // Celebração
+          celebrarMarcoLeitura(marco.dias, marco.bonus, nome);
+          break; // um marco por vez
+        }
+      }
+    }
+
+    function celebrarMarcoLeitura(dias, bonus, nome) {
+      initAudio();
+      soundLevelUp();
+      screenFlash();
+      vibrate([200,100,200,100,400]);
+      const cx = window.innerWidth/2, cy = window.innerHeight/2;
+      spawnColorSparks(cx, cy-80, 30, ['rgba(255,120,0,','rgba(255,200,0,','rgba(255,255,150,']);
+      spawnShockwave(cx, cy-80, 'rgba(255,120,0,', 140);
+      spawnFloat(`🔥 +${bonus}⚡`, '#FF8C00', cx, cy - 100);
+      setTimeout(() => oraMsg(`🔥 INCRÍVEL, ${nome}! ${dias} dias seguidos de leitura! +${bonus} ⚡ de bônus!`), 600);
+    }
+
+    // Verifica meta semanal do Duolingo
+    let metaDuoSemanaRecebida = false;
+
+    async function verificarMetaDuo(diasBatidos, meta, nome) {
+      if (!currentUserEmail) return;
+      if (diasBatidos >= meta && !metaDuoSemanaRecebida) {
+        metaDuoSemanaRecebida = true;
+        const recompensa = streakConfig.recompensa_duo_semanal;
+        const userKey    = sanitizeEmail(currentUserEmail);
+        const snap       = await db.ref('usuarios/' + userKey).get();
+        const u          = snap.val();
+        await db.ref('usuarios/' + userKey).update({
+          saldo_cristais: Number(u.saldo_cristais) + recompensa
+        });
+        await db.ref('transacoes').push({
+          data: new Date().toISOString(),
+          email: currentUserEmail,
+          tipo: 'Bonus',
+          quantidade: recompensa,
+          detalhes: `🦜 Meta semanal Duolingo: ${meta} dias!`,
+          status: 'Aprovado'
+        });
+        celebrarMetaDuo(meta, recompensa, nome);
+      }
+    }
+
+    function celebrarMetaDuo(meta, recompensa, nome) {
+      initAudio();
+      soundForgeEpic();
+      screenFlash();
+      vibrate([80,40,80,40,250,60,400,80,700]);
+      const cx = window.innerWidth/2, cy = window.innerHeight/2;
+      const cores = ['rgba(0,255,150,','rgba(0,212,255,','rgba(255,215,0,'];
+      [0,300,600].forEach(delay => setTimeout(() => {
+        spawnColorSparks(cx, cy-60, 20, cores);
+        spawnShockwave(cx, cy-60, 'rgba(0,255,150,', 120);
+      }, delay));
+      spawnFloat(`+${recompensa} 💎`, '#00D4FF', cx, cy - 100);
+      setTimeout(() => oraMsg(`🦜 ${nome}! Completou ${meta} dias de Duolingo esta semana! +${recompensa} 💎 de cristais!`), 800);
+      // Recarrega saldos
+      setTimeout(() => loadData(), 1500);
+    }
+
+    // Toque no streak de leitura
+    function tocarStreakLeitura() {
+      vibrate(30);
+      soundTone(440, 'sine', 0.2, 0.18, 0.005);
+      const el = document.getElementById('streak-leitura-wrap');
+      el.classList.remove('streak-pulse'); void el.offsetWidth; el.classList.add('streak-pulse');
+      setTimeout(() => el.classList.remove('streak-pulse'), 600);
+      const streak = parseInt(document.getElementById('streak-leitura-num').textContent) || 0;
+      if (streak === 0) {
+        oraMsg('🔥 Registre uma leitura hoje para iniciar sua sequência, Guardião!');
+      } else {
+        const msgs = [
+          `🔥 ${streak} dias seguidos! Continue assim, Guardião!`,
+          `🔥 Sua chama não se apaga! ${streak} dias de sequência!`,
+          `🔥 Lendário! ${streak} dias lendo sem parar!`
+        ];
+        oraMsg(msgs[streak % msgs.length]);
+      }
+      const rect = el.getBoundingClientRect();
+      spawnColorSparks(rect.left + rect.width/2, rect.top + rect.height/2, 12,
+        ['rgba(255,120,0,','rgba(255,200,50,','rgba(255,255,100,']);
+    }
+
+    // Atualiza UI do streak
+    function atualizarStreakUI(streakLeitura, duoData, config, nome) {
+      const meta = config.meta_duo_semanal_dias || 7;
+
+      // ── Streak de leitura ──
+      const fireEl  = document.getElementById('streak-fire');
+      const numEl   = document.getElementById('streak-leitura-num');
+      const lblEl   = document.getElementById('streak-leitura-label');
+      const recEl   = document.getElementById('streak-leitura-record');
+
+      numEl.textContent = streakLeitura + (streakLeitura === 1 ? ' dia' : ' dias');
+      fireEl.textContent = streakLeitura >= 30 ? '🌟' : streakLeitura >= 7 ? '🔥' : streakLeitura > 0 ? '🔥' : '💤';
+
+      if (streakLeitura === 0) {
+        lblEl.textContent = 'Leia hoje para iniciar sua sequência!';
+        lblEl.style.color = 'rgba(255,150,100,0.7)';
+      } else {
+        const proxMarco = [3,7,14,30].find(m => m > streakLeitura) || null;
+        if (proxMarco) {
+          const faltam = proxMarco - streakLeitura;
+          lblEl.textContent = `Faltam ${faltam} dia${faltam>1?'s':''} para o marco de ${proxMarco} dias!`;
+        } else {
+          lblEl.textContent = `${streakLeitura} dias! Você é uma lenda, Guardião!`;
+        }
+        lblEl.style.color = 'rgba(255,200,150,0.8)';
+      }
+      // Recorde (por enquanto igual ao streak atual — futuro: guardar no Firebase)
+      if (streakLeitura > 0) recEl.textContent = `🏆 Recorde: ${streakLeitura}`;
+
+      // ── Duolingo ──
+      renderDuoHeads(duoData.diasSemana, meta);
+      document.getElementById('duo-record').textContent = `🏆 Recorde: ${duoData.record} dias`;
+      document.getElementById('duo-days-label').textContent = `${duoData.diasBatidos} / ${meta} dias esta semana`;
+      const recomp = config.recompensa_duo_semanal || 20;
+      if (duoData.diasBatidos >= meta) {
+        document.getElementById('duo-reward-label').textContent = '✅ Meta semanal concluída!';
+      } else {
+        document.getElementById('duo-reward-label').textContent = `🎯 Complete para +${recomp} 💎`;
+      }
+    }
 
     // ── Registro do Service Worker (PWA) ──
     if ('serviceWorker' in navigator) {
