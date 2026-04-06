@@ -3,7 +3,7 @@
 // v3 — start_url corrigido para /minutinhos/
 // ================================================================
 
-const CACHE_NAME = 'minutinhos-v7';
+const CACHE_NAME = 'minutinhos-v8';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
@@ -25,7 +25,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
-  self.skipWaiting();
+  // Não ativa automaticamente — espera o app chamar skipWaiting via mensagem
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
       Promise.allSettled(ASSETS_TO_CACHE.map(url => cache.add(url).catch(() => {})))
@@ -64,4 +64,11 @@ self.addEventListener('fetch', event => {
       });
     })
   );
+});
+
+// Recebe mensagem do app para ativar nova versão
+self.addEventListener('message', event => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
