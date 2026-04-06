@@ -760,6 +760,32 @@
     }
     .streak-duo-days { font-size: 0.7rem; color: rgba(200,255,200,0.7); font-weight: 700; }
     .streak-duo-reward { font-size: 0.68rem; color: rgba(0,212,255,0.8); font-weight: 700; }
+
+    /* ============ BANNER DE ATUALIZAÇÃO ============ */
+    #update-banner {
+      display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      background: linear-gradient(135deg, #1565C0, #1976D2);
+      color: white; padding: 10px 16px;
+      display: none; align-items: center; justify-content: space-between; gap: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      animation: banner-slide-down 0.4s ease-out;
+    }
+    @keyframes banner-slide-down {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    #update-banner.show { display: flex; }
+    .update-banner-txt { font-size: 0.82rem; font-weight: 700; flex: 1; }
+    .update-banner-btn {
+      background: white; color: #1565C0; border: none; border-radius: 8px;
+      padding: 6px 14px; font-weight: 800; font-size: 0.8rem; cursor: pointer;
+      white-space: nowrap; transition: transform 0.1s;
+    }
+    .update-banner-btn:active { transform: scale(0.95); }
+    .update-banner-dismiss {
+      background: none; border: none; color: rgba(255,255,255,0.7);
+      font-size: 1.1rem; cursor: pointer; padding: 2px 4px; flex-shrink: 0;
+    }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -768,6 +794,13 @@
 <body>
 
   <!-- =========== BOAS-VINDAS FLASH =========== -->
+  <!-- ── BANNER DE ATUALIZAÇÃO ── -->
+  <div id="update-banner">
+    <span class="update-banner-txt">✨ Nova versão disponível!</span>
+    <button class="update-banner-btn" onclick="aplicarAtualizacao()">Atualizar</button>
+    <button class="update-banner-dismiss" onclick="dispensarBanner()">✕</button>
+  </div>
+
   <div id="welcome-flash"><div class="welcome-text" id="welcome-text">⚔ Bem-vindo! ⚔</div></div>
 
   <!-- =========== SELEÇÃO DE GUARDIÃO =========== -->
@@ -2377,9 +2410,47 @@
       }
     }
 
-    // ── Registro do Service Worker (PWA) ──
+    // ── Registro do Service Worker (PWA) com detecção de atualização ──
+    let _swRegistration = null;
+
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      navigator.serviceWorker.register('./sw.js').then(reg => {
+        _swRegistration = reg;
+
+        // Verifica se já tem um SW esperando ao abrir
+        if (reg.waiting) mostrarBannerUpdate();
+
+        // Detecta nova versão instalando
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              mostrarBannerUpdate();
+            }
+          });
+        });
+      }).catch(() => {});
+
+      // Quando o SW assumir controle, recarrega a página
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
+    }
+
+    function mostrarBannerUpdate() {
+      document.getElementById('update-banner').classList.add('show');
+      vibrate([30, 20, 30]);
+    }
+
+    function aplicarAtualizacao() {
+      if (_swRegistration && _swRegistration.waiting) {
+        _swRegistration.waiting.postMessage('SKIP_WAITING');
+      }
+    }
+
+    function dispensarBanner() {
+      document.getElementById('update-banner').classList.remove('show');
     }
 
 
