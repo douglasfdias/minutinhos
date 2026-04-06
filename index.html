@@ -29,6 +29,15 @@
       color: white; overflow: hidden; height: 100vh; height: 100dvh; position: relative;
     }
 
+
+    /* ══ ÁREA ROLÁVEL CENTRAL ══ */
+    .scroll-area {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    .scroll-area::-webkit-scrollbar { display: none; }
+    .scroll-area { scrollbar-width: none; }
+
     /* ============ CANVAS DE PARTÍCULAS ============ */
     #particle-canvas {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -37,7 +46,7 @@
 
     /* ============ CONTAINER PRINCIPAL ============ */
     .app-container {
-      display: flex; flex-direction: column; height: 100vh; height: 100dvh; position: relative; z-index: 1;
+      display: flex; flex-direction: column; height: 100vh; height: 100dvh; position: relative; z-index: 1; overflow: hidden;
     }
 
     /* ============ HUD SUPERIOR ============ */
@@ -366,8 +375,8 @@
 
     /* ============ DIÁRIO ============ */
     .diary-section {
-      flex: 1; overflow: hidden; display: flex; flex-direction: column;
-      padding: 6px 12px 8px;
+      overflow: hidden; display: flex; flex-direction: column;
+      padding: 6px 12px 8px; min-height: 100px;
     }
     .diary-frame {
       background: linear-gradient(135deg, rgba(253,245,230,0.93), rgba(240,220,180,0.88));
@@ -881,6 +890,31 @@
       border-radius: 12px; color: var(--gold-light); font-family: 'Cinzel', serif;
       font-weight: 700; font-size: 0.88rem; cursor: pointer; -webkit-user-select: none; }
     .ranking-close:active { background: rgba(255,215,0,0.2); }
+    /* ══ RANKING NAVEGAÇÃO 2 NÍVEIS ══ */
+    .rank-nav-1 { display: flex; gap: 8px; margin-bottom: 8px; }
+    .rank-tab-1 {
+      flex: 1; padding: 9px 4px; border-radius: 10px;
+      border: 1.5px solid rgba(255,215,0,0.2);
+      background: rgba(255,255,255,0.04); color: rgba(255,220,150,0.6);
+      font-family: 'Cinzel', serif; font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; -webkit-user-select: none;
+    }
+    .rank-tab-1.active {
+      background: rgba(255,215,0,0.15); border-color: var(--gold-dark);
+      color: var(--gold);
+    }
+    .rank-nav-2 { display: flex; gap: 6px; margin-bottom: 14px; }
+    .rank-tab-2 {
+      flex: 1; padding: 6px 4px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent; color: rgba(255,255,255,0.35);
+      font-size: 0.75rem; font-weight: 700; cursor: pointer;
+      transition: all 0.2s; -webkit-user-select: none;
+    }
+    .rank-tab-2.active {
+      background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3);
+      color: white;
+    }
 
     /* ══ META SEMANAL ══ */
     .meta-section { padding: 2px 15px 0; flex-shrink: 0; }
@@ -986,8 +1020,20 @@
   <!-- ══ MODAL RANKING ══ -->
   <div id="ranking-modal">
     <div class="ranking-box">
-      <div class="ranking-title">⚔ Ranking Semanal ⚔</div>
+      <div class="ranking-title" id="ranking-titulo">⚔ Duelo dos Guardiões ⚔</div>
       <div class="ranking-week" id="ranking-semana"></div>
+
+      <!-- Nível 1: Leitura / Duolingo -->
+      <div class="rank-nav-1">
+        <button class="rank-tab-1 active" id="rn1-leitura" onclick="rankNav1('leitura')">📖 Leitura</button>
+        <button class="rank-tab-1" id="rn1-duolingo" onclick="rankNav1('duolingo')">🦉 Duolingo</button>
+      </div>
+      <!-- Nível 2: Semanal / Geral -->
+      <div class="rank-nav-2">
+        <button class="rank-tab-2 active" id="rn2-semanal" onclick="rankNav2('semanal')">Semanal</button>
+        <button class="rank-tab-2" id="rn2-geral" onclick="rankNav2('geral')">Geral</button>
+      </div>
+
       <div id="ranking-lista"></div>
       <button class="ranking-close" onclick="fecharRanking()">⚔ Fechar</button>
     </div>
@@ -1024,6 +1070,9 @@
       </div>
     </div>
 
+    <!-- Área rolável central -->
+    <div class="scroll-area">
+
     <!-- Herói -->
     <div class="hero-section">
       <div id="xp-header" class="hero-name-badge" onclick="tocarNivel(this)">Herói · Nível 1</div>
@@ -1054,7 +1103,7 @@
     <div class="streak-duo-section">
       <div class="streak-duo-wrap">
         <div class="streak-duo-top">
-          <span class="streak-duo-title">🦜 ORÁCULO DO SABER</span>
+          <span class="streak-duo-title">🦉 ORÁCULO DO SABER</span>
           <span class="streak-duo-record" id="duo-record">Recorde: 0 dias</span>
         </div>
         <div class="streak-duo-heads" id="duo-heads"></div>
@@ -1105,6 +1154,8 @@
         <div id="hist-list" style="overflow-y:auto;"></div>
       </div>
     </div>
+
+    </div><!-- /scroll-area -->
 
     <!-- Footer -->
     <div class="footer-menu">
@@ -1841,7 +1892,7 @@
         }
         list.innerHTML = '';
         d.historico.forEach((h, i) => {
-          const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦜', Gasto:'💸', Bonus:'🎁' };
+          const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦉', Gasto:'💸', Bonus:'🎁' };
           const icone = icones[h.tipo] || '✦';
           const statusClass = h.status === 'Pendente' ? 'entry-status-pendente'
                             : h.status === 'Reprovado' ? 'entry-status-pendente' : 'entry-status-aprovado';
@@ -1898,7 +1949,7 @@
           const faltam = (streakLeitura < 3 ? 3 : streakLeitura < 7 ? 7 : 14) - streakLeitura;
           msgOra = `🔥 ${streakLeitura} dia${streakLeitura>1?'s':''} de sequência! Faltam ${faltam} para o próximo marco!`;
         } else if (duoData.diasBatidos > 0) {
-          msgOra = `🦜 ${duoData.diasBatidos} dia${duoData.diasBatidos>1?'s':''} de Duolingo esta semana! Continue assim!`;
+          msgOra = `🦉 ${duoData.diasBatidos} dia${duoData.diasBatidos>1?'s':''} de Duolingo esta semana! Continue assim!`;
         } else {
           const msgs = [
             `Bem-vindo, ${d.nome}! Que sua jornada seja épica.`,
@@ -2523,7 +2574,7 @@
           email: currentUserEmail,
           tipo: 'Bonus',
           quantidade: recompensa,
-          detalhes: `🦜 Meta semanal Duolingo: ${meta} dias!`,
+          detalhes: `🦉 Meta semanal Duolingo: ${meta} dias!`,
           status: 'Aprovado'
         });
         celebrarMetaDuo(meta, recompensa, nome);
@@ -2542,7 +2593,7 @@
         spawnShockwave(cx, cy-60, 'rgba(0,255,150,', 120);
       }, delay));
       spawnFloat(`+${recompensa} 💎`, '#00D4FF', cx, cy - 100);
-      setTimeout(() => oraMsg(`🦜 ${nome}! Completou ${meta} dias de Duolingo esta semana! +${recompensa} 💎 de cristais!`), 800);
+      setTimeout(() => oraMsg(`🦉 ${nome}! Completou ${meta} dias de Duolingo esta semana! +${recompensa} 💎 de cristais!`), 800);
       // Recarrega saldos
       setTimeout(() => loadData(), 1500);
     }
@@ -2710,17 +2761,27 @@
     }
 
     /* ══════════════════════════════════════════════════════
-       RANKING SEMANAL
+       RANKING — 4 modos (leitura/duolingo × semanal/geral)
     ══════════════════════════════════════════════════════ */
-    let _rankingData = [];
+    let _rankTema   = 'leitura';  // 'leitura' | 'duolingo'
+    let _rankPeriodo = 'semanal'; // 'semanal' | 'geral'
+    let _rankUsuarios = {};
+    let _rankTrans    = [];
+
+    const RANK_TITULOS = {
+      leitura_semanal:  '⚔ Duelo dos Guardiões ⚔',
+      leitura_geral:    '📜 Crônicas da Ordem 📜',
+      duolingo_semanal: '🦉 Torneio das Línguas 🦉',
+      duolingo_geral:   '🦉 Lendas da Língua 🦉',
+    };
 
     async function abrirRanking() {
       initAudio();
       vibrate([40, 20, 80]);
       soundCrystalChime();
       document.getElementById('ranking-modal').classList.add('open');
-      if (_rankingData.length === 0) await carregarRanking();
-      else renderizarRanking(_rankingData);
+      await carregarDadosRanking();
+      renderizarRanking();
     }
 
     function fecharRanking() {
@@ -2729,62 +2790,91 @@
       document.getElementById('ranking-modal').classList.remove('open');
     }
 
-    async function carregarRanking() {
-      try {
-        const hoje = new Date();
-        const iS   = new Date(hoje);
-        iS.setDate(hoje.getDate() - hoje.getDay() + (hoje.getDay() === 0 ? -6 : 1));
-        iS.setHours(0,0,0,0);
+    function rankNav1(tema) {
+      _rankTema = tema;
+      document.getElementById('rn1-leitura').classList.toggle('active', tema === 'leitura');
+      document.getElementById('rn1-duolingo').classList.toggle('active', tema === 'duolingo');
+      vibrate(20); soundTone(550, 'sine', 0.1, 0.1, 0.005);
+      renderizarRanking();
+    }
 
+    function rankNav2(periodo) {
+      _rankPeriodo = periodo;
+      document.getElementById('rn2-semanal').classList.toggle('active', periodo === 'semanal');
+      document.getElementById('rn2-geral').classList.toggle('active', periodo === 'geral');
+      vibrate(20); soundTone(440, 'sine', 0.1, 0.1, 0.005);
+      renderizarRanking();
+    }
+
+    async function carregarDadosRanking() {
+      try {
         const [uSnap, tSnap] = await Promise.all([
           db.ref('usuarios').get(),
           db.ref('transacoes').get()
         ]);
-        const usuarios = uSnap.exists() ? uSnap.val() : {};
-        const trans    = tSnap.exists() ? Object.values(tSnap.val()) : [];
-
-        const ranking = Object.values(usuarios)
-          .filter(u => u.email && !u.is_mestre)
-          .map(u => {
-            const mins = trans
-              .filter(t => t.email === u.email && t.status === 'Aprovado' &&
-                           t.tipo === 'Leitura' && new Date(t.data_registro || t.data) >= iS)
-              .reduce((s, t) => s + Number(t.quantidade), 0);
-            return { nome: u.nome, email: u.email, avatarUrl: u.avatar_url, mins };
-          })
-          .sort((a, b) => b.mins - a.mins);
-
-        _rankingData = ranking;
-        renderizarRanking(ranking);
+        _rankUsuarios = uSnap.exists() ? uSnap.val() : {};
+        _rankTrans    = tSnap.exists() ? Object.values(tSnap.val()) : [];
       } catch(e) {
         document.getElementById('ranking-lista').innerHTML =
-          '<div style="text-align:center;color:#888;padding:20px">Não foi possível carregar o ranking.</div>';
+          '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:20px">Não foi possível carregar o ranking.</div>';
       }
     }
 
-    function renderizarRanking(ranking) {
-      const lista = document.getElementById('ranking-lista');
-      const maxMins = ranking[0]?.mins || 1;
+    function renderizarRanking() {
+      const chave = _rankTema + '_' + _rankPeriodo;
+      document.getElementById('ranking-titulo').textContent = RANK_TITULOS[chave];
+
+      // Período
       const hoje = new Date();
-      const diaSem = hoje.getDay();
-      const seg = new Date(hoje);
-      seg.setDate(hoje.getDate() - diaSem + (diaSem === 0 ? -6 : 1));
+      const dow  = hoje.getDay();
+      const seg  = new Date(hoje);
+      seg.setDate(hoje.getDate() - dow + (dow === 0 ? -6 : 1));
+      seg.setHours(0,0,0,0);
       const dom = new Date(seg); dom.setDate(seg.getDate() + 6);
       const fmt = d => d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
-      document.getElementById('ranking-semana').textContent =
-        `Semana de ${fmt(seg)} a ${fmt(dom)}`;
+
+      if (_rankPeriodo === 'semanal') {
+        document.getElementById('ranking-semana').textContent =
+          `Semana de ${fmt(seg)} a ${fmt(dom)}`;
+      } else {
+        document.getElementById('ranking-semana').textContent = 'Total histórico desde o início';
+      }
+
+      const tipoFiltro = _rankTema === 'leitura' ? 'Leitura' : 'Duolingo';
+      const label      = _rankTema === 'leitura' ? 'min lidos' : 'min estudados';
+
+      const guardioes = Object.values(_rankUsuarios).filter(u => u.email && !u.is_mestre);
+      const ranking = guardioes.map(u => {
+        const mins = _rankTrans
+          .filter(t => {
+            if (t.email !== u.email || t.status !== 'Aprovado' || t.tipo !== tipoFiltro) return false;
+            if (_rankPeriodo === 'semanal') {
+              const d = new Date(t.data_aferida || t.data_registro || t.data);
+              return d >= seg;
+            }
+            return true;
+          })
+          .reduce((s, t) => s + Number(t.quantidade), 0);
+        return { nome: u.nome, email: u.email, avatarUrl: u.avatar_url, mins };
+      }).sort((a, b) => b.mins - a.mins);
+
+      const lista    = document.getElementById('ranking-lista');
+      const maxMins  = ranking[0]?.mins || 1;
+      const trofeus  = ['🏆','🥈','🥉'];
 
       if (ranking.every(r => r.mins === 0)) {
-        lista.innerHTML = '<div class="ranking-empate">Nenhuma leitura aprovada esta semana ainda!</div>';
+        lista.innerHTML = `<div class="ranking-empate">Nenhuma atividade registrada ${_rankPeriodo === 'semanal' ? 'esta semana' : 'ainda'}!</div>`;
         return;
       }
+
+      lista.innerHTML = '';
       if (ranking.length >= 2 && ranking[0].mins === ranking[1].mins && ranking[0].mins > 0) {
-        lista.innerHTML = '<div class="ranking-empate">⚔ Empate épico! Os dois Guardiões estão igualados!</div>';
-      } else {
-        lista.innerHTML = '';
+        const empate = document.createElement('div');
+        empate.className = 'ranking-empate';
+        empate.textContent = '⚔ Empate épico! Os Guardiões estão igualados!';
+        lista.appendChild(empate);
       }
 
-      const trofeus = ['🏆','🥈','🥉'];
       ranking.forEach((r, i) => {
         const isLider = i === 0 && r.mins > 0;
         const pct = maxMins > 0 ? Math.round(r.mins / maxMins * 100) : 0;
@@ -2796,20 +2886,17 @@
                onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
           <div class="ranking-info">
             <div class="ranking-nome">${r.nome}</div>
-            <div class="ranking-mins">${r.mins} minutos lidos</div>
+            <div class="ranking-mins">${r.mins} ${label}</div>
             <div class="ranking-bar-bg">
-              <div class="ranking-bar-fill" style="width:0%" data-pct="${pct}"></div>
+              <div class="ranking-bar-fill" style="width:0%"></div>
             </div>
           </div>
           <span class="ranking-trophy">${trofeus[i] || ''}</span>`;
         lista.appendChild(div);
-        // Animate bar
-        setTimeout(() => {
-          div.querySelector('.ranking-bar-fill').style.width = pct + '%';
-        }, 100 + i * 150);
+        setTimeout(() => div.querySelector('.ranking-bar-fill').style.width = pct + '%', 100 + i * 150);
       });
 
-      // Celebration if current user is leading
+      // Celebração se o guardião atual é líder
       if (ranking[0]?.email === currentUserEmail && ranking[0]?.mins > 0) {
         setTimeout(() => {
           const cx = window.innerWidth/2, cy = window.innerHeight/2;
@@ -2908,7 +2995,7 @@
         spawnColorSparks(rect.left + rect.width/2, rect.top, 10,
           ['rgba(0,255,150,','rgba(255,215,0,','rgba(0,212,255,']);
         spawnFloat('✓', '#00FF88', rect.left + rect.width/2, rect.top - 10);
-        oraMsg('🦜 Boa! Você estudou Duolingo neste dia! Continue assim, Guardião!');
+        oraMsg('🦉 Boa! Você estudou Duolingo neste dia! Continue assim, Guardião!');
       } else {
         soundTone(250, 'sawtooth', 0.15, 0.12, 0.005);
         img.style.transition = 'transform 0.3s';
@@ -2917,7 +3004,7 @@
         const rect = img.getBoundingClientRect();
         spawnColorSparks(rect.left + rect.width/2, rect.top, 6,
           ['rgba(150,150,150,','rgba(100,100,100,']);
-        oraMsg('🦜 Ainda não estudou neste dia... Que tal abrir o Duolingo agora, Guardião?');
+        oraMsg('🦉 Ainda não estudou neste dia... Que tal abrir o Duolingo agora, Guardião?');
       }
     }
 
@@ -3023,7 +3110,7 @@
         ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
       // Oráculo fala a mensagem imediatamente
       if (notif) {
-        const icones = { duolingo:'🦜', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
+        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
         oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
         // Efeitos adicionais por tipo
         const cx = window.innerWidth/2, cy = window.innerHeight/2;
@@ -3053,7 +3140,7 @@
       }
       // Mostra todas as mensagens em sequência
       const msgs = filaNotificacoes.map(n => {
-        const ic = { duolingo:'🦜', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
+        const ic = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
         return `${ic[n.tipo]||'⚔️'} ${n.mensagem}`;
       });
       oraMsg(msgs.join(' ✦ '));
