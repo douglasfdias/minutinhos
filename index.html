@@ -821,6 +821,41 @@
       </div>
     </div>
   </div>
+  <!-- ══ MODAL CONFIGURAÇÕES ══ -->
+  <div id="settings-modal">
+    <div class="settings-box">
+      <div class="settings-title">⚙️ Configurações</div>
+      <div class="settings-row">
+        <div><div class="settings-label">🔊 Sons</div><div class="settings-sublabel">Efeitos sonoros do app</div></div>
+        <div class="toggle-wrap">
+          <button class="toggle on" id="toggle-som" onclick="toggleSom()"></button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">🎚️ Volume</div><div class="settings-sublabel">Intensidade dos sons</div></div>
+        <input type="range" class="vol-slider" id="slider-vol" min="0" max="100" value="72"
+               oninput="ajustarVolume(this.value)">
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">📳 Vibração</div><div class="settings-sublabel">Vibrar ao interagir</div></div>
+        <div class="toggle-wrap">
+          <button class="toggle on" id="toggle-vib" onclick="toggleVibracao()"></button>
+        </div>
+      </div>
+      <button class="settings-close" onclick="fecharSettings()">⚔ Fechar</button>
+    </div>
+  </div>
+
+  <!-- ══ MODAL RANKING ══ -->
+  <div id="ranking-modal">
+    <div class="ranking-box">
+      <div class="ranking-title">⚔ Ranking Semanal ⚔</div>
+      <div class="ranking-week" id="ranking-semana"></div>
+      <div id="ranking-lista"></div>
+      <button class="ranking-close" onclick="fecharRanking()">⚔ Fechar</button>
+    </div>
+  </div>
+
   <!-- Canvas de Partículas Mágicas -->
   <canvas id="particle-canvas"></canvas>
 
@@ -846,7 +881,8 @@
       </div>
       <div class="hud-actions">
         <span class="hud-icon bell-wrap" id="bell-btn" onclick="verNotificacoes()">🔔<span class="bell-badge" id="bell-badge" style="display:none"></span></span>
-        <span class="hud-icon" onclick="oraMsg('Suas configurações estão protegidas pela Sagrada Ordem.')">⚙️</span>
+        <span class="hud-icon" onclick="abrirRanking()" title="Ranking Semanal">🏆</span>
+        <span class="hud-icon" id="gear-icon" onclick="abrirSettings()">⚙️</span>
         <span class="btn-trocar" onclick="trocarGuardiao()" title="Trocar Guardião">🔀</span>
       </div>
     </div>
@@ -892,6 +928,19 @@
       </div>
     </div>
 
+    <!-- Meta Semanal -->
+    <div class="meta-section">
+      <div class="meta-wrap" id="meta-wrap" onclick="tocarMeta()">
+        <div class="meta-top">
+          <span class="meta-label">📖 META SEMANAL DE LEITURA</span>
+          <span class="meta-nums" id="meta-nums">0 / 140 min</span>
+        </div>
+        <div class="meta-bar-bg">
+          <div class="meta-bar-fill" id="meta-bar-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Botões -->
     <div class="action-grid">
       <button class="btn-epic btn-read" onclick="fLeitura(event)">
@@ -922,7 +971,7 @@
 
     <!-- Footer -->
     <div class="footer-menu">
-      <div class="menu-item" onclick="oraMsg('A Loja de Avatares abrirá em breve, Guardião!')">
+      <div class="menu-item" onclick="tocarFooter(this,'A Loja de Avatares abrirá em breve, Guardião!', '🧙')">
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <path d="M24 3L40 10L40 30Q40 42 24 46Q8 42 8 30L8 10Z" fill="#0A1A30" stroke="#B8860B" stroke-width="2"/>
           <path d="M24 3L40 10L40 30Q40 42 24 46Q8 42 8 30L8 10Z" fill="none" stroke="#FFD700" stroke-width="0.8" opacity="0.5"/>
@@ -931,7 +980,7 @@
           <ellipse cx="24" cy="36" rx="8" ry="4" fill="#FFD700" opacity="0.8"/>
         </svg>Avatares
       </div>
-      <div class="menu-item" onclick="oraMsg('O Baú de Artefatos está trancado... por ora.')">
+      <div class="menu-item" onclick="tocarFooter(this,'O Baú de Artefatos está trancado... por ora.', '⚔️')">
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <line x1="9" y1="9" x2="39" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
           <line x1="39" y1="9" x2="9" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
@@ -940,7 +989,7 @@
           <polygon points="24,17 27,24 24,31 21,24" fill="#00D4FF" stroke="#0099BB" stroke-width="1"/>
         </svg>Artefatos
       </div>
-      <div class="menu-item" onclick="oraMsg('A Loja Épica exige Nível 5!')">
+      <div class="menu-item" onclick="tocarFooter(this,'A Loja Épica exige Nível 5!', '🏰')">
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <rect x="9" y="22" width="30" height="22" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
           <rect x="9" y="12" width="9" height="12" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
@@ -953,7 +1002,7 @@
           <polygon points="24,13 25.5,18 30,18 26.5,21 27.5,26 24,23 20.5,26 21.5,21 18,18 22.5,18" fill="#FFD700"/>
         </svg>Loja Épica
       </div>
-      <div class="menu-item" onclick="oraMsg('Vouchers de recompensa selados pela Ordem.')">
+      <div class="menu-item" onclick="tocarFooter(this,'Vouchers de recompensa selados pela Ordem.', '📜')">
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <rect x="10" y="8" width="28" height="32" rx="3" fill="#D2B48C" stroke="#8B6914" stroke-width="1.5"/>
           <ellipse cx="10" cy="24" rx="5" ry="16" fill="#C4A070" stroke="#8B6914" stroke-width="1.5"/>
@@ -1400,11 +1449,8 @@
     }
 
     /* ============================================================
-       VIBRAÇÃO
+       VIBRAÇÃO — gerenciada por cfgVibracao (ver configurações)
     ============================================================ */
-    function vibrate(pattern) {
-      if (navigator.vibrate) navigator.vibrate(pattern);
-    }
 
     /* ============================================================
        RIPPLE NOS BOTÕES
@@ -1658,12 +1704,15 @@
         }
         list.innerHTML = '';
         d.historico.forEach((h, i) => {
-          const icone = h.tipo === 'Leitura' ? '📖' : h.tipo === 'Forja' ? '⚒️' : '🦜';
-          const statusClass = h.status === 'Pendente' ? 'entry-status-pendente' : 'entry-status-aprovado';
+          const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦜', Gasto:'💸', Bonus:'🎁' };
+          const icone = icones[h.tipo] || '✦';
+          const statusClass = h.status === 'Pendente' ? 'entry-status-pendente'
+                            : h.status === 'Reprovado' ? 'entry-status-pendente' : 'entry-status-aprovado';
           const div = document.createElement('div');
           div.className = 'diary-entry';
           div.style.animationDelay = (i * 0.05) + 's';
           div.innerHTML = `<span>${icone} ${h.tipo} (+${h.qtd} min)</span><span class="${statusClass}">${h.status}</span>`;
+          div.addEventListener('click', () => tocarDiario(div, h.tipo, h.qtd, h.status));
           list.appendChild(div);
         });
 
@@ -1686,6 +1735,19 @@
 
         // ── Renderizar streaks ──
         atualizarStreakUI(streakLeitura, duoData, streakConfig, d.nome);
+
+        // ── Meta semanal de leitura ──
+        const metaLeitura = Number(cfg.meta_leitura_semanal) || 140;
+        const hoje2 = new Date();
+        const iSem  = new Date(hoje2);
+        const dow2  = hoje2.getDay();
+        iSem.setDate(hoje2.getDate() - dow2 + (dow2 === 0 ? -6 : 1));
+        iSem.setHours(0,0,0,0);
+        const minsSemana = allTrans
+          .filter(t => t.email === emailLower && t.status === 'Aprovado' &&
+                       t.tipo === 'Leitura' && new Date(t.data_registro || t.data) >= iSem)
+          .reduce((s, t) => s + Number(t.quantidade), 0);
+        atualizarMetaSemanal(minsSemana, metaLeitura);
 
         // ── Verificar marcos e recompensas ──
         await verificarMarcosLeitura(streakLeitura, d.nome);
@@ -2243,14 +2305,16 @@
       const hoje = toLocalDateStr();
       diasSemana.slice(0, metaDias).forEach((dia, i) => {
         const img = document.createElement('img');
-        img.className = 'duo-head';
         if (dia.bateu) {
           img.src = 'https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png';
           img.className = 'duo-head ' + (dia.dateStr === hoje ? 'active-today' : 'active');
         } else {
           img.src = 'https://i.ibb.co/dJswj4h4/duolingo-oraculo-head-sad-1.png';
+          img.className = 'duo-head';
         }
         img.style.animationDelay = (i * 0.06) + 's';
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', () => tocarCabecaDuo(img, dia.bateu, dia.dateStr));
         container.appendChild(img);
       });
     }
@@ -2407,6 +2471,316 @@
         document.getElementById('duo-reward-label').textContent = '✅ Meta semanal concluída!';
       } else {
         document.getElementById('duo-reward-label').textContent = `🎯 Complete para +${recomp} 💎`;
+      }
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       CONFIGURAÇÕES — Som, Volume, Vibração
+    ══════════════════════════════════════════════════════ */
+    let cfgSom = true;
+    let cfgVibracao = true;
+
+    function vibrate(pattern) {
+      if (!cfgVibracao) return;
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    }
+
+    function abrirSettings() {
+      initAudio();
+      vibrate(30);
+      soundTone(660, 'sine', 0.12, 0.12, 0.005);
+      // Gear spin
+      const gear = document.getElementById('gear-icon');
+      gear.style.transition = 'transform 0.4s ease';
+      gear.style.transform = 'rotate(180deg)';
+      setTimeout(() => { gear.style.transform = 'rotate(0deg)'; }, 400);
+      // Sync toggles with current state
+      document.getElementById('toggle-som').className = 'toggle ' + (cfgSom ? 'on' : '');
+      document.getElementById('toggle-vib').className = 'toggle ' + (cfgVibracao ? 'on' : '');
+      document.getElementById('slider-vol').value = masterGain ? Math.round(masterGain.gain.value * 100) : 72;
+      document.getElementById('settings-modal').classList.add('open');
+      spawnColorSparks(
+        document.getElementById('gear-icon').getBoundingClientRect().left + 12,
+        document.getElementById('gear-icon').getBoundingClientRect().bottom,
+        8, ['rgba(255,215,0,','rgba(255,200,100,']
+      );
+    }
+
+    function fecharSettings() {
+      vibrate(20);
+      soundTone(523, 'sine', 0.1, 0.1, 0.005);
+      document.getElementById('settings-modal').classList.remove('open');
+    }
+
+    function toggleSom() {
+      cfgSom = !cfgSom;
+      document.getElementById('toggle-som').className = 'toggle ' + (cfgSom ? 'on' : '');
+      if (cfgSom) {
+        initAudio();
+        if (masterGain) masterGain.gain.value = (document.getElementById('slider-vol').value || 72) / 100;
+        soundTone(660, 'sine', 0.15, 0.15, 0.005);
+      } else {
+        if (masterGain) masterGain.gain.value = 0;
+      }
+      vibrate(30);
+    }
+
+    function ajustarVolume(val) {
+      if (masterGain) masterGain.gain.value = val / 100;
+      if (val > 0) cfgSom = true;
+      document.getElementById('toggle-som').className = 'toggle ' + (val > 0 ? 'on' : '');
+    }
+
+    function toggleVibracao() {
+      cfgVibracao = !cfgVibracao;
+      document.getElementById('toggle-vib').className = 'toggle ' + (cfgVibracao ? 'on' : '');
+      if (cfgVibracao) navigator.vibrate && navigator.vibrate(60);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       META SEMANAL — Render e interação
+    ══════════════════════════════════════════════════════ */
+    function atualizarMetaSemanal(minutos, meta) {
+      const pct = Math.min(100, Math.round(minutos / meta * 100));
+      const fill = document.getElementById('meta-bar-fill');
+      const nums = document.getElementById('meta-nums');
+      nums.textContent = minutos + ' / ' + meta + ' min';
+      fill.style.width = pct + '%';
+      fill.className = 'meta-bar-fill' + (pct >= 100 ? ' completa' : '');
+    }
+
+    function tocarMeta() {
+      vibrate(30);
+      soundTone(500, 'sine', 0.2, 0.18, 0.005);
+      const el = document.getElementById('meta-wrap');
+      el.classList.remove('meta-pulse'); void el.offsetWidth; el.classList.add('meta-pulse');
+      setTimeout(() => el.classList.remove('meta-pulse'), 600);
+      const rect = el.getBoundingClientRect();
+      const pct = parseInt(document.getElementById('meta-bar-fill').style.width) || 0;
+      spawnColorSparks(rect.left + rect.width * (pct/100), rect.top + rect.height/2, 10,
+        ['rgba(0,200,100,','rgba(100,255,160,','rgba(0,255,120,']);
+      const nums = document.getElementById('meta-nums').textContent;
+      const parts = nums.split('/');
+      const atual = parseInt(parts[0]) || 0;
+      const meta  = parseInt(parts[1]) || 140;
+      if (pct >= 100) {
+        oraMsg('🌟 Meta semanal concluída! Você é um Guardião lendário!');
+      } else {
+        const faltam = meta - atual;
+        oraMsg(`📖 Faltam ${faltam} minutos para bater a meta desta semana! Continue lendo!`);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       RANKING SEMANAL
+    ══════════════════════════════════════════════════════ */
+    let _rankingData = [];
+
+    async function abrirRanking() {
+      initAudio();
+      vibrate([40, 20, 80]);
+      soundCrystalChime();
+      document.getElementById('ranking-modal').classList.add('open');
+      if (_rankingData.length === 0) await carregarRanking();
+      else renderizarRanking(_rankingData);
+    }
+
+    function fecharRanking() {
+      vibrate(20);
+      soundTone(523, 'sine', 0.1, 0.1, 0.005);
+      document.getElementById('ranking-modal').classList.remove('open');
+    }
+
+    async function carregarRanking() {
+      try {
+        const hoje = new Date();
+        const iS   = new Date(hoje);
+        iS.setDate(hoje.getDate() - hoje.getDay() + (hoje.getDay() === 0 ? -6 : 1));
+        iS.setHours(0,0,0,0);
+
+        const [uSnap, tSnap] = await Promise.all([
+          db.ref('usuarios').get(),
+          db.ref('transacoes').get()
+        ]);
+        const usuarios = uSnap.exists() ? uSnap.val() : {};
+        const trans    = tSnap.exists() ? Object.values(tSnap.val()) : [];
+
+        const ranking = Object.values(usuarios)
+          .filter(u => u.email && !u.is_mestre)
+          .map(u => {
+            const mins = trans
+              .filter(t => t.email === u.email && t.status === 'Aprovado' &&
+                           t.tipo === 'Leitura' && new Date(t.data_registro || t.data) >= iS)
+              .reduce((s, t) => s + Number(t.quantidade), 0);
+            return { nome: u.nome, email: u.email, avatarUrl: u.avatar_url, mins };
+          })
+          .sort((a, b) => b.mins - a.mins);
+
+        _rankingData = ranking;
+        renderizarRanking(ranking);
+      } catch(e) {
+        document.getElementById('ranking-lista').innerHTML =
+          '<div style="text-align:center;color:#888;padding:20px">Não foi possível carregar o ranking.</div>';
+      }
+    }
+
+    function renderizarRanking(ranking) {
+      const lista = document.getElementById('ranking-lista');
+      const maxMins = ranking[0]?.mins || 1;
+      const hoje = new Date();
+      const diaSem = hoje.getDay();
+      const seg = new Date(hoje);
+      seg.setDate(hoje.getDate() - diaSem + (diaSem === 0 ? -6 : 1));
+      const dom = new Date(seg); dom.setDate(seg.getDate() + 6);
+      const fmt = d => d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+      document.getElementById('ranking-semana').textContent =
+        `Semana de ${fmt(seg)} a ${fmt(dom)}`;
+
+      if (ranking.every(r => r.mins === 0)) {
+        lista.innerHTML = '<div class="ranking-empate">Nenhuma leitura aprovada esta semana ainda!</div>';
+        return;
+      }
+      if (ranking.length >= 2 && ranking[0].mins === ranking[1].mins && ranking[0].mins > 0) {
+        lista.innerHTML = '<div class="ranking-empate">⚔ Empate épico! Os dois Guardiões estão igualados!</div>';
+      } else {
+        lista.innerHTML = '';
+      }
+
+      const trofeus = ['🏆','🥈','🥉'];
+      ranking.forEach((r, i) => {
+        const isLider = i === 0 && r.mins > 0;
+        const pct = maxMins > 0 ? Math.round(r.mins / maxMins * 100) : 0;
+        const div = document.createElement('div');
+        div.className = 'ranking-card' + (isLider ? ' lider' : '');
+        div.innerHTML = `
+          <span class="ranking-pos">${i+1}</span>
+          <img class="ranking-avatar" src="${r.avatarUrl}"
+               onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
+          <div class="ranking-info">
+            <div class="ranking-nome">${r.nome}</div>
+            <div class="ranking-mins">${r.mins} minutos lidos</div>
+            <div class="ranking-bar-bg">
+              <div class="ranking-bar-fill" style="width:0%" data-pct="${pct}"></div>
+            </div>
+          </div>
+          <span class="ranking-trophy">${trofeus[i] || ''}</span>`;
+        lista.appendChild(div);
+        // Animate bar
+        setTimeout(() => {
+          div.querySelector('.ranking-bar-fill').style.width = pct + '%';
+        }, 100 + i * 150);
+      });
+
+      // Celebration if current user is leading
+      if (ranking[0]?.email === currentUserEmail && ranking[0]?.mins > 0) {
+        setTimeout(() => {
+          const cx = window.innerWidth/2, cy = window.innerHeight/2;
+          spawnColorSparks(cx, cy-80, 20, ['rgba(255,215,0,','rgba(255,180,50,']);
+          spawnShockwave(cx, cy-80, 'rgba(255,215,0,', 100);
+          vibrate([60,30,60,30,120]);
+        }, 600);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════
+       INTERAÇÃO — Diário de Aventuras
+    ══════════════════════════════════════════════════════ */
+    const MSGS_DIARIO = {
+      Leitura: [
+        'Cada página lida é um passo para a glória, Guardião!',
+        'Os livros são a chave para o próximo nível!',
+        'Leitura registrada na memória da Ordem!',
+      ],
+      Forja: [
+        'Cristais forjados com suor e dedicação!',
+        'A Forja Épica transforma esforço em poder!',
+      ],
+      Duolingo: [
+        'O Oráculo aprova seu estudo de idiomas!',
+        'Cada minuto no Duolingo acende uma chama!',
+      ],
+      Gasto: [
+        'Tempo de tela conquistado com mérito!',
+        'Os cristais foram bem investidos, Guardião!',
+      ],
+      Bonus: [
+        'Bônus concedido pela Ordem pelo seu esforço!',
+        'Recompensa especial pelos seus marcos!',
+      ],
+    };
+
+    function tocarDiario(el, tipo, qtd, status) {
+      initAudio();
+      vibrate(25);
+      // Flash na entrada
+      el.classList.remove('entry-flash'); void el.offsetWidth; el.classList.add('entry-flash');
+      setTimeout(() => el.classList.remove('entry-flash'), 450);
+      // Som por tipo
+      if (tipo === 'Leitura') soundTone(440, 'sine', 0.2, 0.15, 0.005);
+      else if (tipo === 'Forja') soundTone(660, 'triangle', 0.2, 0.15, 0.005);
+      else if (tipo === 'Duolingo') soundTone(550, 'sine', 0.2, 0.15, 0.005);
+      else if (tipo === 'Bonus') soundTone(880, 'sine', 0.2, 0.15, 0.005);
+      // Mini partículas
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+      const cores = tipo === 'Leitura' ? ['rgba(0,180,255,','rgba(100,200,255,']
+                  : tipo === 'Forja'   ? ['rgba(255,140,0,','rgba(255,200,80,']
+                  : tipo === 'Duolingo'? ['rgba(0,255,150,','rgba(100,255,200,']
+                  : tipo === 'Bonus'   ? ['rgba(255,215,0,','rgba(255,180,50,']
+                  : ['rgba(200,200,200,'];
+      spawnColorSparks(cx, cy, 8, cores);
+      spawnFloat('+' + qtd, cores[0].replace('rgba(','').replace(',','').slice(0,7) + ')', cx, cy - 20);
+      // Mensagem do oráculo
+      const msgs = MSGS_DIARIO[tipo] || ['Aventura registrada no Diário da Ordem!'];
+      const statusPrefix = status === 'Pendente' ? '⏳ ' : status === 'Reprovado' ? '❌ ' : '';
+      oraMsg(statusPrefix + msgs[Math.floor(Math.random() * msgs.length)]);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       INTERAÇÃO — Footer bloqueado
+    ══════════════════════════════════════════════════════ */
+    function tocarFooter(el, mensagem, icone) {
+      initAudio();
+      vibrate([30, 20, 40]);
+      soundError();
+      // Shake no item
+      el.classList.remove('menu-shake'); void el.offsetWidth; el.classList.add('menu-shake');
+      setTimeout(() => el.classList.remove('menu-shake'), 450);
+      // Partículas cinzas — bloqueado
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width/2, cy = rect.top;
+      spawnColorSparks(cx, cy, 8, ['rgba(150,150,150,','rgba(180,160,100,']);
+      // Oráculo com mensagem
+      oraMsg('🔒 ' + mensagem);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       INTERAÇÃO — Cabeças do Duolingo
+    ══════════════════════════════════════════════════════ */
+    function tocarCabecaDuo(img, bateu, dateStr) {
+      initAudio();
+      vibrate(bateu ? [30, 20, 50] : 20);
+      if (bateu) {
+        soundTone(880, 'sine', 0.25, 0.2, 0.005);
+        setTimeout(() => soundTone(1100, 'sine', 0.2, 0.15, 0.005), 100);
+        img.style.transition = 'transform 0.3s';
+        img.style.transform = 'scale(1.25) rotate(10deg)';
+        setTimeout(() => { img.style.transform = ''; }, 320);
+        const rect = img.getBoundingClientRect();
+        spawnColorSparks(rect.left + rect.width/2, rect.top, 10,
+          ['rgba(0,255,150,','rgba(255,215,0,','rgba(0,212,255,']);
+        spawnFloat('✓', '#00FF88', rect.left + rect.width/2, rect.top - 10);
+        oraMsg('🦜 Boa! Você estudou Duolingo neste dia! Continue assim, Guardião!');
+      } else {
+        soundTone(250, 'sawtooth', 0.15, 0.12, 0.005);
+        img.style.transition = 'transform 0.3s';
+        img.style.transform = 'scale(0.85) rotate(-10deg)';
+        setTimeout(() => { img.style.transform = ''; }, 320);
+        const rect = img.getBoundingClientRect();
+        spawnColorSparks(rect.left + rect.width/2, rect.top, 6,
+          ['rgba(150,150,150,','rgba(100,100,100,']);
+        oraMsg('🦜 Ainda não estudou neste dia... Que tal abrir o Duolingo agora, Guardião?');
       }
     }
 
