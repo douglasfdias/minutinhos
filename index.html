@@ -3079,21 +3079,29 @@
       listenerAtivo = true;
       const emailKey = sanitizeEmail(currentUserEmail);
 
-      // Saldo em tempo real (pula o primeiro disparo)
-      let primeiroSaldo = true;
+      // Listener do usuário — recarrega tudo quando houver mudança
+      // (cobre reset de dados, aprovação de leituras, alterações do Mestre)
+      let primeiroDisparo = true;
+      let reloadTimeout   = null;
       db.ref('usuarios/' + emailKey).on('value', snap => {
-        if (primeiroSaldo) { primeiroSaldo = false; return; }
+        if (primeiroDisparo) { primeiroDisparo = false; return; }
         if (!snap.exists()) return;
-        const data = snap.val();
-        const newE = Math.floor(Number(data.saldo_energia));
-        const newC = Math.floor(Number(data.saldo_cristais));
-        animateNumber(document.getElementById('v-e'), currentEnergy, newE);
-        animateNumber(document.getElementById('v-c'), parseInt(document.getElementById('v-c').textContent)||0, newC);
-        currentEnergy = newE;
-        ['pill-energia','pill-cristais'].forEach(id => {
-          const el = document.getElementById(id);
-          el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-        });
+        // Debounce: evita múltiplos loadData() em sequência rápida
+        clearTimeout(reloadTimeout);
+        reloadTimeout = setTimeout(() => {
+          loadData();
+        }, 600);
+      });
+
+      // Listener de transações — detecta novas aprovações/resets
+      let primeirasTrans = true;
+      db.ref('transacoes').orderByChild('email').equalTo(currentUserEmail).on('value', snap => {
+        if (primeirasTrans) { primeirasTrans = false; return; }
+        // Recarrega com debounce para não conflitar com o listener de usuário
+        clearTimeout(reloadTimeout);
+        reloadTimeout = setTimeout(() => {
+          loadData();
+        }, 800);
       });
 
       // Notificações — enfileira e toca sino
