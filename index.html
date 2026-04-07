@@ -1714,48 +1714,53 @@
        GUARDIÕES — lista local fixa
        Edite aqui se mudar os nomes ou avatares.
     ============================================================ */
-    const GUARDIOES_LOCAL = [
-      {
-        email:     'israelvieiradias04@gmail.com',
-        nome:      'Israel',
-        avatarUrl: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'
-      },
-      {
-        email:     'izavieiradias@gmail.com',
-        nome:      'Iza',
-        avatarUrl: 'https://i.ibb.co/V077M1SY/avatar-girl-full-body-mod1-nobg-2.png'
-      },
-      {
-        email:     'douglasdias.dfd@gmail.com',
-        nome:      'Douglas',
-        avatarUrl: 'https://i.ibb.co/rR2qn4yf/avatar-dad-full-body-mod1-nobg-2.png'
-      }
-    ];
-
     /* ============================================================
        SISTEMA DE AUTENTICAÇÃO — Seleção de Guardião
+       Busca guardiões dinamicamente do Firebase
     ============================================================ */
     let currentUserEmail = null;
     const STORAGE_KEY = 'minutinhos_guardian';
 
-    function mostrarSelecao() {
+    async function mostrarSelecao() {
       document.getElementById('guardian-select').style.display = 'flex';
       const cardsEl = document.getElementById('gs-cards');
-      cardsEl.innerHTML = '';
+      cardsEl.innerHTML = '<div class="gs-loading">⏳ Convocando Guardiões...</div>';
 
-      // Usa a lista local — sem chamada de rede, funciona em qualquer dispositivo
-      GUARDIOES_LOCAL.forEach((g, i) => {
-        const card = document.createElement('div');
-        card.className = 'gs-card gs-card-enter';
-        card.style.animationDelay = (i * 0.15) + 's';
-        card.innerHTML = `
-          <img class="gs-card-avatar" src="${g.avatarUrl}"
-               onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
-          <div class="gs-card-name">${g.nome}</div>
-          <div class="gs-card-label">Guardião da Ordem</div>`;
-        card.addEventListener('click', () => entrarComoGuardiao(g));
-        cardsEl.appendChild(card);
-      });
+      try {
+        const snap = await db.ref('usuarios').get();
+        const usuarios = snap.exists() ? snap.val() : {};
+
+        // Filtra só guardiões (não mestres), ordena por nome
+        const guardioes = Object.values(usuarios)
+          .filter(u => u.email && !u.is_mestre)
+          .sort((a, b) => a.nome.localeCompare(b.nome));
+
+        if (!guardioes.length) {
+          cardsEl.innerHTML = '<div class="gs-loading">Nenhum Guardião cadastrado ainda.</div>';
+          return;
+        }
+
+        cardsEl.innerHTML = '';
+        guardioes.forEach((g, i) => {
+          const card = document.createElement('div');
+          card.className = 'gs-card gs-card-enter';
+          card.style.animationDelay = (i * 0.15) + 's';
+          card.innerHTML = `
+            <img class="gs-card-avatar" src="${g.avatar_url || 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'}"
+                 onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
+            <div class="gs-card-name">${g.nome}</div>
+            <div class="gs-card-label">Guardião da Ordem</div>`;
+          card.addEventListener('click', () => entrarComoGuardiao({
+            email: g.email,
+            nome: g.nome,
+            avatarUrl: g.avatar_url || 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'
+          }));
+          cardsEl.appendChild(card);
+        });
+      } catch(e) {
+        // Fallback: mostrar mensagem de erro
+        cardsEl.innerHTML = '<div class="gs-loading">⚠️ Erro ao carregar Guardiões. Verifique a conexão.</div>';
+      }
     }
 
     function entrarComoGuardiao(guardiao) {
