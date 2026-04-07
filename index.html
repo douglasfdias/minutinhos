@@ -2152,6 +2152,13 @@
         document.getElementById('reading-mins').focus();
         return;
       }
+      const minLeitura = streakConfig.min_leitura_diaria || 15;
+      if (min < minLeitura) {
+        document.getElementById('reading-oracle-text').textContent = `⚠️ O mínimo para registrar é ${minLeitura} minutos, Guardião! Cada sessão precisa valer a pena!`;
+        soundError(); vibrate([80, 40, 80]);
+        document.getElementById('reading-mins').focus();
+        return;
+      }
 
       document.getElementById('reading-oracle-text').textContent = `📜 Registrando ${min} minutos de "${livro}"... Aguardando aprovação do Mestre!`;
       soundCrystalChime();
