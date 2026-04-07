@@ -469,14 +469,17 @@
       border-right: 10px solid rgba(253,245,230,0.93);
     }
 
-    .gs-cards { display: flex; gap: 14px; justify-content: center; width: 100%; }
+    .gs-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px; width: 100%;
+    }
     .gs-card {
-      flex: 1; max-width: 150px;
       background: linear-gradient(160deg, rgba(10,25,60,0.92), rgba(5,15,40,0.95));
       border: 2px solid var(--gold-dark); border-radius: 18px;
-      padding: 16px 12px; text-align: center; cursor: pointer;
+      padding: 14px 10px; text-align: center; cursor: pointer;
       position: relative; overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 0 rgba(255,215,0,0);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
       transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
       -webkit-user-select: none; user-select: none;
     }
@@ -488,17 +491,18 @@
     .gs-card:active { transform: scale(0.95); }
     .gs-card:hover  { border-color: var(--gold); box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 20px rgba(255,215,0,0.25); }
     .gs-card-avatar {
-      width: 100px; height: 130px; object-fit: contain;
+      width: 80%; max-width: 110px; height: auto; aspect-ratio: 3/4;
+      object-fit: contain;
       filter: drop-shadow(0 0 10px rgba(255,215,0,0.2));
-      display: block; margin: 0 auto 10px;
+      display: block; margin: 0 auto 8px;
       transition: filter 0.2s, transform 0.2s;
     }
     .gs-card:active .gs-card-avatar { filter: drop-shadow(0 0 20px rgba(255,215,0,0.8)); transform: scale(1.05); }
     .gs-card-name {
-      font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.05rem;
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.95rem;
       color: var(--gold-light); text-shadow: 0 0 8px rgba(255,215,0,0.4);
     }
-    .gs-card-label { font-size: 0.7rem; color: rgba(200,180,140,0.7); font-weight: 700; margin-top: 2px; }
+    .gs-card-label { font-size: 0.65rem; color: rgba(200,180,140,0.7); font-weight: 700; margin-top: 2px; }
 
     .gs-loading {
       margin-top: 18px; font-size: 0.8rem; color: rgba(255,220,150,0.6);
