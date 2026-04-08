@@ -145,9 +145,14 @@
     #hero-img {
       height: 220px; max-width: 90%;
       filter: drop-shadow(0 0 20px rgba(255,215,0,0.2));
-      animation: hero-float 4s ease-in-out infinite;
+      animation: hero-float 4s ease-in-out infinite, hero-breathe-idle 5s ease-in-out infinite;
       display: block; margin: 0 auto;
       transition: filter 0.2s;
+    }
+    @keyframes hero-breathe-idle {
+      0%,100%{ transform: translateY(0) scaleX(1) scaleY(1); }
+      30%    { transform: translateY(-6px) scaleX(1.01) scaleY(1.012); }
+      60%    { transform: translateY(-4px) scaleX(1.008) scaleY(1.008); }
     }
     .hero-avatar-wrap:active #hero-img { filter: drop-shadow(0 0 30px rgba(255,215,0,0.9)) brightness(1.15); }
     .hero-avatar-wrap.hero-glow #hero-img { animation: hero-hero-shine 0.8s ease-out !important; }
@@ -961,6 +966,107 @@
       60%    { transform: translateX(-3px); }
       80%    { transform: translateX(3px); }
     }
+
+    /* ══ HERO OVERLAY ══ */
+    #hero-overlay {
+      position: fixed; inset: 0; z-index: 2500;
+      display: none; align-items: flex-end; justify-content: center;
+      background: rgba(2,5,15,0);
+      transition: background 0.4s ease;
+    }
+    #hero-overlay.open {
+      display: flex;
+      background: rgba(2,5,15,0.92);
+    }
+    .hero-overlay-inner {
+      width: 100%; max-width: 380px;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0 20px 40px;
+      transform: translateY(60px); opacity: 0;
+      transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
+    }
+    #hero-overlay.open .hero-overlay-inner {
+      transform: translateY(0); opacity: 1;
+    }
+
+    /* Aura ao redor do avatar */
+    .hero-overlay-aura {
+      position: relative; margin-bottom: 12px;
+    }
+    .hero-overlay-aura::before {
+      content: ''; position: absolute;
+      bottom: -8px; left: 50%; transform: translateX(-50%);
+      width: 120px; height: 30px;
+      background: radial-gradient(ellipse, rgba(255,215,0,0.45), transparent 70%);
+      filter: blur(8px);
+      animation: aura-pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes aura-pulse {
+      0%,100%{ opacity:0.5; transform:translateX(-50%) scaleX(1); }
+      50%    { opacity:1;   transform:translateX(-50%) scaleX(1.2); }
+    }
+    .hero-overlay-img {
+      height: 280px; max-width: 85vw; object-fit: contain;
+      filter: drop-shadow(0 0 30px rgba(255,215,0,0.5));
+      animation: hero-overlay-float 3s ease-in-out infinite,
+                 hero-breathe 4s ease-in-out infinite;
+    }
+    @keyframes hero-overlay-float {
+      0%,100%{ transform: translateY(0); }
+      50%    { transform: translateY(-10px); }
+    }
+    @keyframes hero-breathe {
+      0%,100%{ transform: translateY(0) scaleX(1) scaleY(1); }
+      25%    { transform: translateY(-4px) scaleX(1.012) scaleY(1.015); }
+      50%    { transform: translateY(-8px) scaleX(1.008) scaleY(1.01); }
+      75%    { transform: translateY(-4px) scaleX(1.012) scaleY(1.015); }
+    }
+
+    /* Badge de título */
+    .hero-overlay-title-wrap {
+      text-align: center; margin-bottom: 10px;
+    }
+    .hero-overlay-name {
+      font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 900;
+      color: var(--gold); letter-spacing: 0.06em;
+      text-shadow: 0 0 20px rgba(255,215,0,0.6);
+    }
+    .hero-overlay-sub {
+      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 700;
+      color: rgba(255,220,150,0.65); letter-spacing: 0.1em; margin-top: 3px;
+    }
+
+    /* Balão de fala */
+    .hero-overlay-bubble {
+      background: linear-gradient(135deg, rgba(253,245,230,0.95), rgba(240,220,180,0.9));
+      color: #4e342e; padding: 12px 16px; border-radius: 14px;
+      font-size: 0.88rem; font-weight: 800; text-align: center;
+      border: 2px solid #C8A96E; box-shadow: 0 4px 0 #A0825A;
+      width: 100%; max-width: 300px; min-height: 48px;
+      position: relative; margin-bottom: 16px;
+      animation: bubble-appear 0.4s ease-out 0.3s both;
+    }
+    @keyframes bubble-appear {
+      from{ transform:scale(0.8); opacity:0; }
+      to  { transform:scale(1);   opacity:1; }
+    }
+    .hero-overlay-bubble::before {
+      content: ''; position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      border-left: 10px solid transparent; border-right: 10px solid transparent;
+      border-bottom: 12px solid rgba(253,245,230,0.95);
+    }
+
+    /* Partículas de fundo do overlay */
+    .hero-overlay-particles {
+      position: fixed; inset: 0; pointer-events: none; z-index: 2501;
+    }
+
+    .hero-overlay-close {
+      font-size: 0.72rem; color: rgba(255,255,255,0.35); font-weight: 700;
+      letter-spacing: 0.1em; cursor: pointer; -webkit-user-select: none;
+      animation: fade-in-hint 1.2s ease 1s both;
+    }
+    @keyframes fade-in-hint { from{opacity:0} to{opacity:1} }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1043,6 +1149,21 @@
     </div>
   </div>
 
+  <!-- ══ HERO OVERLAY ══ -->
+  <div id="hero-overlay" onclick="fecharHeroOverlay()">
+    <div class="hero-overlay-inner" onclick="event.stopPropagation()">
+      <div class="hero-overlay-aura">
+        <img id="hero-overlay-img" class="hero-overlay-img" src="">
+      </div>
+      <div class="hero-overlay-title-wrap">
+        <div class="hero-overlay-name" id="hero-overlay-name">Guardião</div>
+        <div class="hero-overlay-sub" id="hero-overlay-sub">✦ GUARDIÃO DA ORDEM ✦</div>
+      </div>
+      <div class="hero-overlay-bubble" id="hero-overlay-bubble"></div>
+      <div class="hero-overlay-close">✦ toque para fechar ✦</div>
+    </div>
+  </div>
+
   <!-- Canvas de Partículas Mágicas -->
   <canvas id="particle-canvas"></canvas>
 
@@ -1087,7 +1208,7 @@
         </div>
       </div>
       <div class="hero-avatar-wrap" onclick="tocarHeroi(this)">
-        <img id="hero-img" class="hero-avatar-img" src="" style="height:160px; max-width:90%; display:block; margin:0 auto;">
+        <img id="hero-img" class="hero-avatar-img" src="" style="height:165px; max-width:90%; display:block; margin:0 auto;">
       </div>
     </div>
 
@@ -1803,8 +1924,12 @@
     /* ============================================================
        CARREGAR DADOS
     ============================================================ */
-    let currentEnergy = 0;
-    let currentLevel = 1;
+    let currentEnergy  = 0;
+    let currentLevel   = 1;
+    let heroState      = {
+      nome: '', nivel: 1, xpTotal: 0, energia: 0, cristais: 0,
+      avatarUrl: '', streakLeitura: 0, duoBatidos: 0, metaDuo: 7
+    };
 
     function animateNumber(el, from, to) {
       const diff = to - from;
@@ -1890,8 +2015,15 @@
           vibrate([200, 100, 200, 100, 400]);
         }
 
-        // Avatar
+        // Avatar + store heroState for overlay
         document.getElementById('hero-img').src = d.avatarUrl;
+        heroState = {
+          nome: d.nome, nivel: d.xp.nivel, xpTotal: d.xp.total,
+          energia: d.energia, cristais: d.cristais,
+          avatarUrl: d.avatarUrl,
+          streakLeitura: 0, duoBatidos: 0,
+          metaDuo: streakConfig.meta_duo_semanal_dias || 7
+        };
 
         // Histórico
         const list = document.getElementById('hist-list');
@@ -1932,6 +2064,8 @@
 
         // ── Renderizar streaks ──
         atualizarStreakUI(streakLeitura, duoData, streakConfig, d.nome);
+        heroState.streakLeitura = streakLeitura;
+        heroState.duoBatidos    = duoData.diasBatidos;
 
         // ── Meta semanal de leitura ──
         const metaLeitura = Number(cfg.meta_leitura_semanal) || 140;
@@ -2195,43 +2329,96 @@
     /* ============================================================
        AVATAR DO HERÓI INTERATIVO
     ============================================================ */
-    const MSGS_HEROI = [
-      ['⚔️ Você está crescendo cada vez mais, Guardião! Continue assim!', false],
-      ['🛡️ Seu avatar representa toda a sua força e dedicação!', false],
-      ['✨ A Ordem se orgulha de você, Guardião das Letras!', false],
-      ['📚 Cada livro lido deixa seu Guardião mais poderoso!', false],
-      ['🌟 Você é um verdadeiro Guardião da Ordem!', false],
-      ['⚡ Sua energia é lendária! Continue lendo, Guardião!', false],
-    ];
-    let msgHIdx = 0;
     function tocarHeroi(wrap) {
+      initAudio();
       vibrate([40, 20, 80]);
-      soundTone(392, 'sine', 0.5, 0.22, 0.01);
-      setTimeout(() => soundTone(523, 'sine', 0.45, 0.2, 0.01), 120);
-      setTimeout(() => soundTone(659, 'sine', 0.4, 0.18, 0.01), 240);
+      // Efeito rápido no avatar antes de abrir overlay
+      wrap.classList.remove('hero-glow'); void wrap.offsetWidth; wrap.classList.add('hero-glow');
+      setTimeout(() => wrap.classList.remove('hero-glow'), 400);
+      setTimeout(() => abrirHeroOverlay(), 200);
+    }
 
-      wrap.classList.remove('hero-glow');
-      void wrap.offsetWidth;
-      wrap.classList.add('hero-glow');
-      setTimeout(() => wrap.classList.remove('hero-glow'), 900);
+    function abrirHeroOverlay() {
+      initAudio();
+      // Sons de entrada épicos
+      [392, 523, 659, 880].forEach((f, i) =>
+        setTimeout(() => soundTone(f, 'sine', 0.4, 0.22, 0.01), i * 90)
+      );
+      vibrate([40, 20, 80, 20, 150]);
 
-      // Aureola de estrelinhas ao redor do herói
-      const rect = wrap.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-      const emos = ['⭐','✨','🌟','💫'];
-      for (let i = 0; i < 8; i++) {
-        const angle = (Math.PI * 2 * i / 8);
-        const r = 80;
-        setTimeout(() => spawnFloat(
-          emos[i % emos.length], '#FFD700',
-          cx + Math.cos(angle) * r,
-          cy + Math.sin(angle) * r - 20
-        ), i * 60);
-      }
-      spawnColorSparks(cx, cy - 30, 20, ['rgba(255,215,0,', 'rgba(255,255,150,', 'rgba(200,200,255,']);
+      // Preenche dados
+      const img    = document.getElementById('hero-overlay-img');
+      const nome   = document.getElementById('hero-overlay-name');
+      const sub    = document.getElementById('hero-overlay-sub');
+      const bubble = document.getElementById('hero-overlay-bubble');
 
-      oraMsg(MSGS_HEROI[msgHIdx % MSGS_HEROI.length][0]);
-      msgHIdx++;
+      img.src = heroState.avatarUrl;
+      nome.textContent = heroState.nome;
+
+      // Título baseado no nível
+      const titulos = ['Aprendiz da Ordem','Escudeiro','Cavaleiro','Guardião','Guardião Veterano',
+                       'Campeão','Herói da Ordem','Lenda Viva','Guardião Imortal','Mestre Supremo'];
+      const titulo = titulos[Math.min(heroState.nivel - 1, titulos.length - 1)];
+      sub.textContent = `✦ ${titulo.toUpperCase()} · NÍVEL ${heroState.nivel} ✦`;
+
+      // Fala contextual
+      bubble.textContent = '';
+      const fala = gerarFalaHeroi();
+      let i = 0;
+      const typeTimer = setInterval(() => {
+        if (i < fala.length) { bubble.textContent += fala[i++]; }
+        else clearInterval(typeTimer);
+      }, 22);
+
+      // Abre overlay
+      const overlay = document.getElementById('hero-overlay');
+      overlay.style.display = 'flex';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => overlay.classList.add('open'));
+      });
+
+      // Partículas ao abrir
+      const cx = window.innerWidth/2, cy = window.innerHeight/2;
+      setTimeout(() => {
+        spawnColorSparks(cx, cy - 100, 30, ['rgba(255,215,0,','rgba(255,180,50,','rgba(255,255,150,']);
+        spawnShockwave(cx, cy, 'rgba(255,215,0,', 160);
+        screenFlash();
+      }, 350);
+    }
+
+    function gerarFalaHeroi() {
+      const nome = heroState.nome;
+      const streak = heroState.streakLeitura;
+      const nivel  = heroState.nivel;
+      const duo    = heroState.duoBatidos;
+      const meta   = heroState.metaDuo;
+
+      if (streak >= 30) return `⚡ TRINTA DIAS SEGUIDOS! A Ordem canta seu nome, ${nome}! Você é uma lenda!`;
+      if (streak >= 14) return `🔥 ${streak} dias de leitura sem parar! ${nome}, você tem a chama de um campeão!`;
+      if (streak >= 7)  return `🔥 Uma semana inteira lendo! ${nome}, a Ordem se orgulha de você!`;
+      if (streak >= 3)  return `⚔️ ${streak} dias seguidos, ${nome}! Continue e alcance novos marcos!`;
+      if (duo >= meta)  return `🦉 Meta do Duolingo concluída esta semana! ${nome}, as línguas se curvam diante de você!`;
+      if (duo > 0)      return `🦉 ${duo} dia${duo>1?'s':''} de Duolingo! ${nome}, o Oráculo sorri para você!`;
+      if (nivel >= 3)   return `⭐ Nível ${nivel}! ${nome}, sua sabedoria cresce com cada página virada!`;
+      if (heroState.energia > 100) return `⚡ ${heroState.energia} de energia! ${nome}, a Ordem sente sua força!`;
+      // Default rotativo
+      const falas = [
+        `⚔️ ${nome}! Cada livro lido forja um guardião mais forte!`,
+        `🛡️ A Ordem conta com você, ${nome}! Continue sua jornada!`,
+        `✨ Seu avatar representa sua dedicação, ${nome}. Orgulho da Ordem!`,
+        `📚 Um guardião que lê nunca é derrotado, ${nome}!`,
+        `🌟 ${nome}, os Mestres do passado soriem ao ver seu progresso!`,
+      ];
+      return falas[Math.floor(Math.random() * falas.length)];
+    }
+
+    function fecharHeroOverlay() {
+      initAudio();
+      vibrate(30);
+      soundTone(440, 'sine', 0.15, 0.12, 0.005);
+      const overlay = document.getElementById('hero-overlay');
+      overlay.classList.remove('open');
+      setTimeout(() => { overlay.style.display = 'none'; }, 450);
     }
 
     /* ============================================================
