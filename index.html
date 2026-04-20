@@ -1379,7 +1379,7 @@
 
     <div class="forge-title">⚔ A FORJA ÉPICA ⚔</div>
     <div id="forge-display">0 💎</div>
-    <div class="forge-cost-label">Toque no martelo · 30 ⚡ = 10 💎</div>
+    <div class="forge-cost-label" id="forge-cost-label">Toque no martelo · 30 ⚡ = 10 💎</div>
 
     <div style="position:relative; z-index:2; margin: 8px 0;">
       <div class="sparks-container" id="sparks-container"></div>
@@ -2056,6 +2056,10 @@
         if (cfg.bonus_leitura_7d)       streakConfig.bonus_leitura_7d       = Number(cfg.bonus_leitura_7d);
         if (cfg.bonus_leitura_14d)      streakConfig.bonus_leitura_14d      = Number(cfg.bonus_leitura_14d);
         if (cfg.bonus_leitura_30d)      streakConfig.bonus_leitura_30d      = Number(cfg.bonus_leitura_30d);
+        if (cfg.custo_forja)            streakConfig.custo_forja             = Number(cfg.custo_forja);
+        if (cfg.ganho_forja)            streakConfig.ganho_forja             = Number(cfg.ganho_forja);
+        // Update forge UI text and logic with latest config
+        atualizarForjaConfig();
 
         // ── Calcular streaks ──
         const allTrans = Object.values(transMap);
@@ -2114,10 +2118,18 @@
     ============================================================ */
     let forgeAcc = 0;
 
+    function atualizarForjaConfig() {
+      const c = streakConfig.custo_forja || 30;
+      const g = streakConfig.ganho_forja || 10;
+      const lbl = document.getElementById('forge-cost-label');
+      if (lbl) lbl.textContent = `Toque no martelo · ${c} ⚡ = ${g} 💎`;
+    }
+
     function abrirForja(event) {
       soundButtonTap();
       if (event) addRipple(event.currentTarget, event);
       vibrate(50);
+      atualizarForjaConfig();
       document.getElementById('forge-modal').style.display = 'flex';
       forgeAcc = 0;
       atualizarForgeUI();
@@ -2130,9 +2142,11 @@
     }
 
     function addForge() {
-      if (currentEnergy >= 30) {
-        currentEnergy -= 30;
-        forgeAcc += 10;
+      const custoForja = streakConfig.custo_forja || 30;
+      const ganhoForja = streakConfig.ganho_forja || 10;
+      if (currentEnergy >= custoForja) {
+        currentEnergy -= custoForja;
+        forgeAcc += ganhoForja;
 
         // Animação do martelo
         const hammer = document.getElementById('hammer-btn');
@@ -2192,7 +2206,8 @@
           const userRef = db.ref('usuarios/' + userKey);
           const snap = await userRef.get();
           const userData = snap.val();
-          const custo = (forgeAcc / 10) * 30;
+          const ganhoForja2 = streakConfig.ganho_forja || 10;
+          const custo = (forgeAcc / ganhoForja2) * (streakConfig.custo_forja || 30);
           if (Number(userData.saldo_energia) < custo) {
             setForgeMsg('⚡ Energia insuficiente! Leia mais livros primeiro.'); return;
           }
@@ -2594,11 +2609,13 @@
       min_leitura_diaria:     15,
       min_duolingo_diario:    15,
       meta_duo_semanal_dias:  7,
-      recompensa_duo_semanal: 20,   // cristais
+      recompensa_duo_semanal: 20,
       bonus_leitura_3d:  20,
       bonus_leitura_7d:  40,
       bonus_leitura_14d: 60,
-      bonus_leitura_30d: 90
+      bonus_leitura_30d: 90,
+      custo_forja: 30,
+      ganho_forja: 10
     };
 
     // Normaliza data para string YYYY-MM-DD no fuso local
