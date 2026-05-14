@@ -1067,6 +1067,175 @@
       animation: fade-in-hint 1.2s ease 1s both;
     }
     @keyframes fade-in-hint { from{opacity:0} to{opacity:1} }
+
+    /* ============ BOTTOM SHEET LOJAS ============
+       position: fixed + bottom:0 garante que o painel
+       seja posicionado em relação ao VIEWPORT, nunca ao
+       container rolável — isso evita o bug de aparecer
+       "muito para baixo".
+    ============ */
+    .loja-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(2,5,15,0.88);
+      z-index: 2900;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .loja-backdrop.open { opacity: 1; pointer-events: all; }
+
+    .loja-sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;   /* ancorado ao viewport */
+      z-index: 2901;
+      background: linear-gradient(180deg, #0C1A30 0%, #060E1E 100%);
+      border-top: 2px solid var(--gold-dark);
+      border-radius: 22px 22px 0 0;
+      max-height: 82dvh;
+      transform: translateY(102%);   /* começa fora da tela */
+      transition: transform 0.45s cubic-bezier(0.34,1.1,0.64,1);
+      display: flex; flex-direction: column;
+      box-shadow: 0 -8px 40px rgba(0,0,0,0.7), 0 -1px 0 rgba(255,215,0,0.2);
+      will-change: transform;
+    }
+    .loja-sheet.open { transform: translateY(0); }
+
+    .loja-handle {
+      width: 44px; height: 5px; border-radius: 3px;
+      background: rgba(255,215,0,0.25);
+      margin: 10px auto 0; flex-shrink: 0;
+    }
+    .loja-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 18px 10px;
+      border-bottom: 1px solid rgba(255,215,0,0.12);
+      flex-shrink: 0;
+    }
+    .loja-title {
+      font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 900;
+      color: var(--gold); text-shadow: 0 0 12px rgba(255,150,0,0.5);
+      letter-spacing: 0.04em;
+    }
+    .loja-close {
+      font-size: 1.6rem; color: rgba(200,180,140,0.5);
+      cursor: pointer; background: none; border: none; padding: 4px;
+      line-height: 1; transition: color 0.15s, transform 0.1s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .loja-close:active { color: white; transform: scale(0.82); }
+    .loja-body {
+      overflow-y: auto; flex: 1;
+      padding: 12px 16px 36px;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+    .loja-body::-webkit-scrollbar { display: none; }
+    .loja-body { scrollbar-width: none; }
+
+    /* ── Artefatos ── */
+    .arf-active-banner {
+      background: linear-gradient(135deg, rgba(0,160,70,0.14), rgba(0,100,45,0.1));
+      border: 1.5px solid rgba(0,220,100,0.35);
+      border-radius: 14px; padding: 11px 14px;
+      margin-bottom: 14px;
+      display: none; align-items: center; gap: 10px;
+      position: relative; overflow: hidden;
+    }
+    .arf-active-banner.show { display: flex; }
+    .arf-active-banner::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(0,255,100,0.04), transparent);
+      animation: shimmer-hud 3s infinite;
+    }
+    .arf-active-icon { font-size: 2.2rem; flex-shrink: 0; }
+    .arf-active-info { flex: 1; }
+    .arf-active-name {
+      font-family: 'Cinzel', serif; font-size: 0.88rem; font-weight: 900;
+      color: #00FF88;
+    }
+    .arf-active-desc { font-size: 0.7rem; color: rgba(0,255,136,0.65); margin-top: 2px; }
+    .arf-active-timer {
+      font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 900;
+      color: #00FF88; text-align: right; flex-shrink: 0;
+      text-shadow: 0 0 10px rgba(0,255,136,0.5);
+    }
+    .arf-active-label {
+      font-size: 0.6rem; color: rgba(0,255,136,0.5); text-align: right;
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+
+    .arf-section-label {
+      font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 700;
+      color: rgba(255,215,0,0.45); letter-spacing: 0.1em;
+      margin: 4px 0 8px; text-transform: uppercase;
+    }
+    .arf-grid { display: flex; flex-direction: column; gap: 8px; }
+
+    .arf-card {
+      background: linear-gradient(135deg, rgba(12,26,52,0.9), rgba(6,14,30,0.95));
+      border: 1.5px solid rgba(255,215,0,0.18);
+      border-radius: 14px; padding: 11px 13px;
+      display: flex; align-items: center; gap: 11px;
+      transition: border-color 0.2s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .arf-card.ativo {
+      border-color: rgba(0,220,100,0.45);
+      background: linear-gradient(135deg, rgba(0,70,35,0.3), rgba(0,40,20,0.4));
+    }
+    .arf-card-icon { font-size: 2rem; flex-shrink: 0; width: 42px; text-align: center; }
+    .arf-card-info { flex: 1; min-width: 0; }
+    .arf-card-name {
+      font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 900;
+      color: var(--gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .arf-card-desc { font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    .arf-card-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+    .arf-tag {
+      font-size: 0.62rem; font-weight: 800; border-radius: 7px;
+      padding: 2px 6px; border: 1px solid;
+    }
+    .arf-tag-mult { color: #00D4FF; border-color: rgba(0,212,255,0.35); background: rgba(0,212,255,0.08); }
+    .arf-tag-dur  { color: #FFA040; border-color: rgba(255,160,64,0.35); background: rgba(255,160,64,0.08); }
+
+    .arf-btn {
+      flex-shrink: 0; height: 36px; padding: 0 13px;
+      border-radius: 10px; border: 2px solid;
+      font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 700;
+      cursor: pointer; transition: transform 0.1s, box-shadow 0.15s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .arf-btn:active { transform: translateY(2px); }
+    .arf-btn-ativar {
+      background: linear-gradient(135deg, #133808, #1f5a0d);
+      color: #00FF88; border-color: rgba(0,180,80,0.5);
+      box-shadow: 0 4px 0 #0a1f05;
+    }
+    .arf-btn-ativar:active { box-shadow: 0 2px 0 #0a1f05; }
+    .arf-btn-desativar {
+      background: linear-gradient(135deg, #3a0a0a, #5a1010);
+      color: #FF6666; border-color: rgba(180,0,0,0.4);
+      box-shadow: 0 4px 0 #1f0505;
+    }
+    .arf-btn-desativar:active { box-shadow: 0 2px 0 #1f0505; }
+    .arf-btn-expirado {
+      background: rgba(30,30,40,0.6); color: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.08); box-shadow: none; cursor: default;
+    }
+
+    .arf-empty {
+      text-align: center; padding: 28px 20px;
+      color: rgba(255,220,150,0.4); font-size: 0.8rem; font-weight: 700;
+    }
+    .arf-empty-icon { font-size: 2.8rem; display: block; margin-bottom: 8px; }
+
+    /* Indicador de booster ativo no HUD da Forja */
+    .forge-booster-tag {
+      display: none; align-items: center; gap: 5px;
+      background: rgba(0,180,80,0.12); border: 1px solid rgba(0,220,100,0.3);
+      border-radius: 8px; padding: 4px 10px; margin-top: 6px;
+      font-size: 0.72rem; font-weight: 800; color: #00FF88;
+    }
+    .forge-booster-tag.show { display: flex; }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1293,7 +1462,7 @@
           <ellipse cx="24" cy="36" rx="8" ry="4" fill="#FFD700" opacity="0.8"/>
         </svg>Avatares
       </div>
-      <div class="menu-item" onclick="tocarFooter(this,'O Baú de Artefatos está trancado... por ora.', '⚔️')">
+      <div class="menu-item" onclick="abrirArtefatos()"">
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <line x1="9" y1="9" x2="39" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
           <line x1="39" y1="9" x2="9" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
@@ -1380,6 +1549,10 @@
     <div class="forge-title">⚔ A FORJA ÉPICA ⚔</div>
     <div id="forge-display">0 💎</div>
     <div class="forge-cost-label" id="forge-cost-label">Toque no martelo · 30 ⚡ = 10 💎</div>
+    <div class="forge-booster-tag" id="forge-booster-tag">
+      <span id="forge-booster-icon">✨</span>
+      <span id="forge-booster-text">Booster ativo!</span>
+    </div>
 
     <div style="position:relative; z-index:2; margin: 8px 0;">
       <div class="sparks-container" id="sparks-container"></div>
@@ -1387,6 +1560,24 @@
     </div>
 
     <button onclick="confirmarForja()" class="btn-confirm-forge">⚔ CONCLUIR FORJA ⚔</button>
+  </div>
+
+  <!-- =========== BACKDROP LOJAS =========== -->
+  <div class="loja-backdrop" id="loja-backdrop" onclick="fecharLojaAtual()"></div>
+
+  <!-- =========== LOJA DE ARTEFATOS (Bottom Sheet) =========== -->
+  <div class="loja-sheet" id="artefatos-sheet">
+    <div class="loja-handle"></div>
+    <div class="loja-header">
+      <span class="loja-title">⚔ BAÚ DE ARTEFATOS ⚔</span>
+      <button class="loja-close" onclick="fecharArtefatos()">✕</button>
+    </div>
+    <div class="loja-body" id="artefatos-body">
+      <div class="arf-empty">
+        <span class="arf-empty-icon">⚗️</span>
+        Carregando artefatos...
+      </div>
+    </div>
   </div>
 
   <script>
@@ -2106,6 +2297,8 @@
           msgOra = msgs[Math.floor(Math.random() * msgs.length)];
         }
         oraMsg(msgOra);
+        // Verifica booster ativo dos artefatos
+        verificarBoosterAtivo();
 
       } catch(err) {
         oraMsg('⚠️ Não consegui conectar ao servidor. Tente novamente.');
@@ -2143,7 +2336,14 @@
 
     function addForge() {
       const custoForja = streakConfig.custo_forja || 30;
-      const ganhoForja = streakConfig.ganho_forja || 10;
+      const ganhoBase  = streakConfig.ganho_forja || 10;
+
+      // Booster ativo?
+      const mult = (arfBoosterAtivo && arfBoosterAtivo.expira_em &&
+                    new Date(arfBoosterAtivo.expira_em).getTime() > Date.now())
+                   ? (arfBoosterAtivo.multiplicador || 1) : 1;
+      const ganhoForja = ganhoBase * mult;
+
       if (currentEnergy >= custoForja) {
         currentEnergy -= custoForja;
         forgeAcc += ganhoForja;
@@ -2169,7 +2369,7 @@
         void fd.offsetWidth;
         fd.classList.add('crystal-pop');
 
-        spawnFloat('+10 💎', '#00D4FF', hx, hy - 30);
+        spawnFloat(`+${ganhoForja} 💎`, mult > 1 ? '#00FF88' : '#00D4FF', hx, hy - 30);
         soundForgeHit();
         screenShake(7, 300);
         vibrate(60);
@@ -2206,7 +2406,11 @@
           const userRef = db.ref('usuarios/' + userKey);
           const snap = await userRef.get();
           const userData = snap.val();
-          const ganhoForja2 = streakConfig.ganho_forja || 10;
+          const ganhoBase2   = streakConfig.ganho_forja || 10;
+          const mult2        = (arfBoosterAtivo && arfBoosterAtivo.expira_em &&
+                                new Date(arfBoosterAtivo.expira_em).getTime() > Date.now())
+                               ? (arfBoosterAtivo.multiplicador || 1) : 1;
+          const ganhoForja2  = ganhoBase2 * mult2;
           const custo = (forgeAcc / ganhoForja2) * (streakConfig.custo_forja || 30);
           if (Number(userData.saldo_energia) < custo) {
             setForgeMsg('⚡ Energia insuficiente! Leia mais livros primeiro.'); return;
@@ -2220,7 +2424,9 @@
             email: currentUserEmail,
             tipo: 'Forja',
             quantidade: forgeAcc,
-            detalhes: `Forja Épica de ${forgeAcc} cristais`,
+            detalhes: mult2 > 1
+              ? `Forja Épica de ${forgeAcc} cristais (×${mult2} Booster: ${arfBoosterAtivo.nome})`
+              : `Forja Épica de ${forgeAcc} cristais`,
             status: 'Aprovado'
           });
           setForgeMsg(`⚒️ Forja concluída! +${forgeAcc} Cristais adquiridos!`);
@@ -3200,6 +3406,293 @@
     }
 
     /* ══════════════════════════════════════════════════════
+       LOJA DE ARTEFATOS — Bottom Sheet
+    ══════════════════════════════════════════════════════ */
+    let lojaAberta = null;          // qual sheet está aberta
+    let arfTimerInterval = null;    // countdown do booster ativo
+    let arfBoosterAtivo = null;     // { key, artefato } do booster ativo em cache
+
+    /* Abre a Loja de Artefatos */
+    function abrirArtefatos() {
+      initAudio();
+      vibrate([25, 15, 35]);
+      soundTone(660, 'sine', 0.2, 0.18, 0.005);
+      setTimeout(() => soundTone(880, 'sine', 0.15, 0.14, 0.005), 140);
+
+      const sheet    = document.getElementById('artefatos-sheet');
+      const backdrop = document.getElementById('loja-backdrop');
+      sheet.classList.add('open');
+      backdrop.classList.add('open');
+      lojaAberta = 'artefatos';
+
+      // Partículas saindo do ícone do footer
+      const item = document.querySelector('.footer-menu .menu-item:nth-child(2)');
+      if (item) {
+        const rect = item.getBoundingClientRect();
+        spawnColorSparks(rect.left + rect.width/2, rect.top, 10,
+          ['rgba(0,212,255,','rgba(255,215,0,','rgba(100,220,255,']);
+      }
+
+      carregarArtefatos();
+    }
+
+    /* Fecha a Loja de Artefatos */
+    function fecharArtefatos() {
+      const sheet    = document.getElementById('artefatos-sheet');
+      const backdrop = document.getElementById('loja-backdrop');
+      sheet.classList.remove('open');
+      backdrop.classList.remove('open');
+      lojaAberta = null;
+      vibrate(20);
+      soundTone(440, 'sine', 0.12, 0.12, 0.008);
+    }
+
+    /* Fecha qualquer loja aberta (chamado pelo backdrop) */
+    function fecharLojaAtual() {
+      if (lojaAberta === 'artefatos') fecharArtefatos();
+    }
+
+    /* Carrega artefatos do Firebase e renderiza */
+    async function carregarArtefatos() {
+      const body = document.getElementById('artefatos-body');
+      if (!currentUserEmail) {
+        body.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">🔒</span>Entre como Guardião primeiro.</div>';
+        return;
+      }
+      body.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">⚗️</span>Carregando artefatos...</div>';
+
+      try {
+        const emailKey = sanitizeEmail(currentUserEmail);
+        const snap = await db.ref('usuarios/' + emailKey + '/artefatos').get();
+        const raw = snap.exists() ? snap.val() : {};
+
+        // Normaliza para array com key incluída
+        const lista = Object.entries(raw).map(([k, v]) => ({ key: k, ...v }));
+        renderArtefatos(lista);
+      } catch(e) {
+        body.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">❌</span>Erro ao carregar. Tente novamente.</div>';
+      }
+    }
+
+    /* Renderiza a lista de artefatos */
+    function renderArtefatos(lista) {
+      const body = document.getElementById('artefatos-body');
+
+      // Limpa timer anterior
+      if (arfTimerInterval) { clearInterval(arfTimerInterval); arfTimerInterval = null; }
+
+      if (!lista.length) {
+        body.innerHTML = `
+          <div class="arf-empty">
+            <span class="arf-empty-icon">📦</span>
+            Seu baú está vazio, Guardião!<br>
+            <span style="font-size:0.7rem;opacity:0.7;display:block;margin-top:6px;">
+              Complete tarefas para receber Artefatos do Mestre.
+            </span>
+          </div>`;
+        arfBoosterAtivo = null;
+        atualizarBoosterForja(null);
+        return;
+      }
+
+      // Separa ativo, disponíveis, expirados
+      const agora = Date.now();
+      const ativos     = lista.filter(a => a.ativo && a.expira_em && new Date(a.expira_em).getTime() > agora);
+      const disponiveis = lista.filter(a => !a.ativo && (!a.expira_em || new Date(a.expira_em).getTime() > agora));
+      const expirados  = lista.filter(a => a.ativo && a.expira_em && new Date(a.expira_em).getTime() <= agora);
+      // Artefatos não ativados e sem expiração
+      const estoqueNovo = lista.filter(a => !a.ativo && !a.expira_em);
+      const todosDispo = [...disponiveis, ...estoqueNovo];
+
+      arfBoosterAtivo = ativos.length ? ativos[0] : null;
+      atualizarBoosterForja(arfBoosterAtivo);
+
+      let html = '';
+
+      // ── Banner do booster ativo ──
+      if (ativos.length) {
+        const a = ativos[0];
+        const expMs = new Date(a.expira_em).getTime() - agora;
+        html += `
+          <div class="arf-active-banner show" id="arf-active-banner">
+            <span class="arf-active-icon">${a.icone || '✨'}</span>
+            <div class="arf-active-info">
+              <div class="arf-active-name">${a.nome}</div>
+              <div class="arf-active-desc">×${a.multiplicador} nos cristais da Forja</div>
+            </div>
+            <div>
+              <div class="arf-active-timer" id="arf-timer">${formatarTempo(expMs)}</div>
+              <div class="arf-active-label">restante</div>
+            </div>
+          </div>`;
+
+        // Inicia countdown
+        arfTimerInterval = setInterval(() => {
+          const resto = new Date(a.expira_em).getTime() - Date.now();
+          const el = document.getElementById('arf-timer');
+          if (!el) { clearInterval(arfTimerInterval); return; }
+          if (resto <= 0) {
+            clearInterval(arfTimerInterval);
+            el.textContent = 'Expirado';
+            carregarArtefatos(); // recarrega
+          } else {
+            el.textContent = formatarTempo(resto);
+          }
+        }, 1000);
+      }
+
+      // ── Artefatos disponíveis ──
+      if (todosDispo.length) {
+        html += `<div class="arf-section-label">✦ Disponíveis (${todosDispo.length})</div><div class="arf-grid">`;
+        todosDispo.forEach(a => {
+          html += criarCardArtefato(a, 'disponivel', ativos.length > 0);
+        });
+        html += '</div>';
+      }
+
+      // ── Artefato ativo (card também) ──
+      if (ativos.length) {
+        html += `<div class="arf-section-label" style="margin-top:12px">⚡ Ativo Agora</div><div class="arf-grid">`;
+        ativos.forEach(a => { html += criarCardArtefato(a, 'ativo', false); });
+        html += '</div>';
+      }
+
+      // ── Expirados ──
+      if (expirados.length) {
+        html += `<div class="arf-section-label" style="margin-top:12px;opacity:0.4">⏳ Expirados</div><div class="arf-grid">`;
+        expirados.forEach(a => { html += criarCardArtefato(a, 'expirado', false); });
+        html += '</div>';
+      }
+
+      if (!html) {
+        html = '<div class="arf-empty"><span class="arf-empty-icon">📦</span>Baú vazio, Guardião.</div>';
+      }
+
+      body.innerHTML = html;
+    }
+
+    /* Cria HTML de um card de artefato */
+    function criarCardArtefato(a, estado, temAtivoJa) {
+      let btnHtml = '';
+      let cardClass = 'arf-card';
+      if (estado === 'ativo') {
+        cardClass += ' ativo';
+        btnHtml = `<button class="arf-btn arf-btn-desativar" onclick="desativarArtefato('${a.key}')">Desativar</button>`;
+      } else if (estado === 'expirado') {
+        btnHtml = `<button class="arf-btn arf-btn-expirado" disabled>Expirado</button>`;
+      } else {
+        const disabled = temAtivoJa ? 'disabled title="Desative o booster atual primeiro"' : '';
+        btnHtml = `<button class="arf-btn arf-btn-ativar" onclick="ativarArtefato('${a.key}')" ${disabled}>Ativar</button>`;
+      }
+
+      const durLabel = a.duracao_horas >= 24
+        ? (a.duracao_horas / 24) + 'd'
+        : a.duracao_horas + 'h';
+
+      return `
+        <div class="${cardClass}">
+          <div class="arf-card-icon">${a.icone || '✨'}</div>
+          <div class="arf-card-info">
+            <div class="arf-card-name">${a.nome}</div>
+            <div class="arf-card-desc">${a.descricao || 'Booster de Cristais'}</div>
+            <div class="arf-card-tags">
+              <span class="arf-tag arf-tag-mult">×${a.multiplicador} Cristais</span>
+              <span class="arf-tag arf-tag-dur">⏱ ${durLabel}</span>
+            </div>
+          </div>
+          ${btnHtml}
+        </div>`;
+    }
+
+    /* Formata ms → "2h 30m" ou "45m" */
+    function formatarTempo(ms) {
+      if (ms <= 0) return '0m';
+      const totalMin = Math.floor(ms / 60000);
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      return h > 0 ? `${h}h ${m}m` : `${m}m`;
+    }
+
+    /* Ativa um artefato — define expira_em no Firebase */
+    async function ativarArtefato(key) {
+      initAudio();
+      vibrate([40, 20, 60]);
+      soundTone(880, 'sine', 0.25, 0.2, 0.005);
+      setTimeout(() => soundTone(1100, 'sine', 0.2, 0.18, 0.005), 130);
+      setTimeout(() => soundTone(1320, 'sine', 0.15, 0.15, 0.005), 260);
+
+      try {
+        const emailKey = sanitizeEmail(currentUserEmail);
+        const ref = db.ref(`usuarios/${emailKey}/artefatos/${key}`);
+        const snap = await ref.get();
+        if (!snap.exists()) { oraMsg('❌ Artefato não encontrado.'); return; }
+        const artefato = snap.val();
+        const durMs = (artefato.duracao_horas || 24) * 3600 * 1000;
+        const expiraEm = new Date(Date.now() + durMs).toISOString();
+
+        await ref.update({ ativo: true, expira_em: expiraEm });
+
+        // Efeitos visuais
+        const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+        spawnColorSparks(cx, cy - 80, 20, ['rgba(0,255,136,','rgba(255,215,0,','rgba(0,212,255,']);
+        spawnShockwave(cx, cy - 80, 'rgba(0,255,136,', 100);
+        oraMsg(`✨ ${artefato.nome} ativado! Forja ×${artefato.multiplicador} por ${artefato.duracao_horas}h. Bora forjar, Guardião!`);
+
+        // Recarrega a lista
+        await carregarArtefatos();
+      } catch(e) {
+        oraMsg('❌ Erro ao ativar artefato. Tente novamente.');
+      }
+    }
+
+    /* Desativa um artefato */
+    async function desativarArtefato(key) {
+      initAudio();
+      vibrate(30);
+      soundTone(440, 'sine', 0.12, 0.15, 0.01);
+      try {
+        const emailKey = sanitizeEmail(currentUserEmail);
+        await db.ref(`usuarios/${emailKey}/artefatos/${key}`).update({ ativo: false, expira_em: null });
+        arfBoosterAtivo = null;
+        atualizarBoosterForja(null);
+        oraMsg('⚔ Artefato desativado. Seu inventário está guardado, Guardião.');
+        await carregarArtefatos();
+      } catch(e) {
+        oraMsg('❌ Erro ao desativar. Tente novamente.');
+      }
+    }
+
+    /* Atualiza o indicador de booster na Forja */
+    function atualizarBoosterForja(booster) {
+      const tag = document.getElementById('forge-booster-tag');
+      if (!tag) return;
+      if (booster) {
+        document.getElementById('forge-booster-icon').textContent = booster.icone || '✨';
+        document.getElementById('forge-booster-text').textContent =
+          `${booster.nome} ativo — ×${booster.multiplicador} Cristais!`;
+        tag.classList.add('show');
+      } else {
+        tag.classList.remove('show');
+      }
+    }
+
+    /* Verifica booster ativo ao carregar */
+    async function verificarBoosterAtivo() {
+      if (!currentUserEmail) return;
+      try {
+        const emailKey = sanitizeEmail(currentUserEmail);
+        const snap = await db.ref('usuarios/' + emailKey + '/artefatos').get();
+        if (!snap.exists()) { atualizarBoosterForja(null); return; }
+        const agora = Date.now();
+        const ativos = Object.entries(snap.val())
+          .filter(([k, v]) => v.ativo && v.expira_em && new Date(v.expira_em).getTime() > agora)
+          .map(([k, v]) => ({ key: k, ...v }));
+        arfBoosterAtivo = ativos.length ? ativos[0] : null;
+        atualizarBoosterForja(arfBoosterAtivo);
+      } catch(e) {}
+    }
+
+    /* ══════════════════════════════════════════════════════
        INTERAÇÃO — Cabeças do Duolingo
     ══════════════════════════════════════════════════════ */
     function tocarCabecaDuo(img, bateu, dateStr) {
@@ -3338,7 +3831,7 @@
         ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
       // Oráculo fala a mensagem imediatamente
       if (notif) {
-        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
+        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', artefato:'⚔️' };
         oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
         // Efeitos adicionais por tipo
         const cx = window.innerWidth/2, cy = window.innerHeight/2;
@@ -3356,6 +3849,15 @@
         } else if (notif.tipo === 'gasto') {
           [1047,784,523].forEach((f,i) => setTimeout(()=>soundTone(f,'sine',0.3,0.2,0.01), i*120+300));
           setTimeout(() => spawnColorSparks(cx, cy-80, 15, ['rgba(0,212,255,','rgba(100,200,255,']), 500);
+        } else if (notif.tipo === 'artefato') {
+          soundCrystalChime();
+          setTimeout(() => {
+            spawnColorSparks(cx, cy-80, 18, ['rgba(255,215,0,','rgba(0,212,255,','rgba(180,100,255,']);
+            spawnShockwave(cx, cy-80, 'rgba(255,215,0,', 90);
+          }, 400);
+          // Recarrega booster ativo se o painel estiver aberto
+          if (lojaAberta === 'artefatos') carregarArtefatos();
+          else verificarBoosterAtivo();
         }
       }
     }
@@ -3368,7 +3870,7 @@
       }
       // Mostra todas as mensagens em sequência
       const msgs = filaNotificacoes.map(n => {
-        const ic = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
+        const ic = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', artefato:'⚔️' };
         return `${ic[n.tipo]||'⚔️'} ${n.mensagem}`;
       });
       oraMsg(msgs.join(' ✦ '));
