@@ -1236,6 +1236,150 @@
       font-size: 0.72rem; font-weight: 800; color: #00FF88;
     }
     .forge-booster-tag.show { display: flex; }
+
+    /* ============ TABS INTERNAS DO BOTTOM SHEET ============ */
+    .loja-tabs {
+      display: flex; gap: 0; padding: 10px 16px 0; flex-shrink: 0;
+    }
+    .loja-tab {
+      flex: 1; padding: 9px 0; text-align: center;
+      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 900;
+      letter-spacing: 0.04em;
+      border: 1.5px solid rgba(255,215,0,0.18);
+      background: rgba(255,255,255,0.02); color: rgba(255,215,0,0.45);
+      cursor: pointer; transition: all 0.2s;
+      -webkit-user-select: none; user-select: none; position: relative;
+    }
+    .loja-tab:first-child { border-radius: 10px 0 0 0; border-right: none; }
+    .loja-tab:last-child  { border-radius: 0 10px 0 0; }
+    .loja-tab.active {
+      background: rgba(255,215,0,0.09); color: var(--gold);
+      border-color: rgba(255,215,0,0.38);
+    }
+    .loja-tab-badge {
+      position: absolute; top: 4px; right: 8px;
+      background: #FF3333; color: white;
+      font-size: 0.55rem; font-weight: 900;
+      min-width: 16px; height: 16px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 3px; font-family: sans-serif;
+    }
+    .loja-tab-divider {
+      height: 1.5px; background: rgba(255,215,0,0.18);
+      flex-shrink: 0; margin: 0 16px 0;
+    }
+
+    /* ============ CARDS DE MISSÃO ============ */
+    .missao-grid { display: flex; flex-direction: column; gap: 9px; }
+    .missao-card {
+      background: linear-gradient(135deg, rgba(10,22,48,0.92), rgba(5,12,28,0.96));
+      border: 1.5px solid rgba(255,215,0,0.18);
+      border-radius: 14px; padding: 12px 13px;
+      display: flex; align-items: center; gap: 11px;
+      transition: border-color 0.2s;
+      -webkit-user-select: none; user-select: none;
+    }
+    .missao-card.solicitado {
+      border-color: rgba(255,160,30,0.4);
+      background: linear-gradient(135deg, rgba(40,20,0,0.35), rgba(20,10,0,0.45));
+    }
+    .missao-icon  { font-size: 2rem; flex-shrink: 0; width: 42px; text-align: center; }
+    .missao-info  { flex: 1; min-width: 0; }
+    .missao-nome  {
+      font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 900;
+      color: var(--gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .missao-desc  { font-size: 0.68rem; color: rgba(255,255,255,0.48); margin-top: 2px; }
+    .missao-premio {
+      font-family: 'Cinzel', serif; font-size: 0.78rem; font-weight: 900;
+      color: #00D4FF; white-space: nowrap; flex-shrink: 0;
+      text-shadow: 0 0 8px rgba(0,212,255,0.4);
+    }
+    .missao-btn {
+      flex-shrink: 0; height: 36px; padding: 0 13px; margin-left: 6px;
+      border-radius: 10px; border: 2px solid;
+      font-family: 'Cinzel', serif; font-size: 0.68rem; font-weight: 700;
+      cursor: pointer; transition: transform 0.1s, box-shadow 0.15s;
+      -webkit-user-select: none; user-select: none; white-space: nowrap;
+    }
+    .missao-btn:active { transform: translateY(2px); }
+    .missao-btn-solicitar {
+      background: linear-gradient(135deg, #0a1a3a, #122a5a);
+      color: var(--gold); border-color: rgba(255,215,0,0.38);
+      box-shadow: 0 4px 0 #050e20;
+    }
+    .missao-btn-solicitar:active { box-shadow: 0 2px 0 #050e20; }
+    .missao-btn-aguardando {
+      background: rgba(40,25,0,0.6); color: rgba(255,160,30,0.7);
+      border-color: rgba(255,160,30,0.25); box-shadow: none; cursor: default;
+      font-size: 0.62rem;
+    }
+    .missao-secao-label {
+      font-family: 'Cinzel', serif; font-size: 0.63rem; font-weight: 700;
+      color: rgba(255,215,0,0.4); letter-spacing: 0.1em;
+      margin: 4px 0 8px; text-transform: uppercase;
+    }
+
+    /* ============ CARDS DO BAÚ (boosters prontos) ============ */
+    .bau-grid { display: flex; flex-direction: column; gap: 10px; }
+    .bau-card {
+      background: linear-gradient(135deg, rgba(0,55,28,0.35), rgba(0,28,14,0.45));
+      border: 2px solid rgba(0,220,100,0.45);
+      border-radius: 14px; padding: 14px 14px;
+      display: flex; align-items: center; gap: 12px;
+      position: relative; overflow: hidden;
+      animation: bau-pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes bau-pulse {
+      0%,100% { border-color: rgba(0,220,100,0.4); box-shadow: 0 0 0 rgba(0,220,100,0); }
+      50%     { border-color: rgba(0,220,100,0.75); box-shadow: 0 0 18px rgba(0,220,100,0.2); }
+    }
+    .bau-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(0,255,120,0.05), transparent);
+      animation: shimmer-hud 2.5s infinite;
+    }
+    .bau-icon  { font-size: 2.4rem; flex-shrink: 0; width: 44px; text-align: center; }
+    .bau-info  { flex: 1; min-width: 0; }
+    .bau-nome  {
+      font-family: 'Cinzel', serif; font-size: 0.88rem; font-weight: 900; color: #00FF88;
+    }
+    .bau-desc  { font-size: 0.68rem; color: rgba(0,255,136,0.6); margin-top: 2px; }
+    .bau-premio {
+      font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 900;
+      color: #00D4FF; text-shadow: 0 0 10px rgba(0,212,255,0.5); flex-shrink: 0;
+    }
+    .bau-btn-coletar {
+      flex-shrink: 0; height: 42px; padding: 0 16px; margin-left: 8px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0a2a15, #104020);
+      color: #00FF88; border: 2px solid rgba(0,200,80,0.5);
+      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 900;
+      cursor: pointer; box-shadow: 0 5px 0 #04120a;
+      transition: transform 0.1s, box-shadow 0.1s;
+      -webkit-user-select: none; user-select: none;
+      animation: btn-glow 2s ease-in-out infinite;
+    }
+    @keyframes btn-glow {
+      0%,100% { box-shadow: 0 5px 0 #04120a; }
+      50%     { box-shadow: 0 5px 0 #04120a, 0 0 14px rgba(0,220,100,0.35); }
+    }
+    .bau-btn-coletar:active { transform: translateY(3px); box-shadow: 0 2px 0 #04120a; }
+
+    /* Badge no footer (boosters prontos) */
+    .menu-item { position: relative; }
+    .footer-booster-badge {
+      position: absolute; top: 4px; right: 6px;
+      background: #FF3333; color: white; font-size: 0.55rem; font-weight: 900;
+      min-width: 16px; height: 16px; border-radius: 8px;
+      display: none; align-items: center; justify-content: center; padding: 0 3px;
+      font-family: sans-serif; z-index: 2;
+      animation: badge-ping 1.8s ease-in-out infinite;
+    }
+    @keyframes badge-ping {
+      0%,100% { transform: scale(1); }
+      50%     { transform: scale(1.2); }
+    }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1462,7 +1606,8 @@
           <ellipse cx="24" cy="36" rx="8" ry="4" fill="#FFD700" opacity="0.8"/>
         </svg>Avatares
       </div>
-      <div class="menu-item" onclick="abrirArtefatos()"">
+      <div class="menu-item" onclick="abrirArtefatos()">
+        <span class="footer-booster-badge" id="badge-footer-bau"></span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <line x1="9" y1="9" x2="39" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
           <line x1="39" y1="9" x2="9" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
@@ -1565,18 +1710,28 @@
   <!-- =========== BACKDROP LOJAS =========== -->
   <div class="loja-backdrop" id="loja-backdrop" onclick="fecharLojaAtual()"></div>
 
-  <!-- =========== LOJA DE ARTEFATOS (Bottom Sheet) =========== -->
+  <!-- =========== BAÚ DE ARTEFATOS (Bottom Sheet c/ abas) =========== -->
   <div class="loja-sheet" id="artefatos-sheet">
     <div class="loja-handle"></div>
     <div class="loja-header">
-      <span class="loja-title">⚔ BAÚ DE ARTEFATOS ⚔</span>
+      <span class="loja-title">🏺 BAÚ DE ARTEFATOS</span>
       <button class="loja-close" onclick="fecharArtefatos()">✕</button>
     </div>
-    <div class="loja-body" id="artefatos-body">
-      <div class="arf-empty">
-        <span class="arf-empty-icon">⚗️</span>
-        Carregando artefatos...
+    <!-- Abas -->
+    <div class="loja-tabs">
+      <div class="loja-tab active" id="tab-btn-missoes" onclick="switchTabBau('missoes')">⚔ MISSÕES</div>
+      <div class="loja-tab" id="tab-btn-bau" onclick="switchTabBau('bau')">
+        🎁 BAÚ
+        <span class="loja-tab-badge" id="badge-tab-bau" style="display:none"></span>
       </div>
+    </div>
+    <div class="loja-tab-divider"></div>
+    <!-- Conteúdo das abas -->
+    <div class="loja-body" id="tab-content-missoes">
+      <div class="arf-empty"><span class="arf-empty-icon">⚔️</span>Carregando missões...</div>
+    </div>
+    <div class="loja-body" id="tab-content-bau" style="display:none">
+      <div class="arf-empty"><span class="arf-empty-icon">🎁</span>Carregando baú...</div>
     </div>
   </div>
 
@@ -3405,264 +3560,336 @@
       oraMsg('🔒 ' + mensagem);
     }
 
-    /* ══════════════════════════════════════════════════════
-       LOJA DE ARTEFATOS — Bottom Sheet
-    ══════════════════════════════════════════════════════ */
-    let lojaAberta = null;          // qual sheet está aberta
-    let arfTimerInterval = null;    // countdown do booster ativo
-    let arfBoosterAtivo = null;     // { key, artefato } do booster ativo em cache
 
-    /* Abre a Loja de Artefatos */
-    function abrirArtefatos() {
+    /* ══════════════════════════════════════════════════════
+       BAÚ DE ARTEFATOS — Missões + Boosters
+    ══════════════════════════════════════════════════════ */
+    let lojaAberta   = null;
+    let tabBauAtiva  = 'missoes';   // 'missoes' | 'bau'
+    let arfBoosterAtivo = null;     // multipliers (futuro) — mantido para a Forja
+
+    /* ── Abre o Baú ── */
+    function abrirArtefatos(tabInicial) {
       initAudio();
       vibrate([25, 15, 35]);
       soundTone(660, 'sine', 0.2, 0.18, 0.005);
       setTimeout(() => soundTone(880, 'sine', 0.15, 0.14, 0.005), 140);
 
-      const sheet    = document.getElementById('artefatos-sheet');
-      const backdrop = document.getElementById('loja-backdrop');
-      sheet.classList.add('open');
-      backdrop.classList.add('open');
+      document.getElementById('artefatos-sheet').classList.add('open');
+      document.getElementById('loja-backdrop').classList.add('open');
       lojaAberta = 'artefatos';
 
-      // Partículas saindo do ícone do footer
+      // Se há boosters prontos, abre direto no Baú
+      const contPronto = parseInt(document.getElementById('badge-footer-bau').textContent) || 0;
+      switchTabBau(tabInicial || (contPronto > 0 ? 'bau' : 'missoes'));
+
       const item = document.querySelector('.footer-menu .menu-item:nth-child(2)');
       if (item) {
-        const rect = item.getBoundingClientRect();
-        spawnColorSparks(rect.left + rect.width/2, rect.top, 10,
-          ['rgba(0,212,255,','rgba(255,215,0,','rgba(100,220,255,']);
+        const r = item.getBoundingClientRect();
+        spawnColorSparks(r.left + r.width/2, r.top, 10,
+          ['rgba(255,215,0,','rgba(0,212,255,','rgba(180,100,255,']);
       }
-
-      carregarArtefatos();
     }
 
-    /* Fecha a Loja de Artefatos */
+    /* ── Fecha o Baú ── */
     function fecharArtefatos() {
-      const sheet    = document.getElementById('artefatos-sheet');
-      const backdrop = document.getElementById('loja-backdrop');
-      sheet.classList.remove('open');
-      backdrop.classList.remove('open');
+      document.getElementById('artefatos-sheet').classList.remove('open');
+      document.getElementById('loja-backdrop').classList.remove('open');
       lojaAberta = null;
       vibrate(20);
-      soundTone(440, 'sine', 0.12, 0.12, 0.008);
+      soundTone(440, 'sine', 0.1, 0.12, 0.01);
     }
 
-    /* Fecha qualquer loja aberta (chamado pelo backdrop) */
     function fecharLojaAtual() {
       if (lojaAberta === 'artefatos') fecharArtefatos();
     }
 
-    /* Carrega artefatos do Firebase e renderiza */
-    async function carregarArtefatos() {
-      const body = document.getElementById('artefatos-body');
+    /* ── Troca de aba ── */
+    function switchTabBau(aba) {
+      tabBauAtiva = aba;
+      document.getElementById('tab-btn-missoes').classList.toggle('active', aba === 'missoes');
+      document.getElementById('tab-btn-bau').classList.toggle('active', aba === 'bau');
+      document.getElementById('tab-content-missoes').style.display = aba === 'missoes' ? '' : 'none';
+      document.getElementById('tab-content-bau').style.display      = aba === 'bau'    ? '' : 'none';
+      if (aba === 'missoes') carregarMissoes();
+      else                   carregarBau();
+    }
+
+    /* ════════════════════════════════════════
+       ABA MISSÕES
+    ════════════════════════════════════════ */
+    async function carregarMissoes() {
+      const el = document.getElementById('tab-content-missoes');
       if (!currentUserEmail) {
-        body.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">🔒</span>Entre como Guardião primeiro.</div>';
+        el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">🔒</span>Entre como Guardião primeiro.</div>';
         return;
       }
-      body.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">⚗️</span>Carregando artefatos...</div>';
-
+      el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">⚔️</span>Carregando missões...</div>';
       try {
         const emailKey = sanitizeEmail(currentUserEmail);
-        const snap = await db.ref('usuarios/' + emailKey + '/artefatos').get();
-        const raw = snap.exists() ? snap.val() : {};
+        // Carrega missões disponíveis E boosters já solicitados em paralelo
+        const [snapMissoes, snapBoosters] = await Promise.all([
+          db.ref('config/missoes').get(),
+          db.ref('usuarios/' + emailKey + '/boosters').get()
+        ]);
 
-        // Normaliza para array com key incluída
-        const lista = Object.entries(raw).map(([k, v]) => ({ key: k, ...v }));
-        renderArtefatos(lista);
+        const missoes = snapMissoes.exists()
+          ? Object.entries(snapMissoes.val())
+              .filter(([, m]) => m.ativo !== false)
+              .map(([k, m]) => ({ key: k, ...m }))
+          : [];
+
+        // Mapa de missoes já solicitadas (key missao → status)
+        const solicitadas = {};
+        if (snapBoosters.exists()) {
+          Object.values(snapBoosters.val()).forEach(b => {
+            if (b.missao_key && (b.status === 'solicitado' || b.status === 'pronto')) {
+              solicitadas[b.missao_key] = b.status;
+            }
+          });
+        }
+
+        renderMissoes(missoes, solicitadas);
       } catch(e) {
-        body.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">❌</span>Erro ao carregar. Tente novamente.</div>';
+        el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">❌</span>Erro ao carregar. Tente novamente.</div>';
       }
     }
 
-    /* Renderiza a lista de artefatos */
-    function renderArtefatos(lista) {
-      const body = document.getElementById('artefatos-body');
-
-      // Limpa timer anterior
-      if (arfTimerInterval) { clearInterval(arfTimerInterval); arfTimerInterval = null; }
-
-      if (!lista.length) {
-        body.innerHTML = `
-          <div class="arf-empty">
-            <span class="arf-empty-icon">📦</span>
-            Seu baú está vazio, Guardião!<br>
-            <span style="font-size:0.7rem;opacity:0.7;display:block;margin-top:6px;">
-              Complete tarefas para receber Artefatos do Mestre.
-            </span>
-          </div>`;
-        arfBoosterAtivo = null;
-        atualizarBoosterForja(null);
+    function renderMissoes(missoes, solicitadas) {
+      const el = document.getElementById('tab-content-missoes');
+      if (!missoes.length) {
+        el.innerHTML = `<div class="arf-empty">
+          <span class="arf-empty-icon">⚔️</span>
+          Nenhuma missão disponível ainda.<br>
+          <span style="font-size:0.68rem;opacity:0.6;display:block;margin-top:6px;">O Mestre adicionará novas missões em breve!</span>
+        </div>`;
         return;
       }
 
-      // Separa ativo, disponíveis, expirados
-      const agora = Date.now();
-      const ativos     = lista.filter(a => a.ativo && a.expira_em && new Date(a.expira_em).getTime() > agora);
-      const disponiveis = lista.filter(a => !a.ativo && (!a.expira_em || new Date(a.expira_em).getTime() > agora));
-      const expirados  = lista.filter(a => a.ativo && a.expira_em && new Date(a.expira_em).getTime() <= agora);
-      // Artefatos não ativados e sem expiração
-      const estoqueNovo = lista.filter(a => !a.ativo && !a.expira_em);
-      const todosDispo = [...disponiveis, ...estoqueNovo];
-
-      arfBoosterAtivo = ativos.length ? ativos[0] : null;
-      atualizarBoosterForja(arfBoosterAtivo);
+      const disponiveis = missoes.filter(m => !solicitadas[m.key]);
+      const aguardando  = missoes.filter(m => solicitadas[m.key] === 'solicitado');
+      const aprovadas   = missoes.filter(m => solicitadas[m.key] === 'pronto');
 
       let html = '';
 
-      // ── Banner do booster ativo ──
-      if (ativos.length) {
-        const a = ativos[0];
-        const expMs = new Date(a.expira_em).getTime() - agora;
-        html += `
-          <div class="arf-active-banner show" id="arf-active-banner">
-            <span class="arf-active-icon">${a.icone || '✨'}</span>
-            <div class="arf-active-info">
-              <div class="arf-active-name">${a.nome}</div>
-              <div class="arf-active-desc">×${a.multiplicador} nos cristais da Forja</div>
-            </div>
-            <div>
-              <div class="arf-active-timer" id="arf-timer">${formatarTempo(expMs)}</div>
-              <div class="arf-active-label">restante</div>
-            </div>
-          </div>`;
-
-        // Inicia countdown
-        arfTimerInterval = setInterval(() => {
-          const resto = new Date(a.expira_em).getTime() - Date.now();
-          const el = document.getElementById('arf-timer');
-          if (!el) { clearInterval(arfTimerInterval); return; }
-          if (resto <= 0) {
-            clearInterval(arfTimerInterval);
-            el.textContent = 'Expirado';
-            carregarArtefatos(); // recarrega
-          } else {
-            el.textContent = formatarTempo(resto);
-          }
-        }, 1000);
-      }
-
-      // ── Artefatos disponíveis ──
-      if (todosDispo.length) {
-        html += `<div class="arf-section-label">✦ Disponíveis (${todosDispo.length})</div><div class="arf-grid">`;
-        todosDispo.forEach(a => {
-          html += criarCardArtefato(a, 'disponivel', ativos.length > 0);
-        });
+      if (disponiveis.length) {
+        html += `<div class="missao-secao-label">✦ Disponíveis</div><div class="missao-grid">`;
+        disponiveis.forEach(m => { html += cardMissao(m, 'disponivel'); });
         html += '</div>';
       }
-
-      // ── Artefato ativo (card também) ──
-      if (ativos.length) {
-        html += `<div class="arf-section-label" style="margin-top:12px">⚡ Ativo Agora</div><div class="arf-grid">`;
-        ativos.forEach(a => { html += criarCardArtefato(a, 'ativo', false); });
+      if (aguardando.length) {
+        html += `<div class="missao-secao-label" style="margin-top:12px">⏳ Aguardando Aprovação</div><div class="missao-grid">`;
+        aguardando.forEach(m => { html += cardMissao(m, 'solicitado'); });
         html += '</div>';
       }
-
-      // ── Expirados ──
-      if (expirados.length) {
-        html += `<div class="arf-section-label" style="margin-top:12px;opacity:0.4">⏳ Expirados</div><div class="arf-grid">`;
-        expirados.forEach(a => { html += criarCardArtefato(a, 'expirado', false); });
-        html += '</div>';
+      if (aprovadas.length) {
+        html += `<div class="missao-secao-label" style="margin-top:12px;color:rgba(0,255,136,0.5)">✅ Pronto para coletar — veja no Baú!</div>`;
+      }
+      if (!disponiveis.length && !aguardando.length && !aprovadas.length) {
+        html = '<div class="arf-empty"><span class="arf-empty-icon">🏆</span>Todas as missões solicitadas! Aguarde o Mestre.</div>';
       }
 
-      if (!html) {
-        html = '<div class="arf-empty"><span class="arf-empty-icon">📦</span>Baú vazio, Guardião.</div>';
-      }
-
-      body.innerHTML = html;
+      el.innerHTML = html;
     }
 
-    /* Cria HTML de um card de artefato */
-    function criarCardArtefato(a, estado, temAtivoJa) {
-      let btnHtml = '';
-      let cardClass = 'arf-card';
-      if (estado === 'ativo') {
-        cardClass += ' ativo';
-        btnHtml = `<button class="arf-btn arf-btn-desativar" onclick="desativarArtefato('${a.key}')">Desativar</button>`;
-      } else if (estado === 'expirado') {
-        btnHtml = `<button class="arf-btn arf-btn-expirado" disabled>Expirado</button>`;
-      } else {
-        const disabled = temAtivoJa ? 'disabled title="Desative o booster atual primeiro"' : '';
-        btnHtml = `<button class="arf-btn arf-btn-ativar" onclick="ativarArtefato('${a.key}')" ${disabled}>Ativar</button>`;
-      }
-
-      const durLabel = a.duracao_horas >= 24
-        ? (a.duracao_horas / 24) + 'd'
-        : a.duracao_horas + 'h';
-
+    function cardMissao(m, estado) {
+      const btn = estado === 'solicitado'
+        ? `<button class="missao-btn missao-btn-aguardando" disabled>⏳ Aguardando</button>`
+        : `<button class="missao-btn missao-btn-solicitar" onclick="solicitarMissao('${m.key}')">Solicitar!</button>`;
       return `
-        <div class="${cardClass}">
-          <div class="arf-card-icon">${a.icone || '✨'}</div>
-          <div class="arf-card-info">
-            <div class="arf-card-name">${a.nome}</div>
-            <div class="arf-card-desc">${a.descricao || 'Booster de Cristais'}</div>
-            <div class="arf-card-tags">
-              <span class="arf-tag arf-tag-mult">×${a.multiplicador} Cristais</span>
-              <span class="arf-tag arf-tag-dur">⏱ ${durLabel}</span>
-            </div>
+        <div class="missao-card ${estado === 'solicitado' ? 'solicitado' : ''}">
+          <div class="missao-icon">${m.icone || '⚔️'}</div>
+          <div class="missao-info">
+            <div class="missao-nome">${m.nome}</div>
+            <div class="missao-desc">${m.descricao || ''}</div>
           </div>
-          ${btnHtml}
+          <div class="missao-premio">+${m.recompensa}💎</div>
+          ${btn}
         </div>`;
     }
 
-    /* Formata ms → "2h 30m" ou "45m" */
-    function formatarTempo(ms) {
-      if (ms <= 0) return '0m';
-      const totalMin = Math.floor(ms / 60000);
-      const h = Math.floor(totalMin / 60);
-      const m = totalMin % 60;
-      return h > 0 ? `${h}h ${m}m` : `${m}m`;
-    }
-
-    /* Ativa um artefato — define expira_em no Firebase */
-    async function ativarArtefato(key) {
+    /* Criança solicita uma missão */
+    async function solicitarMissao(missaoKey) {
       initAudio();
-      vibrate([40, 20, 60]);
-      soundTone(880, 'sine', 0.25, 0.2, 0.005);
-      setTimeout(() => soundTone(1100, 'sine', 0.2, 0.18, 0.005), 130);
-      setTimeout(() => soundTone(1320, 'sine', 0.15, 0.15, 0.005), 260);
-
+      vibrate([30, 15, 40]);
+      soundTone(523, 'sine', 0.2, 0.18, 0.005);
+      setTimeout(() => soundTone(659, 'sine', 0.15, 0.15, 0.005), 130);
       try {
         const emailKey = sanitizeEmail(currentUserEmail);
-        const ref = db.ref(`usuarios/${emailKey}/artefatos/${key}`);
-        const snap = await ref.get();
-        if (!snap.exists()) { oraMsg('❌ Artefato não encontrado.'); return; }
-        const artefato = snap.val();
-        const durMs = (artefato.duracao_horas || 24) * 3600 * 1000;
-        const expiraEm = new Date(Date.now() + durMs).toISOString();
+        // Busca dados da missão
+        const snapM = await db.ref('config/missoes/' + missaoKey).get();
+        if (!snapM.exists()) { oraMsg('❌ Missão não encontrada.'); return; }
+        const m = snapM.val();
 
-        await ref.update({ ativo: true, expira_em: expiraEm });
+        await db.ref('usuarios/' + emailKey + '/boosters').push({
+          missao_key:   missaoKey,
+          nome:         m.nome,
+          icone:        m.icone || '⚔️',
+          recompensa:   m.recompensa,
+          descricao:    m.descricao || '',
+          status:       'solicitado',
+          solicitado_em: new Date().toISOString(),
+          concedido_em: null,
+          coletado_em:  null,
+          guardiao_email: currentUserEmail
+        });
 
-        // Efeitos visuais
+        // Efeitos
         const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-        spawnColorSparks(cx, cy - 80, 20, ['rgba(0,255,136,','rgba(255,215,0,','rgba(0,212,255,']);
-        spawnShockwave(cx, cy - 80, 'rgba(0,255,136,', 100);
-        oraMsg(`✨ ${artefato.nome} ativado! Forja ×${artefato.multiplicador} por ${artefato.duracao_horas}h. Bora forjar, Guardião!`);
+        spawnColorSparks(cx, cy - 60, 14, ['rgba(255,215,0,','rgba(0,212,255,']);
+        oraMsg(`⚔ Missão "${m.nome}" solicitada! Aguarde a aprovação do Mestre, Guardião!`);
 
-        // Recarrega a lista
-        await carregarArtefatos();
-      } catch(e) {
-        oraMsg('❌ Erro ao ativar artefato. Tente novamente.');
-      }
+        // Recarrega a aba
+        carregarMissoes();
+      } catch(e) { oraMsg('❌ Erro ao solicitar. Tente novamente.'); }
     }
 
-    /* Desativa um artefato */
-    async function desativarArtefato(key) {
-      initAudio();
-      vibrate(30);
-      soundTone(440, 'sine', 0.12, 0.15, 0.01);
+    /* ════════════════════════════════════════
+       ABA BAÚ (boosters prontos para coletar)
+    ════════════════════════════════════════ */
+    async function carregarBau() {
+      const el = document.getElementById('tab-content-bau');
+      if (!currentUserEmail) {
+        el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">🔒</span>Entre como Guardião primeiro.</div>';
+        return;
+      }
+      el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">🎁</span>Carregando baú...</div>';
       try {
         const emailKey = sanitizeEmail(currentUserEmail);
-        await db.ref(`usuarios/${emailKey}/artefatos/${key}`).update({ ativo: false, expira_em: null });
-        arfBoosterAtivo = null;
-        atualizarBoosterForja(null);
-        oraMsg('⚔ Artefato desativado. Seu inventário está guardado, Guardião.');
-        await carregarArtefatos();
+        const snap = await db.ref('usuarios/' + emailKey + '/boosters').get();
+        const prontos = snap.exists()
+          ? Object.entries(snap.val())
+              .filter(([, b]) => b.status === 'pronto')
+              .map(([k, b]) => ({ key: k, ...b }))
+          : [];
+        renderBau(prontos);
+        atualizarBadgeBau(prontos.length);
       } catch(e) {
-        oraMsg('❌ Erro ao desativar. Tente novamente.');
+        el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">❌</span>Erro ao carregar.</div>';
       }
     }
 
-    /* Atualiza o indicador de booster na Forja */
+    function renderBau(prontos) {
+      const el = document.getElementById('tab-content-bau');
+      if (!prontos.length) {
+        el.innerHTML = `<div class="arf-empty">
+          <span class="arf-empty-icon">📦</span>
+          Baú vazio, Guardião!<br>
+          <span style="font-size:0.68rem;opacity:0.6;display:block;margin-top:6px;">
+            Complete missões e aguarde a aprovação do Mestre.
+          </span>
+        </div>`;
+        return;
+      }
+      el.innerHTML = `
+        <div class="missao-secao-label">🎁 Pronto para coletar!</div>
+        <div class="bau-grid">
+          ${prontos.map(b => `
+            <div class="bau-card">
+              <div class="bau-icon">${b.icone || '⚔️'}</div>
+              <div class="bau-info">
+                <div class="bau-nome">${b.nome}</div>
+                <div class="bau-desc">${b.descricao || ''}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+                <div class="bau-premio">+${b.recompensa}💎</div>
+                <button class="bau-btn-coletar" onclick="coletarBooster('${b.key}',${b.recompensa},'${b.nome.replace(/'/g,"\\'")}','${b.icone||'⚔️'}')">⚡ COLETAR!</button>
+              </div>
+            </div>`).join('')}
+        </div>`;
+    }
+
+    /* Criança coleta o booster — recebe os cristais */
+    async function coletarBooster(key, recompensa, nome, icone) {
+      initAudio();
+      vibrate([60, 30, 60, 30, 200]);
+
+      // Fanfarra épica em 3 tempos
+      soundTone(523, 'sine', 0.4, 0.25, 0.01);
+      setTimeout(() => soundTone(659, 'sine', 0.35, 0.22, 0.01), 160);
+      setTimeout(() => soundTone(784, 'sine', 0.3, 0.2, 0.01), 320);
+      setTimeout(() => { soundTone(1047, 'sine', 0.5, 0.35, 0.005); soundCrystalChime(); }, 480);
+
+      try {
+        const emailKey = sanitizeEmail(currentUserEmail);
+
+        // Atualiza booster + saldo em paralelo
+        const snapU = await db.ref('usuarios/' + emailKey).get();
+        const u = snapU.val();
+        await Promise.all([
+          db.ref('usuarios/' + emailKey + '/boosters/' + key).update({
+            status: 'coletado',
+            coletado_em: new Date().toISOString()
+          }),
+          db.ref('usuarios/' + emailKey).update({
+            saldo_cristais: Number(u.saldo_cristais) + Number(recompensa)
+          }),
+          db.ref('transacoes').push({
+            data: new Date().toISOString(),
+            email: currentUserEmail,
+            tipo: 'Bonus',
+            quantidade: recompensa,
+            detalhes: `Missão concluída: ${nome}`,
+            status: 'Aprovado'
+          })
+        ]);
+
+        // Atualiza UI local
+        currentCristais = Number(u.saldo_cristais) + Number(recompensa);
+        document.getElementById('v-c').textContent = currentCristais;
+
+        // Efeitos épicos
+        const cx = window.innerWidth / 2, cy = window.innerHeight / 3;
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => {
+            spawnColorSparks(cx + (Math.random()-0.5)*120, cy + (Math.random()-0.5)*80, 18,
+              ['rgba(255,215,0,','rgba(0,212,255,','rgba(0,255,136,','rgba(255,100,255,']);
+            spawnShockwave(cx, cy, 'rgba(255,215,0,', 80 + i*20);
+          }, i * 120);
+        }
+        spawnFloat(`+${recompensa} 💎`, '#00FF88', cx, cy - 40);
+        spawnFloat(`${icone} COLETADO!`, '#FFD700', cx, cy - 80);
+        screenShake(8, 400);
+
+        oraMsg(`🏆 MISSÃO CONCLUÍDA! ${icone} "${nome}" — +${recompensa} 💎 adicionados ao seu tesouro, Guardião! Glória à Ordem!`);
+
+        // Recarrega
+        await carregarBau();
+        // Atualiza diário e cristais
+        if (typeof loadData === 'function') loadData();
+
+      } catch(e) { oraMsg('❌ Erro ao coletar. Tente novamente.'); }
+    }
+
+    /* Atualiza badge no footer e na aba */
+    function atualizarBadgeBau(count) {
+      const footerBadge = document.getElementById('badge-footer-bau');
+      const tabBadge    = document.getElementById('badge-tab-bau');
+      if (count > 0) {
+        footerBadge.textContent = count;
+        footerBadge.style.display = 'flex';
+        tabBadge.textContent = count;
+        tabBadge.style.display = 'flex';
+      } else {
+        footerBadge.style.display = 'none';
+        tabBadge.style.display = 'none';
+      }
+    }
+
+    /* Verifica boosters prontos ao carregar o app */
+    async function verificarBoosters() {
+      if (!currentUserEmail) return;
+      try {
+        const emailKey = sanitizeEmail(currentUserEmail);
+        const snap = await db.ref('usuarios/' + emailKey + '/boosters').get();
+        const count = snap.exists()
+          ? Object.values(snap.val()).filter(b => b.status === 'pronto').length
+          : 0;
+        atualizarBadgeBau(count);
+      } catch(e) {}
+    }
+
+    /* Mantido para compatibilidade com a Forja (multiplicadores futuros) */
     function atualizarBoosterForja(booster) {
       const tag = document.getElementById('forge-booster-tag');
       if (!tag) return;
@@ -3675,21 +3902,9 @@
         tag.classList.remove('show');
       }
     }
-
-    /* Verifica booster ativo ao carregar */
     async function verificarBoosterAtivo() {
-      if (!currentUserEmail) return;
-      try {
-        const emailKey = sanitizeEmail(currentUserEmail);
-        const snap = await db.ref('usuarios/' + emailKey + '/artefatos').get();
-        if (!snap.exists()) { atualizarBoosterForja(null); return; }
-        const agora = Date.now();
-        const ativos = Object.entries(snap.val())
-          .filter(([k, v]) => v.ativo && v.expira_em && new Date(v.expira_em).getTime() > agora)
-          .map(([k, v]) => ({ key: k, ...v }));
-        arfBoosterAtivo = ativos.length ? ativos[0] : null;
-        atualizarBoosterForja(arfBoosterAtivo);
-      } catch(e) {}
+      atualizarBoosterForja(null); // multiplicadores não implementados ainda
+      verificarBoosters();
     }
 
     /* ══════════════════════════════════════════════════════
@@ -3831,7 +4046,7 @@
         ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
       // Oráculo fala a mensagem imediatamente
       if (notif) {
-        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', artefato:'⚔️' };
+        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', artefato:'⚔️', booster_pronto:'🎁', booster_negado:'❌' };
         oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
         // Efeitos adicionais por tipo
         const cx = window.innerWidth/2, cy = window.innerHeight/2;
@@ -3849,15 +4064,19 @@
         } else if (notif.tipo === 'gasto') {
           [1047,784,523].forEach((f,i) => setTimeout(()=>soundTone(f,'sine',0.3,0.2,0.01), i*120+300));
           setTimeout(() => spawnColorSparks(cx, cy-80, 15, ['rgba(0,212,255,','rgba(100,200,255,']), 500);
-        } else if (notif.tipo === 'artefato') {
+        } else if (notif.tipo === 'artefato' || notif.tipo === 'booster_pronto') {
           soundCrystalChime();
+          setTimeout(() => soundTone(880, 'sine', 0.25, 0.2, 0.005), 200);
           setTimeout(() => {
-            spawnColorSparks(cx, cy-80, 18, ['rgba(255,215,0,','rgba(0,212,255,','rgba(180,100,255,']);
-            spawnShockwave(cx, cy-80, 'rgba(255,215,0,', 90);
+            spawnColorSparks(cx, cy-80, 20, ['rgba(255,215,0,','rgba(0,255,136,','rgba(0,212,255,']);
+            spawnShockwave(cx, cy-80, 'rgba(0,255,136,', 90);
           }, 400);
-          // Recarrega booster ativo se o painel estiver aberto
-          if (lojaAberta === 'artefatos') carregarArtefatos();
-          else verificarBoosterAtivo();
+          // Atualiza badge e recarrega o baú se estiver aberto
+          verificarBoosters();
+          if (lojaAberta === 'artefatos') {
+            if (tabBauAtiva === 'bau') carregarBau();
+            else carregarMissoes();
+          }
         }
       }
     }
@@ -3870,7 +4089,7 @@
       }
       // Mostra todas as mensagens em sequência
       const msgs = filaNotificacoes.map(n => {
-        const ic = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', artefato:'⚔️' };
+        const ic = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', artefato:'⚔️', booster_pronto:'🎁', booster_negado:'❌' };
         return `${ic[n.tipo]||'⚔️'} ${n.mensagem}`;
       });
       oraMsg(msgs.join(' ✦ '));
