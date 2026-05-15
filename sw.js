@@ -3,7 +3,7 @@
 // v3 — start_url corrigido para /minutinhos/
 // ================================================================
 
-const CACHE_NAME = 'minutinhos-v20';
+const CACHE_NAME = 'minutinhos-v21';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
