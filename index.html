@@ -32,7 +32,7 @@
 
     /* ══ ÁREA ROLÁVEL CENTRAL ══ */
     .scroll-area {
-      flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0;
+      flex: 1; overflow-y: auto; overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
     }
     .scroll-area::-webkit-scrollbar { display: none; }
@@ -249,6 +249,202 @@
       transition: transform 0.1s;
     }
     .btn-send-reading:active { transform: translateY(3px); box-shadow: 0 2px 0 #0D47A1; }
+
+
+
+    /* ══ FOOTER — Ícones ativos e bloqueados ══ */
+    .menu-item.locked .menu-icon {
+      filter: grayscale(1) brightness(0.3) contrast(0.8);
+    }
+    .menu-item.locked .menu-label {
+      color: rgba(120,120,130,0.4) !important;
+    }
+    .footer-lock-badge {
+      position: absolute; top: -3px; right: 0px;
+      font-size: 9px; line-height: 1;
+      background: rgba(15,15,25,0.9);
+      border-radius: 50%; width: 14px; height: 14px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(80,80,100,0.5);
+    }
+    .footer-booster-badge {
+      position: absolute; top: -2px; right: 0px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #FF8C00; border: 1.5px solid var(--blue-deep);
+      display: none;
+    }
+
+    /* ══ VOUCHER — Barra de Timer HUD ══ */
+    #voucher-hud-bar {
+      display: none; padding: 3px 12px 0; flex-shrink: 0;
+    }
+    #voucher-hud-inner {
+      display: flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, rgba(0,180,80,0.14), rgba(0,100,50,0.07));
+      border: 1px solid rgba(0,220,100,0.3); border-radius: 9px;
+      padding: 5px 12px; cursor: pointer;
+      transition: border-color 0.3s;
+    }
+    #voucher-hud-inner.warning { border-color: rgba(255,140,0,0.6); }
+    .voucher-hud-icon { font-size: 1rem; }
+    #voucher-hud-timer {
+      font-family: 'Cinzel', serif; font-size: 0.88rem; font-weight: 900;
+      color: #00FF88; transition: color 0.3s;
+      text-shadow: 0 0 8px rgba(0,255,136,0.4);
+    }
+    #voucher-hud-timer.warning { color: #FF8C00; animation: timer-blink-hud 1s step-end infinite; }
+    @keyframes timer-blink-hud { 0%,100%{opacity:1} 50%{opacity:0.45} }
+    .voucher-hud-sub {
+      font-size: 0.58rem; color: rgba(200,255,200,0.45); font-weight: 700; line-height: 1;
+    }
+    #voucher-hud-cristais {
+      font-size: 0.68rem; color: rgba(0,212,255,0.65); font-weight: 800; margin-left: auto;
+    }
+
+    /* ══ VOUCHER — Badge no footer ══ */
+    .menu-item { position: relative; }
+    #voucher-footer-badge {
+      display: none; position: absolute; top: 3px; right: 6px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #00FF88; border: 1.5px solid var(--blue-deep);
+    }
+
+    /* ══ VOUCHER — Modal ══ */
+    #vouchers-modal {
+      position: fixed; inset: 0; z-index: 1001;
+      background: radial-gradient(ellipse at center, rgba(5,20,50,0.97), rgba(2,5,15,0.99));
+      display: none; flex-direction: column; align-items: center; justify-content: flex-start;
+      padding: 20px; overflow-y: auto;
+    }
+    #vouchers-modal.open { display: flex; }
+    #vouchers-modal::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='%2300FF88' fill-opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .vouchers-scroll {
+      background: linear-gradient(160deg, rgba(5,20,40,0.97), rgba(2,8,20,0.98));
+      border: 3px solid var(--gold-dark); border-radius: 18px;
+      padding: 20px 22px; width: 100%; max-width: 340px;
+      box-shadow: 0 0 40px rgba(0,200,100,0.12), inset 0 0 30px rgba(0,0,0,0.5);
+      position: relative; z-index: 2; margin-top: 10px;
+    }
+    .vouchers-scroll::before {
+      content: ''; position: absolute; inset: 6px;
+      border: 1px solid rgba(0,220,100,0.1); border-radius: 13px; pointer-events: none;
+    }
+    .vouchers-title {
+      font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 900;
+      color: var(--gold); text-align: center; margin-bottom: 4px;
+      text-shadow: 0 0 15px rgba(255,215,0,0.5);
+    }
+    .vouchers-subtitle {
+      text-align: center; font-size: 0.78rem; color: rgba(200,180,140,0.8);
+      margin-bottom: 16px; font-weight: 700;
+    }
+    /* Ativo */
+    .voucher-ativo-card {
+      background: linear-gradient(135deg, rgba(0,180,80,0.15), rgba(0,100,50,0.08));
+      border: 2px solid rgba(0,220,100,0.35); border-radius: 14px;
+      padding: 14px; margin-bottom: 14px; overflow: hidden;
+    }
+    .voucher-ativo-card.warning { border-color: rgba(255,140,0,0.5); }
+    .voucher-ativo-label {
+      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 700;
+      color: #00FF88; letter-spacing: 0.07em; margin-bottom: 4px;
+    }
+    .voucher-ativo-timer {
+      font-family: 'Cinzel', serif; font-size: 2.4rem; font-weight: 900;
+      color: white; text-align: center; margin: 6px 0;
+      text-shadow: 0 0 20px rgba(0,255,136,0.45);
+    }
+    .voucher-ativo-timer.warning {
+      color: #FF8C00; text-shadow: 0 0 20px rgba(255,140,0,0.7);
+      animation: timer-blink-modal 1s step-end infinite;
+    }
+    @keyframes timer-blink-modal { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .voucher-ativo-sub {
+      font-size: 0.7rem; color: rgba(200,255,200,0.5);
+      text-align: center; font-weight: 700;
+    }
+    /* Lista */
+    .voucher-section-lbl {
+      font-family: 'Cinzel', serif; font-size: 0.78rem; font-weight: 700;
+      color: var(--gold-light); letter-spacing: 0.05em; margin: 14px 0 8px;
+    }
+    .voucher-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,215,0,0.1);
+      border-radius: 10px; padding: 9px 11px; margin-bottom: 7px;
+    }
+    .voucher-item-cristais {
+      font-family: 'Cinzel', serif; font-size: 0.95rem; font-weight: 900;
+      color: var(--crystal);
+    }
+    .voucher-item-sub {
+      font-size: 0.65rem; color: rgba(200,200,200,0.5);
+      font-weight: 700; margin-top: 2px;
+    }
+    .voucher-item-status {
+      font-size: 0.68rem; font-weight: 800; padding: 3px 9px;
+      border-radius: 20px; margin-left: 8px; flex-shrink: 0;
+    }
+    .vs-pendente { background: rgba(255,150,0,0.18); color: #FF8C00; }
+    .vs-aprovado { background: rgba(0,255,100,0.1); color: #00FF88; }
+    .vs-expirado { background: rgba(100,100,100,0.15); color: rgba(200,200,200,0.4); }
+    .vs-recusado { background: rgba(255,60,60,0.15); color: rgba(255,150,150,0.7); }
+    /* Saldo */
+    .voucher-saldo-txt {
+      text-align: center; font-size: 0.78rem; color: rgba(0,212,255,0.75);
+      font-weight: 700; margin-bottom: 10px;
+    }
+    /* Presets */
+    .voucher-presets {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px;
+    }
+    .voucher-preset {
+      padding: 7px 4px; border-radius: 9px; text-align: center;
+      background: rgba(0,212,255,0.07); border: 1.5px solid rgba(0,212,255,0.18);
+      color: var(--crystal); font-family: 'Cinzel', serif; font-size: 0.75rem; font-weight: 800;
+      cursor: pointer; transition: background 0.15s, transform 0.1s; line-height: 1.3;
+      -webkit-user-select: none; user-select: none;
+    }
+    .voucher-preset small { font-size: 0.6rem; color: rgba(0,212,255,0.6); }
+    .voucher-preset:active { background: rgba(0,212,255,0.2); transform: scale(0.93); }
+    .voucher-preset.selected { background: rgba(0,212,255,0.2); border-color: var(--crystal); }
+    .voucher-input {
+      width: 100%; padding: 10px 12px; border-radius: 10px;
+      border: 2px solid rgba(0,212,255,0.25); background: rgba(5,10,25,0.8);
+      color: white; font-size: 1rem; font-family: 'Nunito', sans-serif;
+      font-weight: 700; outline: none; margin-bottom: 10px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+      transition: border-color 0.2s;
+    }
+    .voucher-input:focus { border-color: var(--crystal); }
+    .voucher-input::placeholder { color: rgba(255,255,255,0.25); }
+    .voucher-input[type="number"] { -moz-appearance: textfield; }
+    .voucher-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .btn-solicitar-voucher {
+      width: 100%; height: 50px; border-radius: 13px;
+      border: 2px solid rgba(0,212,255,0.3);
+      background: linear-gradient(160deg, #005529, #007a3d, #00a352);
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.92rem;
+      color: white; cursor: pointer;
+      box-shadow: 0 5px 0 #003318, 0 0 20px rgba(0,180,80,0.2);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.1s; -webkit-user-select: none; user-select: none;
+    }
+    .btn-solicitar-voucher:active { transform: translateY(3px); box-shadow: 0 2px 0 #003318; }
+    .btn-solicitar-voucher:disabled { opacity: 0.5; cursor: default; transform: none; }
+    .vouchers-close {
+      width: 100%; height: 46px; border-radius: 12px; border: 1.5px solid var(--gold-dark);
+      background: rgba(255,215,0,0.07); font-family: 'Cinzel', serif;
+      font-weight: 700; color: var(--gold-light); font-size: 0.88rem; cursor: pointer;
+      margin-top: 10px; -webkit-user-select: none;
+    }
+    .vouchers-close:active { background: rgba(255,215,0,0.15); }
+    /* Overlay alarme */
+    @keyframes voucher-alarm-in { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
 
     /* Fogos de artifício da forja */
     .firework-particle {
@@ -1067,319 +1263,6 @@
       animation: fade-in-hint 1.2s ease 1s both;
     }
     @keyframes fade-in-hint { from{opacity:0} to{opacity:1} }
-
-    /* ============ BOTTOM SHEET LOJAS ============
-       position: fixed + bottom:0 garante que o painel
-       seja posicionado em relação ao VIEWPORT, nunca ao
-       container rolável — isso evita o bug de aparecer
-       "muito para baixo".
-    ============ */
-    .loja-backdrop {
-      position: fixed; inset: 0;
-      background: rgba(2,5,15,0.88);
-      z-index: 2900;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .loja-backdrop.open { opacity: 1; pointer-events: all; }
-
-    .loja-sheet {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;   /* ancorado ao viewport */
-      z-index: 2901;
-      background: linear-gradient(180deg, #0C1A30 0%, #060E1E 100%);
-      border-top: 2px solid var(--gold-dark);
-      border-radius: 22px 22px 0 0;
-      max-height: 82dvh;
-      transform: translateY(102%);   /* começa fora da tela */
-      transition: transform 0.45s cubic-bezier(0.34,1.1,0.64,1);
-      display: flex; flex-direction: column;
-      box-shadow: 0 -8px 40px rgba(0,0,0,0.7), 0 -1px 0 rgba(255,215,0,0.2);
-      will-change: transform;
-    }
-    .loja-sheet.open { transform: translateY(0); }
-
-    .loja-handle {
-      width: 44px; height: 5px; border-radius: 3px;
-      background: rgba(255,215,0,0.25);
-      margin: 10px auto 0; flex-shrink: 0;
-    }
-    .loja-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 18px 10px;
-      border-bottom: 1px solid rgba(255,215,0,0.12);
-      flex-shrink: 0;
-    }
-    .loja-title {
-      font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 900;
-      color: var(--gold); text-shadow: 0 0 12px rgba(255,150,0,0.5);
-      letter-spacing: 0.04em;
-    }
-    .loja-close {
-      font-size: 1.6rem; color: rgba(200,180,140,0.5);
-      cursor: pointer; background: none; border: none; padding: 4px;
-      line-height: 1; transition: color 0.15s, transform 0.1s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .loja-close:active { color: white; transform: scale(0.82); }
-    .loja-body {
-      overflow-y: auto; flex: 1;
-      padding: 12px 16px 36px;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-    }
-    .loja-body::-webkit-scrollbar { display: none; }
-    .loja-body { scrollbar-width: none; }
-
-    /* ── Artefatos ── */
-    .arf-active-banner {
-      background: linear-gradient(135deg, rgba(0,160,70,0.14), rgba(0,100,45,0.1));
-      border: 1.5px solid rgba(0,220,100,0.35);
-      border-radius: 14px; padding: 11px 14px;
-      margin-bottom: 14px;
-      display: none; align-items: center; gap: 10px;
-      position: relative; overflow: hidden;
-    }
-    .arf-active-banner.show { display: flex; }
-    .arf-active-banner::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(0,255,100,0.04), transparent);
-      animation: shimmer-hud 3s infinite;
-    }
-    .arf-active-icon { font-size: 2.2rem; flex-shrink: 0; }
-    .arf-active-info { flex: 1; }
-    .arf-active-name {
-      font-family: 'Cinzel', serif; font-size: 0.88rem; font-weight: 900;
-      color: #00FF88;
-    }
-    .arf-active-desc { font-size: 0.7rem; color: rgba(0,255,136,0.65); margin-top: 2px; }
-    .arf-active-timer {
-      font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 900;
-      color: #00FF88; text-align: right; flex-shrink: 0;
-      text-shadow: 0 0 10px rgba(0,255,136,0.5);
-    }
-    .arf-active-label {
-      font-size: 0.6rem; color: rgba(0,255,136,0.5); text-align: right;
-      letter-spacing: 0.06em; text-transform: uppercase;
-    }
-
-    .arf-section-label {
-      font-family: 'Cinzel', serif; font-size: 0.65rem; font-weight: 700;
-      color: rgba(255,215,0,0.45); letter-spacing: 0.1em;
-      margin: 4px 0 8px; text-transform: uppercase;
-    }
-    .arf-grid { display: flex; flex-direction: column; gap: 8px; }
-
-    .arf-card {
-      background: linear-gradient(135deg, rgba(12,26,52,0.9), rgba(6,14,30,0.95));
-      border: 1.5px solid rgba(255,215,0,0.18);
-      border-radius: 14px; padding: 11px 13px;
-      display: flex; align-items: center; gap: 11px;
-      transition: border-color 0.2s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .arf-card.ativo {
-      border-color: rgba(0,220,100,0.45);
-      background: linear-gradient(135deg, rgba(0,70,35,0.3), rgba(0,40,20,0.4));
-    }
-    .arf-card-icon { font-size: 2rem; flex-shrink: 0; width: 42px; text-align: center; }
-    .arf-card-info { flex: 1; min-width: 0; }
-    .arf-card-name {
-      font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 900;
-      color: var(--gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .arf-card-desc { font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
-    .arf-card-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-    .arf-tag {
-      font-size: 0.62rem; font-weight: 800; border-radius: 7px;
-      padding: 2px 6px; border: 1px solid;
-    }
-    .arf-tag-mult { color: #00D4FF; border-color: rgba(0,212,255,0.35); background: rgba(0,212,255,0.08); }
-    .arf-tag-dur  { color: #FFA040; border-color: rgba(255,160,64,0.35); background: rgba(255,160,64,0.08); }
-
-    .arf-btn {
-      flex-shrink: 0; height: 36px; padding: 0 13px;
-      border-radius: 10px; border: 2px solid;
-      font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 700;
-      cursor: pointer; transition: transform 0.1s, box-shadow 0.15s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .arf-btn:active { transform: translateY(2px); }
-    .arf-btn-ativar {
-      background: linear-gradient(135deg, #133808, #1f5a0d);
-      color: #00FF88; border-color: rgba(0,180,80,0.5);
-      box-shadow: 0 4px 0 #0a1f05;
-    }
-    .arf-btn-ativar:active { box-shadow: 0 2px 0 #0a1f05; }
-    .arf-btn-desativar {
-      background: linear-gradient(135deg, #3a0a0a, #5a1010);
-      color: #FF6666; border-color: rgba(180,0,0,0.4);
-      box-shadow: 0 4px 0 #1f0505;
-    }
-    .arf-btn-desativar:active { box-shadow: 0 2px 0 #1f0505; }
-    .arf-btn-expirado {
-      background: rgba(30,30,40,0.6); color: rgba(255,255,255,0.2);
-      border-color: rgba(255,255,255,0.08); box-shadow: none; cursor: default;
-    }
-
-    .arf-empty {
-      text-align: center; padding: 28px 20px;
-      color: rgba(255,220,150,0.4); font-size: 0.8rem; font-weight: 700;
-    }
-    .arf-empty-icon { font-size: 2.8rem; display: block; margin-bottom: 8px; }
-
-    /* Indicador de booster ativo no HUD da Forja */
-    .forge-booster-tag {
-      display: none; align-items: center; gap: 5px;
-      background: rgba(0,180,80,0.12); border: 1px solid rgba(0,220,100,0.3);
-      border-radius: 8px; padding: 4px 10px; margin-top: 6px;
-      font-size: 0.72rem; font-weight: 800; color: #00FF88;
-    }
-    .forge-booster-tag.show { display: flex; }
-
-    /* ============ TABS INTERNAS DO BOTTOM SHEET ============ */
-    .loja-tabs {
-      display: flex; gap: 0; padding: 10px 16px 0; flex-shrink: 0;
-    }
-    .loja-tab {
-      flex: 1; padding: 9px 0; text-align: center;
-      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 900;
-      letter-spacing: 0.04em;
-      border: 1.5px solid rgba(255,215,0,0.18);
-      background: rgba(255,255,255,0.02); color: rgba(255,215,0,0.45);
-      cursor: pointer; transition: all 0.2s;
-      -webkit-user-select: none; user-select: none; position: relative;
-    }
-    .loja-tab:first-child { border-radius: 10px 0 0 0; border-right: none; }
-    .loja-tab:last-child  { border-radius: 0 10px 0 0; }
-    .loja-tab.active {
-      background: rgba(255,215,0,0.09); color: var(--gold);
-      border-color: rgba(255,215,0,0.38);
-    }
-    .loja-tab-badge {
-      position: absolute; top: 4px; right: 8px;
-      background: #FF3333; color: white;
-      font-size: 0.55rem; font-weight: 900;
-      min-width: 16px; height: 16px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      padding: 0 3px; font-family: sans-serif;
-    }
-    .loja-tab-divider {
-      height: 1.5px; background: rgba(255,215,0,0.18);
-      flex-shrink: 0; margin: 0 16px 0;
-    }
-
-    /* ============ CARDS DE MISSÃO ============ */
-    .missao-grid { display: flex; flex-direction: column; gap: 9px; }
-    .missao-card {
-      background: linear-gradient(135deg, rgba(10,22,48,0.92), rgba(5,12,28,0.96));
-      border: 1.5px solid rgba(255,215,0,0.18);
-      border-radius: 14px; padding: 12px 13px;
-      display: flex; align-items: center; gap: 11px;
-      transition: border-color 0.2s;
-      -webkit-user-select: none; user-select: none;
-    }
-    .missao-card.solicitado {
-      border-color: rgba(255,160,30,0.4);
-      background: linear-gradient(135deg, rgba(40,20,0,0.35), rgba(20,10,0,0.45));
-    }
-    .missao-icon  { font-size: 2rem; flex-shrink: 0; width: 42px; text-align: center; }
-    .missao-info  { flex: 1; min-width: 0; }
-    .missao-nome  {
-      font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 900;
-      color: var(--gold-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .missao-desc  { font-size: 0.68rem; color: rgba(255,255,255,0.48); margin-top: 2px; }
-    .missao-premio {
-      font-family: 'Cinzel', serif; font-size: 0.78rem; font-weight: 900;
-      color: #00D4FF; white-space: nowrap; flex-shrink: 0;
-      text-shadow: 0 0 8px rgba(0,212,255,0.4);
-    }
-    .missao-btn {
-      flex-shrink: 0; height: 36px; padding: 0 13px; margin-left: 6px;
-      border-radius: 10px; border: 2px solid;
-      font-family: 'Cinzel', serif; font-size: 0.68rem; font-weight: 700;
-      cursor: pointer; transition: transform 0.1s, box-shadow 0.15s;
-      -webkit-user-select: none; user-select: none; white-space: nowrap;
-    }
-    .missao-btn:active { transform: translateY(2px); }
-    .missao-btn-solicitar {
-      background: linear-gradient(135deg, #0a1a3a, #122a5a);
-      color: var(--gold); border-color: rgba(255,215,0,0.38);
-      box-shadow: 0 4px 0 #050e20;
-    }
-    .missao-btn-solicitar:active { box-shadow: 0 2px 0 #050e20; }
-    .missao-btn-aguardando {
-      background: rgba(40,25,0,0.6); color: rgba(255,160,30,0.7);
-      border-color: rgba(255,160,30,0.25); box-shadow: none; cursor: default;
-      font-size: 0.62rem;
-    }
-    .missao-secao-label {
-      font-family: 'Cinzel', serif; font-size: 0.63rem; font-weight: 700;
-      color: rgba(255,215,0,0.4); letter-spacing: 0.1em;
-      margin: 4px 0 8px; text-transform: uppercase;
-    }
-
-    /* ============ CARDS DO BAÚ (boosters prontos) ============ */
-    .bau-grid { display: flex; flex-direction: column; gap: 10px; }
-    .bau-card {
-      background: linear-gradient(135deg, rgba(0,55,28,0.35), rgba(0,28,14,0.45));
-      border: 2px solid rgba(0,220,100,0.45);
-      border-radius: 14px; padding: 14px 14px;
-      display: flex; align-items: center; gap: 12px;
-      position: relative; overflow: hidden;
-      animation: bau-pulse 2.2s ease-in-out infinite;
-    }
-    @keyframes bau-pulse {
-      0%,100% { border-color: rgba(0,220,100,0.4); box-shadow: 0 0 0 rgba(0,220,100,0); }
-      50%     { border-color: rgba(0,220,100,0.75); box-shadow: 0 0 18px rgba(0,220,100,0.2); }
-    }
-    .bau-card::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(0,255,120,0.05), transparent);
-      animation: shimmer-hud 2.5s infinite;
-    }
-    .bau-icon  { font-size: 2.4rem; flex-shrink: 0; width: 44px; text-align: center; }
-    .bau-info  { flex: 1; min-width: 0; }
-    .bau-nome  {
-      font-family: 'Cinzel', serif; font-size: 0.88rem; font-weight: 900; color: #00FF88;
-    }
-    .bau-desc  { font-size: 0.68rem; color: rgba(0,255,136,0.6); margin-top: 2px; }
-    .bau-premio {
-      font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 900;
-      color: #00D4FF; text-shadow: 0 0 10px rgba(0,212,255,0.5); flex-shrink: 0;
-    }
-    .bau-btn-coletar {
-      flex-shrink: 0; height: 42px; padding: 0 16px; margin-left: 8px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #0a2a15, #104020);
-      color: #00FF88; border: 2px solid rgba(0,200,80,0.5);
-      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 900;
-      cursor: pointer; box-shadow: 0 5px 0 #04120a;
-      transition: transform 0.1s, box-shadow 0.1s;
-      -webkit-user-select: none; user-select: none;
-      animation: btn-glow 2s ease-in-out infinite;
-    }
-    @keyframes btn-glow {
-      0%,100% { box-shadow: 0 5px 0 #04120a; }
-      50%     { box-shadow: 0 5px 0 #04120a, 0 0 14px rgba(0,220,100,0.35); }
-    }
-    .bau-btn-coletar:active { transform: translateY(3px); box-shadow: 0 2px 0 #04120a; }
-
-    /* Badge no footer (boosters prontos) */
-    .menu-item { position: relative; }
-    .footer-booster-badge {
-      position: absolute; top: 4px; right: 6px;
-      background: #FF3333; color: white; font-size: 0.55rem; font-weight: 900;
-      min-width: 16px; height: 16px; border-radius: 8px;
-      display: none; align-items: center; justify-content: center; padding: 0 3px;
-      font-family: sans-serif; z-index: 2;
-      animation: badge-ping 1.8s ease-in-out infinite;
-    }
-    @keyframes badge-ping {
-      0%,100% { transform: scale(1); }
-      50%     { transform: scale(1.2); }
-    }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1508,6 +1391,18 @@
       </div>
     </div>
 
+    <!-- ══ VOUCHER TIMER BAR ══ -->
+    <div id="voucher-hud-bar">
+      <div id="voucher-hud-inner" onclick="abrirVouchers()">
+        <span class="voucher-hud-icon">⏱</span>
+        <div>
+          <div id="voucher-hud-timer">00:00</div>
+          <div class="voucher-hud-sub">TEMPO DE TELA</div>
+        </div>
+        <span id="voucher-hud-cristais"></span>
+      </div>
+    </div>
+
     <!-- Área rolável central -->
     <div class="scroll-area">
 
@@ -1597,53 +1492,151 @@
 
     <!-- Footer -->
     <div class="footer-menu">
-      <div class="menu-item" onclick="tocarFooter(this,'A Loja de Avatares abrirá em breve, Guardião!', '🧙')">
+      <div class="menu-item locked" onclick="tocarFooter(this,'A Loja de Avatares abrirá em breve, Guardião!', '🧙')">
+        <span class="footer-lock-badge">🔒</span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <path d="M24 3L40 10L40 30Q40 42 24 46Q8 42 8 30L8 10Z" fill="#0A1A30" stroke="#B8860B" stroke-width="2"/>
-          <path d="M24 3L40 10L40 30Q40 42 24 46Q8 42 8 30L8 10Z" fill="none" stroke="#FFD700" stroke-width="0.8" opacity="0.5"/>
-          <circle cx="24" cy="20" r="6" fill="#FFD700"/>
-          <rect x="21" y="26" width="6" height="8" rx="1" fill="#FFD700"/>
-          <ellipse cx="24" cy="36" rx="8" ry="4" fill="#FFD700" opacity="0.8"/>
-        </svg>Avatares
+          <defs>
+            <linearGradient id="avGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFF2A3"/><stop offset="50%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#78350F"/></linearGradient>
+            <linearGradient id="avShield" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#1E293B"/><stop offset="100%" stop-color="#0F172A"/></linearGradient>
+            <linearGradient id="avSilver" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="60%" stop-color="#94A3B8"/><stop offset="100%" stop-color="#475569"/></linearGradient>
+            <filter id="avGlow"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.5"/></filter>
+          </defs>
+          <path d="M24 3 L42 9 C42 26, 34 38, 24 45 C14 38, 6 26, 6 9 Z" fill="url(#avGold)" filter="url(#avGlow)"/>
+          <path d="M24 6 L39 11 C39 25, 32 35, 24 41 C16 35, 9 25, 9 11 Z" fill="url(#avShield)"/>
+          <path d="M24 13 C18 13, 16 18, 16 25 C16 32, 19 34, 24 34 C29 34, 32 32, 32 25 C32 18, 30 13, 24 13 Z" fill="url(#avSilver)"/>
+          <path d="M17 21 L31 21 L30 25 L18 25 Z" fill="#1E293B"/>
+          <line x1="20" y1="23" x2="28" y2="23" stroke="#00F0FF" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M24 13 C24 13, 27 6, 31 6 C28 9, 26 11, 24 13 Z" fill="#EF4444"/>
+          <path d="M24 13 C24 13, 21 6, 17 6 C20 9, 22 11, 24 13 Z" fill="#DC2626"/>
+          <circle cx="24" cy="37" r="1.2" fill="url(#avGold)"/>
+        </svg>
+        <span class="menu-label">Avatares</span>
       </div>
-      <div class="menu-item" onclick="abrirArtefatos()">
+      <div class="menu-item" onclick="tocarFooter(this,'O Baú de Artefatos está trancado... por ora.', '⚔️')">
+        <span class="footer-lock-badge">🔒</span>
         <span class="footer-booster-badge" id="badge-footer-bau"></span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <line x1="9" y1="9" x2="39" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
-          <line x1="39" y1="9" x2="9" y2="39" stroke="#FFD700" stroke-width="3.5" stroke-linecap="round"/>
-          <rect x="4" y="21" width="10" height="6" rx="2" fill="#B8860B" stroke="#FFD700" stroke-width="1.2"/>
-          <rect x="34" y="21" width="10" height="6" rx="2" fill="#B8860B" stroke="#FFD700" stroke-width="1.2"/>
-          <polygon points="24,17 27,24 24,31 21,24" fill="#00D4FF" stroke="#0099BB" stroke-width="1"/>
-        </svg>Artefatos
+          <defs>
+            <linearGradient id="artWood" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#B45309"/><stop offset="50%" stop-color="#78350F"/><stop offset="100%" stop-color="#451A03"/></linearGradient>
+            <linearGradient id="artGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="50%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#92400E"/></linearGradient>
+            <radialGradient id="artGem" cx="35%" cy="35%" r="60%"><stop offset="0%" stop-color="#22D3EE"/><stop offset="70%" stop-color="#0891B2"/><stop offset="100%" stop-color="#164E63"/></radialGradient>
+            <filter id="artShadow"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.6"/></filter>
+          </defs>
+          <path d="M 7 22 C 7 10, 41 10, 41 22 Z" fill="url(#artWood)" filter="url(#artShadow)"/>
+          <rect x="7" y="22" width="34" height="18" rx="3" fill="url(#artWood)" filter="url(#artShadow)"/>
+          <path d="M 4 25 C 2 25, 2 33, 4 33 Z" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 44 25 C 46 25, 46 33, 44 33 Z" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 7 22 C 7 11, 12 12, 12 22 L 12 40 L 7 40 Z" fill="url(#artGold)"/>
+          <path d="M 41 22 C 41 11, 36 12, 36 22 L 36 40 L 41 40 Z" fill="url(#artGold)"/>
+          <rect x="21" y="11" width="6" height="11" fill="url(#artGold)"/>
+          <rect x="12" y="21" width="24" height="2" fill="#1C1917"/>
+          <path d="M 19 20 L 29 20 L 27 30 L 24 33 L 21 30 Z" fill="url(#artGold)" filter="url(#artShadow)"/>
+          <polygon points="24,21 27,25 24,29 21,25" fill="url(#artGem)"/>
+          <polygon points="24,22 26,25 24,24" fill="#FFFFFF" opacity="0.6"/>
+        </svg>
+        <span class="menu-label">Artefatos</span>
       </div>
-      <div class="menu-item" onclick="tocarFooter(this,'A Loja Épica exige Nível 5!', '🏰')">
+      <div class="menu-item locked" onclick="tocarFooter(this,'A Loja Épica exige Nível 5!', '🏰')">
+        <span class="footer-lock-badge">🔒</span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <rect x="9" y="22" width="30" height="22" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
-          <rect x="9" y="12" width="9" height="12" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
-          <rect x="30" y="12" width="9" height="12" fill="#0A1A30" stroke="#B8860B" stroke-width="1.5"/>
-          <rect x="9" y="9" width="2.5" height="5" fill="#FFD700"/>
-          <rect x="13" y="9" width="2.5" height="5" fill="#FFD700"/>
-          <rect x="30" y="9" width="2.5" height="5" fill="#FFD700"/>
-          <rect x="34" y="9" width="2.5" height="5" fill="#FFD700"/>
-          <rect x="19" y="30" width="10" height="14" rx="1" fill="#B8860B"/>
-          <polygon points="24,13 25.5,18 30,18 26.5,21 27.5,26 24,23 20.5,26 21.5,21 18,18 22.5,18" fill="#FFD700"/>
-        </svg>Loja Épica
+          <defs>
+            <linearGradient id="epGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FDE047"/><stop offset="50%" stop-color="#CA8A04"/><stop offset="100%" stop-color="#78350F"/></linearGradient>
+            <linearGradient id="epWall" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#64748B"/><stop offset="50%" stop-color="#475569"/><stop offset="100%" stop-color="#334155"/></linearGradient>
+            <linearGradient id="epRoof" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#A855F7"/><stop offset="100%" stop-color="#6B21A8"/></linearGradient>
+            <radialGradient id="epGlowR" cx="50%" cy="70%" r="50%"><stop offset="0%" stop-color="#C084FC" stop-opacity="0.8"/><stop offset="100%" stop-color="#A855F7" stop-opacity="0"/></radialGradient>
+            <filter id="epShadow"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.5"/></filter>
+          </defs>
+          <circle cx="24" cy="26" r="15" fill="url(#epGlowR)"/>
+          <rect x="11" y="22" width="26" height="19" fill="url(#epWall)" filter="url(#epShadow)"/>
+          <rect x="7" y="14" width="7" height="27" fill="url(#epWall)" filter="url(#epShadow)"/>
+          <rect x="34" y="14" width="7" height="27" fill="url(#epWall)" filter="url(#epShadow)"/>
+          <polygon points="10.5,4 6,14 15,14" fill="url(#epRoof)"/>
+          <polygon points="37.5,4 33,14 42,14" fill="url(#epRoof)"/>
+          <polygon points="10.5,2 9,5 12,5" fill="url(#epGold)"/>
+          <polygon points="37.5,2 36,5 39,5" fill="url(#epGold)"/>
+          <rect x="7" y="14" width="7" height="2" fill="url(#epGold)"/>
+          <rect x="34" y="14" width="7" height="2" fill="url(#epGold)"/>
+          <path d="M20 41 L20 31 C20 27, 28 27, 28 31 L28 41 Z" fill="url(#epGold)"/>
+          <path d="M22 41 L22 32 C22 30, 26 30, 26 32 L26 41 Z" fill="#78350F"/>
+          <polygon points="24,12 25.5,15.5 29,16 26.5,18.5 27,22 24,20.5 21,22 21.5,18.5 19,16 22.5,15.5" fill="url(#epGold)"/>
+        </svg>
+        <span class="menu-label">Loja Épica</span>
       </div>
-      <div class="menu-item" onclick="tocarFooter(this,'Vouchers de recompensa selados pela Ordem.', '📜')">
+      <div class="menu-item" onclick="abrirVouchers()">
+        <span id="voucher-footer-badge"></span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <rect x="10" y="8" width="28" height="32" rx="3" fill="#D2B48C" stroke="#8B6914" stroke-width="1.5"/>
-          <ellipse cx="10" cy="24" rx="5" ry="16" fill="#C4A070" stroke="#8B6914" stroke-width="1.5"/>
-          <ellipse cx="38" cy="24" rx="5" ry="16" fill="#C4A070" stroke="#8B6914" stroke-width="1.5"/>
-          <line x1="16" y1="15" x2="32" y2="15" stroke="#7B4F1A" stroke-width="1.5"/>
-          <line x1="16" y1="19" x2="32" y2="19" stroke="#7B4F1A" stroke-width="1.5"/>
-          <line x1="16" y1="23" x2="27" y2="23" stroke="#7B4F1A" stroke-width="1.5"/>
-          <circle cx="24" cy="33" r="5" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/>
-          <text x="20.5" y="37" font-size="8" fill="#8B1A1A" font-family="serif" font-weight="bold">&#9733;</text>
-        </svg>Vouchers
+          <defs>
+            <linearGradient id="vchParchment" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFFDF5"/><stop offset="70%" stop-color="#FDE68A"/><stop offset="100%" stop-color="#D97706"/></linearGradient>
+            <linearGradient id="vchRoll" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#B45309"/><stop offset="100%" stop-color="#78350F"/></linearGradient>
+            <linearGradient id="vchSeal" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#EF4444"/><stop offset="100%" stop-color="#991B1B"/></linearGradient>
+            <linearGradient id="vchGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="100%" stop-color="#B45309"/></linearGradient>
+            <filter id="vchShadow"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.5"/></filter>
+          </defs>
+          <rect x="10" y="8" width="28" height="32" rx="1" fill="url(#vchParchment)" filter="url(#vchShadow)"/>
+          <path d="M 8 8 C 8 4, 40 4, 40 8 Z" fill="url(#vchRoll)"/>
+          <ellipse cx="8" cy="8" rx="2" ry="4" fill="url(#vchGold)"/>
+          <ellipse cx="40" cy="8" rx="2" ry="4" fill="url(#vchGold)"/>
+          <path d="M 8 40 C 8 44, 40 44, 40 40 Z" fill="url(#vchRoll)"/>
+          <ellipse cx="8" cy="40" rx="2" ry="4" fill="url(#vchGold)"/>
+          <ellipse cx="40" cy="40" rx="2" ry="4" fill="url(#vchGold)"/>
+          <line x1="16" y1="15" x2="32" y2="15" stroke="#78350F" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+          <line x1="16" y1="20" x2="32" y2="20" stroke="#78350F" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+          <line x1="16" y1="25" x2="25" y2="25" stroke="#78350F" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
+          <circle cx="29" cy="32" r="5.5" fill="url(#vchSeal)" filter="url(#vchShadow)"/>
+          <circle cx="29" cy="32" r="3.8" fill="none" stroke="#7F1D1D" stroke-width="0.7"/>
+          <path d="M 27 36 L 25 43 L 29 41 L 31 43 L 30 36" fill="#B91C1C"/>
+          <polygon points="29,30 29.6,31.3 31,31.3 29.9,32.2 30.3,33.5 29,32.7 27.7,33.5 28.1,32.2 27,31.3 28.4,31.3" fill="url(#vchGold)"/>
+        </svg>
+        <span class="menu-label">Vouchers</span>
       </div>
     </div>
   </div>
 
+  </div>
+
+
+  <!-- ═══════════ MODAL VOUCHERS ═══════════ -->
+  <div id="vouchers-modal">
+    <button class="reading-close" onclick="fecharVouchers()">✕</button>
+    <div class="vouchers-scroll">
+      <div class="vouchers-title">📜 Vouchers de Tela</div>
+      <div class="vouchers-subtitle">✦ Solicite tempo de tela ao Mestre ✦</div>
+
+      <!-- Voucher Ativo -->
+      <div id="voucher-ativo-section" style="display:none">
+        <div class="voucher-ativo-card" id="voucher-ativo-card">
+          <div class="voucher-ativo-label">⏱ VOUCHER ATIVO</div>
+          <div class="voucher-ativo-timer" id="voucher-ativo-timer">--:--</div>
+          <div class="voucher-ativo-sub" id="voucher-ativo-sub">Aproveite seu tempo, Guardião!</div>
+        </div>
+      </div>
+
+      <!-- Lista de vouchers -->
+      <div class="voucher-section-lbl">📋 Meus Vouchers</div>
+      <div id="vouchers-lista">
+        <div style="text-align:center;color:rgba(200,200,200,0.35);font-size:0.8rem;padding:12px 0;">
+          Nenhum voucher ainda.
+        </div>
+      </div>
+
+      <!-- Solicitar novo -->
+      <div class="voucher-section-lbl">✦ Novo Pedido</div>
+      <div class="voucher-saldo-txt" id="voucher-saldo-txt">Saldo: 0 💎</div>
+      <div class="voucher-presets" id="voucher-presets-wrap">
+        <div class="voucher-preset" onclick="setVoucherPreset(event,10)">10 💎<br><small>10 min</small></div>
+        <div class="voucher-preset" onclick="setVoucherPreset(event,20)">20 💎<br><small>20 min</small></div>
+        <div class="voucher-preset" onclick="setVoucherPreset(event,30)">30 💎<br><small>30 min</small></div>
+        <div class="voucher-preset" onclick="setVoucherPreset(event,45)">45 💎<br><small>45 min</small></div>
+        <div class="voucher-preset" onclick="setVoucherPreset(event,60)">60 💎<br><small>1h</small></div>
+        <div class="voucher-preset" onclick="setVoucherPreset(event,90)">90 💎<br><small>1h30</small></div>
+      </div>
+      <input type="number" id="voucher-cristais" class="voucher-input" placeholder="Ou digite a quantidade..." min="1">
+
+      <button class="btn-solicitar-voucher" id="btn-solicitar-voucher" onclick="solicitarVoucher()">
+        <span>📜</span> Enviar Pedido ao Mestre
+      </button>
+      <button class="vouchers-close" onclick="fecharVouchers()">✕ Fechar</button>
+    </div>
   </div>
 
   <!-- =========== MODAL DE LEITURA =========== -->
@@ -1694,10 +1687,6 @@
     <div class="forge-title">⚔ A FORJA ÉPICA ⚔</div>
     <div id="forge-display">0 💎</div>
     <div class="forge-cost-label" id="forge-cost-label">Toque no martelo · 30 ⚡ = 10 💎</div>
-    <div class="forge-booster-tag" id="forge-booster-tag">
-      <span id="forge-booster-icon">✨</span>
-      <span id="forge-booster-text">Booster ativo!</span>
-    </div>
 
     <div style="position:relative; z-index:2; margin: 8px 0;">
       <div class="sparks-container" id="sparks-container"></div>
@@ -1705,34 +1694,6 @@
     </div>
 
     <button onclick="confirmarForja()" class="btn-confirm-forge">⚔ CONCLUIR FORJA ⚔</button>
-  </div>
-
-  <!-- =========== BACKDROP LOJAS =========== -->
-  <div class="loja-backdrop" id="loja-backdrop" onclick="fecharLojaAtual()"></div>
-
-  <!-- =========== BAÚ DE ARTEFATOS (Bottom Sheet c/ abas) =========== -->
-  <div class="loja-sheet" id="artefatos-sheet">
-    <div class="loja-handle"></div>
-    <div class="loja-header">
-      <span class="loja-title">🏺 BAÚ DE ARTEFATOS</span>
-      <button class="loja-close" onclick="fecharArtefatos()">✕</button>
-    </div>
-    <!-- Abas -->
-    <div class="loja-tabs">
-      <div class="loja-tab active" id="tab-btn-missoes" onclick="switchTabBau('missoes')">⚔ MISSÕES</div>
-      <div class="loja-tab" id="tab-btn-bau" onclick="switchTabBau('bau')">
-        🎁 BAÚ
-        <span class="loja-tab-badge" id="badge-tab-bau" style="display:none"></span>
-      </div>
-    </div>
-    <div class="loja-tab-divider"></div>
-    <!-- Conteúdo das abas -->
-    <div class="loja-body" id="tab-content-missoes">
-      <div class="arf-empty"><span class="arf-empty-icon">⚔️</span>Carregando missões...</div>
-    </div>
-    <div class="loja-body" id="tab-content-bau" style="display:none">
-      <div class="arf-empty"><span class="arf-empty-icon">🎁</span>Carregando baú...</div>
-    </div>
   </div>
 
   <script>
@@ -2452,8 +2413,6 @@
           msgOra = msgs[Math.floor(Math.random() * msgs.length)];
         }
         oraMsg(msgOra);
-        // Verifica booster ativo dos artefatos
-        verificarBoosterAtivo();
 
       } catch(err) {
         oraMsg('⚠️ Não consegui conectar ao servidor. Tente novamente.');
@@ -2491,14 +2450,7 @@
 
     function addForge() {
       const custoForja = streakConfig.custo_forja || 30;
-      const ganhoBase  = streakConfig.ganho_forja || 10;
-
-      // Booster ativo?
-      const mult = (arfBoosterAtivo && arfBoosterAtivo.expira_em &&
-                    new Date(arfBoosterAtivo.expira_em).getTime() > Date.now())
-                   ? (arfBoosterAtivo.multiplicador || 1) : 1;
-      const ganhoForja = ganhoBase * mult;
-
+      const ganhoForja = streakConfig.ganho_forja || 10;
       if (currentEnergy >= custoForja) {
         currentEnergy -= custoForja;
         forgeAcc += ganhoForja;
@@ -2524,7 +2476,7 @@
         void fd.offsetWidth;
         fd.classList.add('crystal-pop');
 
-        spawnFloat(`+${ganhoForja} 💎`, mult > 1 ? '#00FF88' : '#00D4FF', hx, hy - 30);
+        spawnFloat('+10 💎', '#00D4FF', hx, hy - 30);
         soundForgeHit();
         screenShake(7, 300);
         vibrate(60);
@@ -2561,11 +2513,7 @@
           const userRef = db.ref('usuarios/' + userKey);
           const snap = await userRef.get();
           const userData = snap.val();
-          const ganhoBase2   = streakConfig.ganho_forja || 10;
-          const mult2        = (arfBoosterAtivo && arfBoosterAtivo.expira_em &&
-                                new Date(arfBoosterAtivo.expira_em).getTime() > Date.now())
-                               ? (arfBoosterAtivo.multiplicador || 1) : 1;
-          const ganhoForja2  = ganhoBase2 * mult2;
+          const ganhoForja2 = streakConfig.ganho_forja || 10;
           const custo = (forgeAcc / ganhoForja2) * (streakConfig.custo_forja || 30);
           if (Number(userData.saldo_energia) < custo) {
             setForgeMsg('⚡ Energia insuficiente! Leia mais livros primeiro.'); return;
@@ -2579,9 +2527,7 @@
             email: currentUserEmail,
             tipo: 'Forja',
             quantidade: forgeAcc,
-            detalhes: mult2 > 1
-              ? `Forja Épica de ${forgeAcc} cristais (×${mult2} Booster: ${arfBoosterAtivo.nome})`
-              : `Forja Épica de ${forgeAcc} cristais`,
+            detalhes: `Forja Épica de ${forgeAcc} cristais`,
             status: 'Aprovado'
           });
           setForgeMsg(`⚒️ Forja concluída! +${forgeAcc} Cristais adquiridos!`);
@@ -3560,353 +3506,6 @@
       oraMsg('🔒 ' + mensagem);
     }
 
-
-    /* ══════════════════════════════════════════════════════
-       BAÚ DE ARTEFATOS — Missões + Boosters
-    ══════════════════════════════════════════════════════ */
-    let lojaAberta   = null;
-    let tabBauAtiva  = 'missoes';   // 'missoes' | 'bau'
-    let arfBoosterAtivo = null;     // multipliers (futuro) — mantido para a Forja
-
-    /* ── Abre o Baú ── */
-    function abrirArtefatos(tabInicial) {
-      initAudio();
-      vibrate([25, 15, 35]);
-      soundTone(660, 'sine', 0.2, 0.18, 0.005);
-      setTimeout(() => soundTone(880, 'sine', 0.15, 0.14, 0.005), 140);
-
-      document.getElementById('artefatos-sheet').classList.add('open');
-      document.getElementById('loja-backdrop').classList.add('open');
-      lojaAberta = 'artefatos';
-
-      // Se há boosters prontos, abre direto no Baú
-      const contPronto = parseInt(document.getElementById('badge-footer-bau').textContent) || 0;
-      switchTabBau(tabInicial || (contPronto > 0 ? 'bau' : 'missoes'));
-
-      const item = document.querySelector('.footer-menu .menu-item:nth-child(2)');
-      if (item) {
-        const r = item.getBoundingClientRect();
-        spawnColorSparks(r.left + r.width/2, r.top, 10,
-          ['rgba(255,215,0,','rgba(0,212,255,','rgba(180,100,255,']);
-      }
-    }
-
-    /* ── Fecha o Baú ── */
-    function fecharArtefatos() {
-      document.getElementById('artefatos-sheet').classList.remove('open');
-      document.getElementById('loja-backdrop').classList.remove('open');
-      lojaAberta = null;
-      vibrate(20);
-      soundTone(440, 'sine', 0.1, 0.12, 0.01);
-    }
-
-    function fecharLojaAtual() {
-      if (lojaAberta === 'artefatos') fecharArtefatos();
-    }
-
-    /* ── Troca de aba ── */
-    function switchTabBau(aba) {
-      tabBauAtiva = aba;
-      document.getElementById('tab-btn-missoes').classList.toggle('active', aba === 'missoes');
-      document.getElementById('tab-btn-bau').classList.toggle('active', aba === 'bau');
-      document.getElementById('tab-content-missoes').style.display = aba === 'missoes' ? '' : 'none';
-      document.getElementById('tab-content-bau').style.display      = aba === 'bau'    ? '' : 'none';
-      if (aba === 'missoes') carregarMissoes();
-      else                   carregarBau();
-    }
-
-    /* ════════════════════════════════════════
-       ABA MISSÕES
-    ════════════════════════════════════════ */
-    async function carregarMissoes() {
-      const el = document.getElementById('tab-content-missoes');
-      if (!currentUserEmail) {
-        el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">🔒</span>Entre como Guardião primeiro.</div>';
-        return;
-      }
-      el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">⚔️</span>Carregando missões...</div>';
-      try {
-        const emailKey = sanitizeEmail(currentUserEmail);
-        // Carrega missões disponíveis E boosters já solicitados em paralelo
-        const [snapMissoes, snapBoosters] = await Promise.all([
-          db.ref('config/missoes').get(),
-          db.ref('usuarios/' + emailKey + '/boosters').get()
-        ]);
-
-        const missoes = snapMissoes.exists()
-          ? Object.entries(snapMissoes.val())
-              .filter(([, m]) => m.ativo !== false)
-              .map(([k, m]) => ({ key: k, ...m }))
-          : [];
-
-        // Mapa de missoes já solicitadas (key missao → status)
-        const solicitadas = {};
-        if (snapBoosters.exists()) {
-          Object.values(snapBoosters.val()).forEach(b => {
-            if (b.missao_key && (b.status === 'solicitado' || b.status === 'pronto')) {
-              solicitadas[b.missao_key] = b.status;
-            }
-          });
-        }
-
-        renderMissoes(missoes, solicitadas);
-      } catch(e) {
-        el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">❌</span>Erro ao carregar. Tente novamente.</div>';
-      }
-    }
-
-    function renderMissoes(missoes, solicitadas) {
-      const el = document.getElementById('tab-content-missoes');
-      if (!missoes.length) {
-        el.innerHTML = `<div class="arf-empty">
-          <span class="arf-empty-icon">⚔️</span>
-          Nenhuma missão disponível ainda.<br>
-          <span style="font-size:0.68rem;opacity:0.6;display:block;margin-top:6px;">O Mestre adicionará novas missões em breve!</span>
-        </div>`;
-        return;
-      }
-
-      const disponiveis = missoes.filter(m => !solicitadas[m.key]);
-      const aguardando  = missoes.filter(m => solicitadas[m.key] === 'solicitado');
-      const aprovadas   = missoes.filter(m => solicitadas[m.key] === 'pronto');
-
-      let html = '';
-
-      if (disponiveis.length) {
-        html += `<div class="missao-secao-label">✦ Disponíveis</div><div class="missao-grid">`;
-        disponiveis.forEach(m => { html += cardMissao(m, 'disponivel'); });
-        html += '</div>';
-      }
-      if (aguardando.length) {
-        html += `<div class="missao-secao-label" style="margin-top:12px">⏳ Aguardando Aprovação</div><div class="missao-grid">`;
-        aguardando.forEach(m => { html += cardMissao(m, 'solicitado'); });
-        html += '</div>';
-      }
-      if (aprovadas.length) {
-        html += `<div class="missao-secao-label" style="margin-top:12px;color:rgba(0,255,136,0.5)">✅ Pronto para coletar — veja no Baú!</div>`;
-      }
-      if (!disponiveis.length && !aguardando.length && !aprovadas.length) {
-        html = '<div class="arf-empty"><span class="arf-empty-icon">🏆</span>Todas as missões solicitadas! Aguarde o Mestre.</div>';
-      }
-
-      el.innerHTML = html;
-    }
-
-    function cardMissao(m, estado) {
-      const btn = estado === 'solicitado'
-        ? `<button class="missao-btn missao-btn-aguardando" disabled>⏳ Aguardando</button>`
-        : `<button class="missao-btn missao-btn-solicitar" onclick="solicitarMissao('${m.key}')">Solicitar!</button>`;
-      return `
-        <div class="missao-card ${estado === 'solicitado' ? 'solicitado' : ''}">
-          <div class="missao-icon">${m.icone || '⚔️'}</div>
-          <div class="missao-info">
-            <div class="missao-nome">${m.nome}</div>
-            <div class="missao-desc">${m.descricao || ''}</div>
-          </div>
-          <div class="missao-premio">+${m.recompensa}💎</div>
-          ${btn}
-        </div>`;
-    }
-
-    /* Criança solicita uma missão */
-    async function solicitarMissao(missaoKey) {
-      initAudio();
-      vibrate([30, 15, 40]);
-      soundTone(523, 'sine', 0.2, 0.18, 0.005);
-      setTimeout(() => soundTone(659, 'sine', 0.15, 0.15, 0.005), 130);
-      try {
-        const emailKey = sanitizeEmail(currentUserEmail);
-        // Busca dados da missão
-        const snapM = await db.ref('config/missoes/' + missaoKey).get();
-        if (!snapM.exists()) { oraMsg('❌ Missão não encontrada.'); return; }
-        const m = snapM.val();
-
-        await db.ref('usuarios/' + emailKey + '/boosters').push({
-          missao_key:   missaoKey,
-          nome:         m.nome,
-          icone:        m.icone || '⚔️',
-          recompensa:   m.recompensa,
-          descricao:    m.descricao || '',
-          status:       'solicitado',
-          solicitado_em: new Date().toISOString(),
-          concedido_em: null,
-          coletado_em:  null,
-          guardiao_email: currentUserEmail
-        });
-
-        // Efeitos
-        const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-        spawnColorSparks(cx, cy - 60, 14, ['rgba(255,215,0,','rgba(0,212,255,']);
-        oraMsg(`⚔ Missão "${m.nome}" solicitada! Aguarde a aprovação do Mestre, Guardião!`);
-
-        // Recarrega a aba
-        carregarMissoes();
-      } catch(e) { oraMsg('❌ Erro ao solicitar. Tente novamente.'); }
-    }
-
-    /* ════════════════════════════════════════
-       ABA BAÚ (boosters prontos para coletar)
-    ════════════════════════════════════════ */
-    async function carregarBau() {
-      const el = document.getElementById('tab-content-bau');
-      if (!currentUserEmail) {
-        el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">🔒</span>Entre como Guardião primeiro.</div>';
-        return;
-      }
-      el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">🎁</span>Carregando baú...</div>';
-      try {
-        const emailKey = sanitizeEmail(currentUserEmail);
-        const snap = await db.ref('usuarios/' + emailKey + '/boosters').get();
-        const prontos = snap.exists()
-          ? Object.entries(snap.val())
-              .filter(([, b]) => b.status === 'pronto')
-              .map(([k, b]) => ({ key: k, ...b }))
-          : [];
-        renderBau(prontos);
-        atualizarBadgeBau(prontos.length);
-      } catch(e) {
-        el.innerHTML = '<div class="arf-empty"><span class="arf-empty-icon">❌</span>Erro ao carregar.</div>';
-      }
-    }
-
-    function renderBau(prontos) {
-      const el = document.getElementById('tab-content-bau');
-      if (!prontos.length) {
-        el.innerHTML = `<div class="arf-empty">
-          <span class="arf-empty-icon">📦</span>
-          Baú vazio, Guardião!<br>
-          <span style="font-size:0.68rem;opacity:0.6;display:block;margin-top:6px;">
-            Complete missões e aguarde a aprovação do Mestre.
-          </span>
-        </div>`;
-        return;
-      }
-      el.innerHTML = `
-        <div class="missao-secao-label">🎁 Pronto para coletar!</div>
-        <div class="bau-grid">
-          ${prontos.map(b => `
-            <div class="bau-card">
-              <div class="bau-icon">${b.icone || '⚔️'}</div>
-              <div class="bau-info">
-                <div class="bau-nome">${b.nome}</div>
-                <div class="bau-desc">${b.descricao || ''}</div>
-              </div>
-              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-                <div class="bau-premio">+${b.recompensa}💎</div>
-                <button class="bau-btn-coletar" onclick="coletarBooster('${b.key}',${b.recompensa},'${b.nome.replace(/'/g,"\\'")}','${b.icone||'⚔️'}')">⚡ COLETAR!</button>
-              </div>
-            </div>`).join('')}
-        </div>`;
-    }
-
-    /* Criança coleta o booster — recebe os cristais */
-    async function coletarBooster(key, recompensa, nome, icone) {
-      initAudio();
-      vibrate([60, 30, 60, 30, 200]);
-
-      // Fanfarra épica em 3 tempos
-      soundTone(523, 'sine', 0.4, 0.25, 0.01);
-      setTimeout(() => soundTone(659, 'sine', 0.35, 0.22, 0.01), 160);
-      setTimeout(() => soundTone(784, 'sine', 0.3, 0.2, 0.01), 320);
-      setTimeout(() => { soundTone(1047, 'sine', 0.5, 0.35, 0.005); soundCrystalChime(); }, 480);
-
-      try {
-        const emailKey = sanitizeEmail(currentUserEmail);
-
-        // Atualiza booster + saldo em paralelo
-        const snapU = await db.ref('usuarios/' + emailKey).get();
-        const u = snapU.val();
-        await Promise.all([
-          db.ref('usuarios/' + emailKey + '/boosters/' + key).update({
-            status: 'coletado',
-            coletado_em: new Date().toISOString()
-          }),
-          db.ref('usuarios/' + emailKey).update({
-            saldo_cristais: Number(u.saldo_cristais) + Number(recompensa)
-          }),
-          db.ref('transacoes').push({
-            data: new Date().toISOString(),
-            email: currentUserEmail,
-            tipo: 'Bonus',
-            quantidade: recompensa,
-            detalhes: `Missão concluída: ${nome}`,
-            status: 'Aprovado'
-          })
-        ]);
-
-        // Atualiza UI local
-        currentCristais = Number(u.saldo_cristais) + Number(recompensa);
-        document.getElementById('v-c').textContent = currentCristais;
-
-        // Efeitos épicos
-        const cx = window.innerWidth / 2, cy = window.innerHeight / 3;
-        for (let i = 0; i < 4; i++) {
-          setTimeout(() => {
-            spawnColorSparks(cx + (Math.random()-0.5)*120, cy + (Math.random()-0.5)*80, 18,
-              ['rgba(255,215,0,','rgba(0,212,255,','rgba(0,255,136,','rgba(255,100,255,']);
-            spawnShockwave(cx, cy, 'rgba(255,215,0,', 80 + i*20);
-          }, i * 120);
-        }
-        spawnFloat(`+${recompensa} 💎`, '#00FF88', cx, cy - 40);
-        spawnFloat(`${icone} COLETADO!`, '#FFD700', cx, cy - 80);
-        screenShake(8, 400);
-
-        oraMsg(`🏆 MISSÃO CONCLUÍDA! ${icone} "${nome}" — +${recompensa} 💎 adicionados ao seu tesouro, Guardião! Glória à Ordem!`);
-
-        // Recarrega
-        await carregarBau();
-        // Atualiza diário e cristais
-        if (typeof loadData === 'function') loadData();
-
-      } catch(e) { oraMsg('❌ Erro ao coletar. Tente novamente.'); }
-    }
-
-    /* Atualiza badge no footer e na aba */
-    function atualizarBadgeBau(count) {
-      const footerBadge = document.getElementById('badge-footer-bau');
-      const tabBadge    = document.getElementById('badge-tab-bau');
-      if (count > 0) {
-        footerBadge.textContent = count;
-        footerBadge.style.display = 'flex';
-        tabBadge.textContent = count;
-        tabBadge.style.display = 'flex';
-      } else {
-        footerBadge.style.display = 'none';
-        tabBadge.style.display = 'none';
-      }
-    }
-
-    /* Verifica boosters prontos ao carregar o app */
-    async function verificarBoosters() {
-      if (!currentUserEmail) return;
-      try {
-        const emailKey = sanitizeEmail(currentUserEmail);
-        const snap = await db.ref('usuarios/' + emailKey + '/boosters').get();
-        const count = snap.exists()
-          ? Object.values(snap.val()).filter(b => b.status === 'pronto').length
-          : 0;
-        atualizarBadgeBau(count);
-      } catch(e) {}
-    }
-
-    /* Mantido para compatibilidade com a Forja (multiplicadores futuros) */
-    function atualizarBoosterForja(booster) {
-      const tag = document.getElementById('forge-booster-tag');
-      if (!tag) return;
-      if (booster) {
-        document.getElementById('forge-booster-icon').textContent = booster.icone || '✨';
-        document.getElementById('forge-booster-text').textContent =
-          `${booster.nome} ativo — ×${booster.multiplicador} Cristais!`;
-        tag.classList.add('show');
-      } else {
-        tag.classList.remove('show');
-      }
-    }
-    async function verificarBoosterAtivo() {
-      atualizarBoosterForja(null); // multiplicadores não implementados ainda
-      verificarBoosters();
-    }
-
     /* ══════════════════════════════════════════════════════
        INTERAÇÃO — Cabeças do Duolingo
     ══════════════════════════════════════════════════════ */
@@ -4016,6 +3615,9 @@
         }, 800);
       });
 
+      // Listener de vouchers (aprovação em tempo real)
+      _iniciarListenerVouchers();
+
       // Notificações — enfileira e toca sino
       db.ref('notificacoes/' + emailKey).on('child_added', snap => {
         const notif = snap.val();
@@ -4046,7 +3648,7 @@
         ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
       // Oráculo fala a mensagem imediatamente
       if (notif) {
-        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', artefato:'⚔️', booster_pronto:'🎁', booster_negado:'❌' };
+        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌', voucher_encerrado:'⏱⏹' };
         oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
         // Efeitos adicionais por tipo
         const cx = window.innerWidth/2, cy = window.innerHeight/2;
@@ -4064,19 +3666,6 @@
         } else if (notif.tipo === 'gasto') {
           [1047,784,523].forEach((f,i) => setTimeout(()=>soundTone(f,'sine',0.3,0.2,0.01), i*120+300));
           setTimeout(() => spawnColorSparks(cx, cy-80, 15, ['rgba(0,212,255,','rgba(100,200,255,']), 500);
-        } else if (notif.tipo === 'artefato' || notif.tipo === 'booster_pronto') {
-          soundCrystalChime();
-          setTimeout(() => soundTone(880, 'sine', 0.25, 0.2, 0.005), 200);
-          setTimeout(() => {
-            spawnColorSparks(cx, cy-80, 20, ['rgba(255,215,0,','rgba(0,255,136,','rgba(0,212,255,']);
-            spawnShockwave(cx, cy-80, 'rgba(0,255,136,', 90);
-          }, 400);
-          // Atualiza badge e recarrega o baú se estiver aberto
-          verificarBoosters();
-          if (lojaAberta === 'artefatos') {
-            if (tabBauAtiva === 'bau') carregarBau();
-            else carregarMissoes();
-          }
         }
       }
     }
@@ -4089,7 +3678,7 @@
       }
       // Mostra todas as mensagens em sequência
       const msgs = filaNotificacoes.map(n => {
-        const ic = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', artefato:'⚔️', booster_pronto:'🎁', booster_negado:'❌' };
+        const ic = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
         return `${ic[n.tipo]||'⚔️'} ${n.mensagem}`;
       });
       oraMsg(msgs.join(' ✦ '));
@@ -4106,6 +3695,294 @@
       } else {
         badge.style.display = 'none';
       }
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       VOUCHERS — Sistema de Tempo de Tela
+    ══════════════════════════════════════════════════════ */
+    let _voucherTimerInterval = null;
+    let _voucherAtivo         = null;
+
+    function abrirVouchers() {
+      initAudio();
+      vibrate(50);
+      soundButtonTap();
+      document.getElementById('vouchers-modal').classList.add('open');
+      carregarVouchers();
+    }
+
+    function fecharVouchers() {
+      vibrate(20);
+      soundTone(523, 'sine', 0.1, 0.1, 0.005);
+      document.getElementById('vouchers-modal').classList.remove('open');
+    }
+
+    function setVoucherPreset(ev, val) {
+      document.querySelectorAll('.voucher-preset').forEach(el => el.classList.remove('selected'));
+      ev.currentTarget.classList.add('selected');
+      document.getElementById('voucher-cristais').value = val;
+      vibrate(25);
+      soundTone(700, 'sine', 0.1, 0.1, 0.003);
+    }
+
+    async function carregarVouchers() {
+      if (!currentUserEmail) return;
+      const emailKey = sanitizeEmail(currentUserEmail);
+
+      // Atualiza saldo exibido
+      try {
+        const snapUser = await db.ref('usuarios/' + emailKey).get();
+        const saldo = snapUser.exists() ? (Number(snapUser.val().saldo_cristais) || 0) : 0;
+        document.getElementById('voucher-saldo-txt').textContent = 'Saldo disponível: ' + saldo + ' 💎';
+      } catch(e) {}
+
+      // Carrega últimos vouchers
+      try {
+        const snap = await db.ref('vouchers/' + emailKey).orderByChild('timestamp_solicitacao').limitToLast(10).get();
+        const lista = document.getElementById('vouchers-lista');
+
+        if (!snap.exists()) {
+          lista.innerHTML = '<div style="text-align:center;color:rgba(200,200,200,0.35);font-size:0.8rem;padding:12px 0;">Nenhum voucher ainda.</div>';
+          document.getElementById('voucher-ativo-section').style.display = 'none';
+          return;
+        }
+
+        const items = [];
+        snap.forEach(child => items.unshift({ key: child.key, ...child.val() }));
+
+        // Verifica ativo
+        const ativo = items.find(v => v.status === 'Ativo');
+        if (ativo) {
+          _mostrarVoucherAtivo(ativo);
+        } else {
+          document.getElementById('voucher-ativo-section').style.display = 'none';
+        }
+
+        // Lista (exceto ativo)
+        const outros = items.filter(v => v.status !== 'Ativo').slice(0, 6);
+        if (!outros.length) {
+          lista.innerHTML = ativo
+            ? ''
+            : '<div style="text-align:center;color:rgba(200,200,200,0.35);font-size:0.8rem;padding:12px 0;">Nenhum voucher ainda.</div>';
+          return;
+        }
+        lista.innerHTML = outros.map(v => {
+          const data = v.timestamp_solicitacao
+            ? new Date(v.timestamp_solicitacao).toLocaleDateString('pt-BR')
+            : '—';
+          let cls = 'vs-pendente', txt = '⏳ Pendente';
+          if (v.status === 'Aprovado') { cls = 'vs-aprovado'; txt = '✓ Aguardando'; }
+          if (v.status === 'Expirado') { cls = 'vs-expirado'; txt = '✕ Expirado'; }
+          if (v.status === 'Recusado') { cls = 'vs-recusado'; txt = '✗ Recusado'; }
+          return '<div class="voucher-item">'
+            + '<div><div class="voucher-item-cristais">' + v.cristais + ' 💎 · ' + v.cristais + ' min</div>'
+            + '<div class="voucher-item-sub">' + data + '</div></div>'
+            + '<span class="voucher-item-status ' + cls + '">' + txt + '</span>'
+            + '</div>';
+        }).join('');
+
+      } catch(e) {
+        console.error('carregarVouchers error:', e);
+      }
+    }
+
+    function _mostrarVoucherAtivo(voucher) {
+      _voucherAtivo = voucher;
+      document.getElementById('voucher-ativo-section').style.display = 'block';
+      // Garante que o timer está rodando
+      if (!_voucherTimerInterval) {
+        _voucherTimerInterval = setInterval(_tickVoucher, 1000);
+      }
+      _tickVoucher();
+    }
+
+    function _tickVoucher() {
+      if (!_voucherAtivo || !_voucherAtivo.timer_fim) return;
+
+      const fim   = new Date(_voucherAtivo.timer_fim).getTime();
+      const resto = Math.max(0, fim - Date.now());
+      const min   = Math.floor(resto / 60000);
+      const seg   = Math.floor((resto % 60000) / 1000);
+      const str   = String(min).padStart(2,'0') + ':' + String(seg).padStart(2,'0');
+      const warn  = min < 5 && resto > 0;
+
+      // Modal
+      const mTimer = document.getElementById('voucher-ativo-timer');
+      const mCard  = document.getElementById('voucher-ativo-card');
+      if (mTimer) { mTimer.textContent = str; mTimer.className = 'voucher-ativo-timer' + (warn ? ' warning' : ''); }
+      if (mCard)  { mCard.className  = 'voucher-ativo-card' + (warn ? ' warning' : ''); }
+
+      // HUD
+      const hBar   = document.getElementById('voucher-hud-bar');
+      const hTimer = document.getElementById('voucher-hud-timer');
+      const hInner = document.getElementById('voucher-hud-inner');
+      if (hBar)   { hBar.style.display = 'block'; }
+      if (hTimer) { hTimer.textContent = str; hTimer.className = warn ? 'warning' : ''; }
+      if (hInner) { hInner.className = 'voucher-hud-inner' + (warn ? ' warning' : ''); }
+      const hCrist = document.getElementById('voucher-hud-cristais');
+      if (hCrist)  hCrist.textContent = _voucherAtivo.cristais + ' 💎';
+
+      // Zerou
+      if (resto <= 0) {
+        clearInterval(_voucherTimerInterval);
+        _voucherTimerInterval = null;
+
+        // Marca como expirado no Firebase
+        const emailKey = sanitizeEmail(currentUserEmail);
+        db.ref('vouchers/' + emailKey + '/' + _voucherAtivo.key).update({ status: 'Expirado' })
+          .catch(() => {});
+
+        _voucherAtivo = null;
+        if (hBar) hBar.style.display = 'none';
+        document.getElementById('voucher-ativo-section').style.display = 'none';
+
+        _alarmeFimVoucher();
+        oraMsg('⏱ SEU TEMPO DE TELA ACABOU, GUARDIÃO! Hora de voltar para os estudos! ⚔️');
+      }
+    }
+
+    function _alarmeFimVoucher() {
+      initAudio();
+      vibrate([200, 80, 200, 80, 400, 80, 700]);
+      screenFlash();
+
+      // Melodia descendente de fim
+      [784, 659, 523, 392].forEach((f, i) =>
+        setTimeout(() => soundTone(f, 'sine', 0.4, 0.45, 0.01), i * 280)
+      );
+
+      // Partículas alarme
+      const cx = window.innerWidth / 2, cy = window.innerHeight / 3;
+      setTimeout(() => {
+        spawnColorSparks(cx, cy, 35, ['rgba(255,80,0,', 'rgba(255,200,0,', 'rgba(255,50,50,']);
+        spawnShockwave(cx, cy, 'rgba(255,80,0,', 130);
+        spawnFloat('⏱ TEMPO!', '#FF8C00', cx, cy - 60);
+      }, 350);
+
+      // Overlay de aviso
+      const ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(200,50,0,0.12);display:flex;align-items:center;justify-content:center;pointer-events:none;animation:voucher-alarm-in 0.3s ease-out;';
+      ov.innerHTML = '<div style="font-family:Cinzel,serif;font-size:1.8rem;font-weight:900;color:white;text-shadow:0 0 30px rgba(255,80,0,1),0 0 60px rgba(255,50,0,0.8);text-align:center;padding:20px;">⏱<br>TEMPO DE TELA<br>ESGOTADO!</div>';
+      document.body.appendChild(ov);
+      setTimeout(() => ov.remove(), 3200);
+    }
+
+    async function solicitarVoucher() {
+      const cristais = parseInt(document.getElementById('voucher-cristais').value);
+      if (!cristais || cristais < 1) {
+        oraMsg('⚠️ Selecione ou digite a quantidade de cristais, Guardião!');
+        soundError(); vibrate([80, 40, 80]); return;
+      }
+
+      const emailKey = sanitizeEmail(currentUserEmail);
+
+      // Verifica saldo
+      try {
+        const snapUser = await db.ref('usuarios/' + emailKey).get();
+        const saldo = snapUser.exists() ? (Number(snapUser.val().saldo_cristais) || 0) : 0;
+        if (cristais > saldo) {
+          oraMsg('⚠️ Você só tem ' + saldo + ' 💎! Forge mais cristais na Forja, Guardião!');
+          soundError(); vibrate([100, 50, 100]); return;
+        }
+      } catch(e) {}
+
+      // Verifica se já tem ativo
+      try {
+        const snapAtivo = await db.ref('vouchers/' + emailKey).orderByChild('status').equalTo('Ativo').get();
+        if (snapAtivo.exists()) {
+          oraMsg('⚠️ Já há um voucher ativo! Aguarde ele terminar antes de solicitar outro.');
+          soundError(); vibrate([80, 40, 80]); return;
+        }
+      } catch(e) {}
+
+      const btn = document.getElementById('btn-solicitar-voucher');
+      btn.disabled = true;
+
+      try {
+        await db.ref('vouchers/' + emailKey).push({
+          email:                  currentUserEmail,
+          status:                 'Pendente',
+          cristais:               cristais,
+          timestamp_solicitacao:  new Date().toISOString()
+        });
+
+        soundCrystalChime();
+        vibrate([60, 30, 120]);
+        spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 18,
+          ['rgba(0,212,255,','rgba(0,255,120,']);
+        oraMsg('📜 Pedido de ' + cristais + ' 💎 enviado ao Mestre! Aguarde a aprovação, Guardião!');
+
+        // Reset form
+        document.getElementById('voucher-cristais').value = '';
+        document.querySelectorAll('.voucher-preset').forEach(el => el.classList.remove('selected'));
+
+        carregarVouchers();
+      } catch(e) {
+        oraMsg('❌ Erro ao enviar pedido. Tente novamente.');
+        soundError();
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // Listener em tempo real para vouchers (aprovação pelo Mestre)
+    function _iniciarListenerVouchers() {
+      if (!currentUserEmail) return;
+      const emailKey = sanitizeEmail(currentUserEmail);
+
+      // child_changed: Mestre aprovou/encerrou
+      db.ref('vouchers/' + emailKey).on('child_changed', snap => {
+        const v = snap.val();
+        if (!v) return;
+
+        if (v.status === 'Ativo') {
+          // Voucher aprovado! Inicia timer.
+          _voucherAtivo = { key: snap.key, ...v };
+          soundCrystalChime();
+          setTimeout(() => soundLevelUp(), 500);
+          vibrate([100, 50, 200, 50, 100]);
+          screenFlash();
+          spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 25,
+            ['rgba(0,255,120,','rgba(0,212,255,','rgba(255,215,0,']);
+          oraMsg('✅ O Mestre aprovou! ' + v.cristais + ' min de tela começando agora! ⏱');
+
+          // Inicia timer
+          if (_voucherTimerInterval) clearInterval(_voucherTimerInterval);
+          _voucherTimerInterval = setInterval(_tickVoucher, 1000);
+          _tickVoucher();
+
+          // Atualiza badge
+          document.getElementById('voucher-footer-badge').style.display = 'none';
+          carregarVouchers();
+
+        } else if (v.status === 'Expirado' || v.status === 'Recusado') {
+          if (_voucherAtivo && _voucherAtivo.key === snap.key) {
+            clearInterval(_voucherTimerInterval);
+            _voucherTimerInterval = null;
+            _voucherAtivo = null;
+            document.getElementById('voucher-hud-bar').style.display = 'none';
+            document.getElementById('voucher-ativo-section').style.display = 'none';
+          }
+          if (v.status === 'Recusado') {
+            oraMsg('📜 O Mestre não aprovou este voucher. Peça outro, Guardião!');
+            soundError(); vibrate([80, 40, 80]);
+          }
+          carregarVouchers();
+        }
+      });
+
+      // Ao abrir o app, verifica se já tem ativo pendente
+      db.ref('vouchers/' + emailKey).orderByChild('status').equalTo('Ativo').once('value', snap => {
+        snap.forEach(child => {
+          _voucherAtivo = { key: child.key, ...child.val() };
+          if (!_voucherTimerInterval) {
+            _voucherTimerInterval = setInterval(_tickVoucher, 1000);
+            _tickVoucher();
+          }
+          document.getElementById('voucher-hud-bar').style.display = 'block';
+        });
+      });
     }
 
     window.onload = function() {
