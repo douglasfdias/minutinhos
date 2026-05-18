@@ -4171,8 +4171,12 @@
       // Carrega tipos de artefato configurados pelo Mestre
       let artefatos = {};
       try {
-        const snapA = await db.ref('config/artefatos').get();
-        if (snapA.exists()) artefatos = snapA.val();
+        const snapA = await db.ref('config/missoes').get();
+        if (snapA.exists()) {
+          artefatos = snapA.val();
+          // Normaliza campo: versão antiga usa 'recompensa', nova usa 'cristais'
+          Object.values(artefatos).forEach(a => { if (!a.cristais && a.recompensa) a.cristais = a.recompensa; });
+        }
       } catch(e) {}
 
       // Carrega missões do guardião
@@ -4293,7 +4297,7 @@
       if (btn) btn.disabled = true;
 
       try {
-        const snapA = await db.ref('config/artefatos/' + artefatoKey).get();
+        const snapA = await db.ref('config/missoes/' + artefatoKey).get();
         const art = snapA.exists() ? snapA.val() : { nome: 'Artefato', cristais: 0 };
 
         await db.ref('missoes/' + emailKey).push({
