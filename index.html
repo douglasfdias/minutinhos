@@ -274,6 +274,115 @@
       display: none;
     }
 
+
+    /* ══ BAÚ DE ARTEFATOS — Modal ══ */
+    #bau-modal {
+      position: fixed; inset: 0; z-index: 1001;
+      background: radial-gradient(ellipse at center, rgba(20,8,45,0.97), rgba(5,2,12,0.99));
+      display: none; flex-direction: column; align-items: center;
+      padding: 20px; overflow-y: auto;
+    }
+    #bau-modal.open { display: flex; }
+
+    .bau-scroll {
+      background: linear-gradient(160deg, rgba(20,8,45,0.98), rgba(8,2,18,0.98));
+      border: 3px solid #B45309; border-radius: 18px;
+      padding: 20px 22px; width: 100%; max-width: 340px;
+      box-shadow: 0 0 40px rgba(180,83,9,0.2), inset 0 0 30px rgba(0,0,0,0.5);
+      position: relative; z-index: 2; margin-top: 10px;
+    }
+    .bau-scroll::before {
+      content:''; position:absolute; inset:6px;
+      border:1px solid rgba(180,83,9,0.15); border-radius:13px; pointer-events:none;
+    }
+    .bau-title {
+      font-family:'Cinzel',serif; font-size:1.35rem; font-weight:900;
+      color:#FCD34D; text-align:center; margin-bottom:4px;
+      text-shadow:0 0 15px rgba(252,211,77,0.5);
+    }
+    .bau-subtitle {
+      text-align:center; font-size:0.76rem; color:rgba(220,180,120,0.75);
+      margin-bottom:14px; font-weight:700;
+    }
+    /* Abas */
+    .bau-tabs { display:flex; gap:6px; margin-bottom:14px; }
+    .bau-tab {
+      flex:1; padding:8px 4px; border-radius:9px; text-align:center;
+      background:rgba(255,255,255,0.04); border:1.5px solid rgba(180,83,9,0.25);
+      color:rgba(220,180,120,0.6); font-family:'Cinzel',serif; font-size:0.75rem;
+      font-weight:700; cursor:pointer; transition:background 0.15s;
+      -webkit-user-select:none;
+    }
+    .bau-tab.active {
+      background:rgba(180,83,9,0.25); border-color:#FCD34D; color:#FCD34D;
+    }
+    .bau-panel { display:none; }
+    .bau-panel.active { display:block; }
+
+    /* Card de missão disponível */
+    .missao-card {
+      background:rgba(255,255,255,0.04); border:1.5px solid rgba(180,83,9,0.2);
+      border-radius:12px; padding:12px; margin-bottom:10px;
+      transition:border-color 0.2s;
+    }
+    .missao-card.pendente { border-color:rgba(255,150,0,0.4); }
+    .missao-card.aprovado { border-color:rgba(0,200,100,0.4); }
+    .missao-card.recusado { opacity:0.5; }
+    .missao-card-top { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .missao-emoji { font-size:1.8rem; flex-shrink:0; }
+    .missao-info { flex:1; }
+    .missao-nome {
+      font-family:'Cinzel',serif; font-size:0.88rem; font-weight:800;
+      color:#FCD34D;
+    }
+    .missao-desc { font-size:0.7rem; color:rgba(220,200,160,0.6); margin-top:2px; font-weight:600; }
+    .missao-cristais {
+      font-family:'Cinzel',serif; font-size:0.9rem; font-weight:900;
+      color:#00D4FF;
+    }
+    .btn-missao-concluir {
+      width:100%; height:40px; border-radius:10px; border:none;
+      background:linear-gradient(135deg,#92400E,#B45309,#D97706);
+      font-family:'Cinzel',serif; font-weight:700; font-size:0.82rem;
+      color:white; cursor:pointer;
+      box-shadow:0 4px 0 #451A03, 0 0 12px rgba(180,83,9,0.3);
+      transition:transform 0.1s; -webkit-user-select:none;
+      display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .btn-missao-concluir:active { transform:translateY(3px); box-shadow:0 1px 0 #451A03; }
+    .btn-missao-concluir:disabled { opacity:0.45; cursor:default; transform:none; }
+
+    /* Status chip na missão */
+    .missao-status-chip {
+      width:100%; padding:8px; border-radius:8px; text-align:center;
+      font-family:'Cinzel',serif; font-size:0.75rem; font-weight:700;
+    }
+    .msc-pendente { background:rgba(255,150,0,0.15); color:#FF8C00; }
+    .msc-aprovado { background:rgba(0,200,100,0.12); color:#00CC66; }
+    .msc-recusado { background:rgba(255,60,60,0.12); color:#FF6060; }
+
+    /* Histórico */
+    .bau-hist-item {
+      display:flex; align-items:center; gap:8px; padding:9px 0;
+      border-bottom:1px solid rgba(180,83,9,0.15); font-size:0.82rem;
+    }
+    .bau-hist-item:last-child { border-bottom:none; }
+    .bau-hist-emoji { font-size:1.2rem; flex-shrink:0; }
+    .bau-hist-info { flex:1; }
+    .bau-hist-nome { font-weight:700; color:#FCD34D; font-size:0.8rem; }
+    .bau-hist-det { font-size:0.65rem; color:rgba(200,180,140,0.5); margin-top:1px; }
+    .bau-hist-status { font-size:0.68rem; font-weight:800; padding:2px 8px; border-radius:10px; flex-shrink:0; }
+
+    .bau-empty { text-align:center; color:rgba(200,180,140,0.35); font-size:0.8rem; padding:14px 0; }
+
+    .bau-close {
+      width:100%; height:46px; border-radius:12px; border:1.5px solid #B45309;
+      background:rgba(180,83,9,0.1); font-family:'Cinzel',serif;
+      font-weight:700; color:#FCD34D; font-size:0.88rem; cursor:pointer;
+      margin-top:12px; -webkit-user-select:none;
+    }
+    .bau-close:active { background:rgba(180,83,9,0.25); }
+
     /* ══ VOUCHER — Barra de Timer HUD ══ */
     #voucher-hud-bar {
       display: none; padding: 3px 12px 0; flex-shrink: 0;
@@ -1512,7 +1621,7 @@
         </svg>
         <span class="menu-label">Avatares</span>
       </div>
-      <div class="menu-item" onclick="tocarFooter(this,'O Baú de Artefatos está trancado... por ora.', '⚔️')">
+      <div class="menu-item" onclick="abrirBau()">
         <span class="footer-lock-badge">🔒</span>
         <span class="footer-booster-badge" id="badge-footer-bau"></span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -1594,6 +1703,37 @@
 
   </div>
 
+
+
+  <!-- ═══════════ MODAL BAÚ DE ARTEFATOS ═══════════ -->
+  <div id="bau-modal">
+    <button class="reading-close" onclick="fecharBau()">✕</button>
+    <div class="bau-scroll">
+      <div class="bau-title">⚔️ Baú de Artefatos</div>
+      <div class="bau-subtitle">✦ Missões da Ordem dos Guardiões ✦</div>
+
+      <div class="bau-tabs">
+        <button class="bau-tab active" id="btab-missoes" onclick="bauTab('missoes')">⚔️ Missões</button>
+        <button class="bau-tab" id="btab-hist" onclick="bauTab('hist')">📋 Histórico</button>
+      </div>
+
+      <!-- PAINEL: MISSÕES -->
+      <div class="bau-panel active" id="bpanel-missoes">
+        <div id="bau-missoes-lista">
+          <div class="bau-empty">Carregando missões...</div>
+        </div>
+      </div>
+
+      <!-- PAINEL: HISTÓRICO -->
+      <div class="bau-panel" id="bpanel-hist">
+        <div id="bau-hist-lista">
+          <div class="bau-empty">Nenhum histórico ainda.</div>
+        </div>
+      </div>
+
+      <button class="bau-close" onclick="fecharBau()">✕ Fechar</button>
+    </div>
+  </div>
 
   <!-- ═══════════ MODAL VOUCHERS ═══════════ -->
   <div id="vouchers-modal">
@@ -3617,6 +3757,8 @@
 
       // Listener de vouchers (aprovação em tempo real)
       _iniciarListenerVouchers();
+      // Listener do Baú de Artefatos
+      _iniciarListenerBau();
 
       // Notificações — enfileira e toca sino
       db.ref('notificacoes/' + emailKey).on('child_added', snap => {
@@ -3648,10 +3790,21 @@
         ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
       // Oráculo fala a mensagem imediatamente
       if (notif) {
-        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌', voucher_encerrado:'⏱⏹' };
+        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌', voucher_encerrado:'⏱⏹', artefato:'⚔️✅', artefato_recusado:'⚔️❌' };
         oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
         // Efeitos adicionais por tipo
         const cx = window.innerWidth/2, cy = window.innerHeight/2;
+        if (notif.tipo === 'artefato') {
+          soundCrystalChime();
+          setTimeout(() => {
+            spawnColorSparks(cx, cy - 80, 30, ['rgba(252,211,77,','rgba(180,83,9,','rgba(255,200,0,']);
+            spawnShockwave(cx, cy - 80, 'rgba(252,211,77,', 115);
+            spawnFloat('⚔️ MISSÃO!', '#FCD34D', cx, cy - 100);
+          }, 400);
+          // Atualiza badge do baú
+          const badgeBau = document.getElementById('badge-footer-bau');
+          if (badgeBau) badgeBau.style.display = 'none';
+        }
         if (notif.tipo === 'duolingo') {
           soundCrystalChime();
           setTimeout(() => {
@@ -3982,6 +4135,225 @@
           }
           document.getElementById('voucher-hud-bar').style.display = 'block';
         });
+      });
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       BAÚ DE ARTEFATOS — Sistema de Missões
+    ══════════════════════════════════════════════════════ */
+
+    function abrirBau() {
+      initAudio();
+      vibrate(50);
+      soundButtonTap();
+      document.getElementById('bau-modal').classList.add('open');
+      carregarBau();
+    }
+
+    function fecharBau() {
+      vibrate(20);
+      soundTone(440, 'sine', 0.1, 0.1, 0.005);
+      document.getElementById('bau-modal').classList.remove('open');
+    }
+
+    function bauTab(tab) {
+      ['missoes','hist'].forEach(t => {
+        document.getElementById('bpanel-' + t).classList.toggle('active', t === tab);
+        document.getElementById('btab-' + t).classList.toggle('active', t === tab);
+      });
+    }
+
+    async function carregarBau() {
+      if (!currentUserEmail) return;
+      const emailKey = sanitizeEmail(currentUserEmail);
+
+      // Carrega tipos de artefato configurados pelo Mestre
+      let artefatos = {};
+      try {
+        const snapA = await db.ref('config/artefatos').get();
+        if (snapA.exists()) artefatos = snapA.val();
+      } catch(e) {}
+
+      // Carrega missões do guardião
+      let minhasMissoes = {};
+      try {
+        const snapM = await db.ref('missoes/' + emailKey).get();
+        if (snapM.exists()) snapM.forEach(m => { minhasMissoes[m.key] = m.val(); });
+      } catch(e) {}
+
+      // Agrupa missões por artefatoKey — pega a mais recente de cada tipo
+      const ultimaMissaoPorArt = {};
+      Object.values(minhasMissoes).forEach(m => {
+        const ex = ultimaMissaoPorArt[m.artefatoKey];
+        if (!ex || new Date(m.timestamp) > new Date(ex.timestamp)) {
+          ultimaMissaoPorArt[m.artefatoKey] = m;
+        }
+      });
+
+      // Atualiza badge footer
+      const pendentes = Object.values(minhasMissoes).filter(m => m.status === 'Pendente').length;
+      const badgeBau = document.getElementById('badge-footer-bau');
+      if (badgeBau) {
+        badgeBau.style.display = pendentes > 0 ? 'block' : 'none';
+      }
+
+      // ── PAINEL: MISSÕES ──
+      const missoesList = document.getElementById('bau-missoes-lista');
+      const artItems = Object.entries(artefatos);
+
+      if (!artItems.length) {
+        missoesList.innerHTML = '<div class="bau-empty">Nenhuma missão disponível ainda.<br>O Mestre irá configurá-las em breve.</div>';
+      } else {
+        missoesList.innerHTML = artItems.map(([key, a]) => {
+          const missao = ultimaMissaoPorArt[key];
+          const status = missao ? missao.status : null;
+          const mKey  = missao ? Object.keys(minhasMissoes).find(k => minhasMissoes[k] === missao) : null;
+
+          let statusHTML = '';
+          let btnHTML = '';
+
+          if (status === 'Pendente') {
+            statusHTML = '<div class="missao-status-chip msc-pendente">⏳ Aguardando aprovação do Mestre...</div>';
+            btnHTML = '';
+          } else if (status === 'Aprovado') {
+            statusHTML = '<div class="missao-status-chip msc-aprovado">✅ Aprovado! Cristais creditados!</div>';
+            btnHTML = `<button class="btn-missao-concluir" onclick="solicitarMissao('${key}')" style="margin-top:8px">⚔️ Solicitar novamente</button>`;
+          } else if (status === 'Recusado') {
+            statusHTML = '<div class="missao-status-chip msc-recusado">✗ Não aprovado. Tente outra vez!</div>';
+            btnHTML = `<button class="btn-missao-concluir" onclick="solicitarMissao('${key}')" style="margin-top:8px">⚔️ Marcar como feita novamente</button>`;
+          } else {
+            btnHTML = `<button class="btn-missao-concluir" id="btn-missao-${key}" onclick="solicitarMissao('${key}')">⚔️ Concluí esta tarefa!</button>`;
+          }
+
+          const cardClass = status === 'Pendente' ? 'pendente' : status === 'Aprovado' ? 'aprovado' : status === 'Recusado' ? 'recusado' : '';
+
+          return `<div class="missao-card ${cardClass}">
+            <div class="missao-card-top">
+              <span class="missao-emoji">${a.emoji || '⚔️'}</span>
+              <div class="missao-info">
+                <div class="missao-nome">${a.nome}</div>
+                <div class="missao-desc">${a.descricao || ''}</div>
+              </div>
+              <div class="missao-cristais">+${a.cristais} 💎</div>
+            </div>
+            ${statusHTML}
+            ${btnHTML}
+          </div>`;
+        }).join('');
+      }
+
+      // ── PAINEL: HISTÓRICO ──
+      const histList = document.getElementById('bau-hist-lista');
+      const histItems = Object.values(minhasMissoes)
+        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 15);
+
+      if (!histItems.length) {
+        histList.innerHTML = '<div class="bau-empty">Nenhuma missão realizada ainda.</div>';
+      } else {
+        histList.innerHTML = histItems.map(m => {
+          const a = artefatos[m.artefatoKey] || { nome: 'Artefato', emoji: '⚔️', cristais: 0 };
+          const dt = new Date(m.timestamp).toLocaleDateString('pt-BR');
+          let scls = 'msc-pendente', stxt = '⏳ Pendente';
+          if (m.status === 'Aprovado') { scls = 'msc-aprovado'; stxt = '✅ Aprovado'; }
+          if (m.status === 'Recusado') { scls = 'msc-recusado'; stxt = '✗ Recusado'; }
+          return `<div class="bau-hist-item">
+            <span class="bau-hist-emoji">${a.emoji || '⚔️'}</span>
+            <div class="bau-hist-info">
+              <div class="bau-hist-nome">${a.nome}</div>
+              <div class="bau-hist-det">${dt} · +${a.cristais} 💎</div>
+            </div>
+            <span class="bau-hist-status ${scls}">${stxt}</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    async function solicitarMissao(artefatoKey) {
+      if (!currentUserEmail) return;
+      const emailKey = sanitizeEmail(currentUserEmail);
+
+      // Verifica se já tem pendente para este artefato
+      try {
+        const snapM = await db.ref('missoes/' + emailKey)
+          .orderByChild('artefatoKey').equalTo(artefatoKey).get();
+        if (snapM.exists()) {
+          let temPendente = false;
+          snapM.forEach(m => { if (m.val().status === 'Pendente') temPendente = true; });
+          if (temPendente) {
+            oraMsg('⚠️ Já tens uma solicitação pendente para esta missão, Guardião!');
+            soundError(); vibrate([80, 40, 80]); return;
+          }
+        }
+      } catch(e) {}
+
+      // Desabilita o botão temporariamente
+      const btn = document.getElementById('btn-missao-' + artefatoKey);
+      if (btn) btn.disabled = true;
+
+      try {
+        const snapA = await db.ref('config/artefatos/' + artefatoKey).get();
+        const art = snapA.exists() ? snapA.val() : { nome: 'Artefato', cristais: 0 };
+
+        await db.ref('missoes/' + emailKey).push({
+          email:       currentUserEmail,
+          artefatoKey: artefatoKey,
+          status:      'Pendente',
+          timestamp:   new Date().toISOString()
+        });
+
+        // Efeito de envio
+        soundCrystalChime();
+        vibrate([60, 30, 120]);
+        spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 20,
+          ['rgba(252,211,77,', 'rgba(180,83,9,', 'rgba(255,255,200,']);
+        oraMsg('⚔️ Missão "' + art.nome + '" enviada ao Mestre! Aguarda a aprovação, Guardião!');
+
+        // Recarrega o painel
+        await carregarBau();
+      } catch(e) {
+        oraMsg('❌ Erro ao enviar missão. Tente novamente.');
+        soundError();
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    // Listener em tempo real para missões (aprovação/recusa pelo Mestre)
+    function _iniciarListenerBau() {
+      if (!currentUserEmail) return;
+      const emailKey = sanitizeEmail(currentUserEmail);
+
+      db.ref('missoes/' + emailKey).on('child_changed', snap => {
+        const m = snap.val();
+        if (!m) return;
+
+        if (m.status === 'Aprovado') {
+          // Celebração épica!
+          soundCrystalChime();
+          setTimeout(() => soundLevelUp(), 400);
+          vibrate([100, 50, 200, 50, 300]);
+          screenFlash();
+          const cx = window.innerWidth/2, cy = window.innerHeight/3;
+          spawnColorSparks(cx, cy, 35, ['rgba(252,211,77,','rgba(180,83,9,','rgba(255,200,0,']);
+          spawnShockwave(cx, cy, 'rgba(252,211,77,', 120);
+          spawnFloat('⚔️ MISSÃO APROVADA!', '#FCD34D', cx, cy - 80);
+
+          // Atualiza badge
+          const badgeBau = document.getElementById('badge-footer-bau');
+          if (badgeBau) badgeBau.style.display = 'none';
+
+          // Recarrega baú se estiver aberto
+          if (document.getElementById('bau-modal').classList.contains('open')) {
+            carregarBau();
+          }
+        } else if (m.status === 'Recusado') {
+          soundError();
+          vibrate([100, 60, 100]);
+          if (document.getElementById('bau-modal').classList.contains('open')) {
+            carregarBau();
+          }
+        }
       });
     }
 
