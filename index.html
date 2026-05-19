@@ -3736,6 +3736,7 @@
       db.ref('usuarios/' + emailKey).on('value', snap => {
         if (primeiroDisparo) { primeiroDisparo = false; return; }
         if (!snap.exists()) return;
+        if (_suppressReload) return; // voucher/artefato em aprovação — não recarregar
         // Debounce: evita múltiplos loadData() em sequência rápida
         clearTimeout(reloadTimeout);
         reloadTimeout = setTimeout(() => {
@@ -3855,6 +3856,7 @@
     ══════════════════════════════════════════════════════ */
     let _voucherTimerInterval = null;
     let _voucherAtivo         = null;
+    let _suppressReload       = false; // evita loadData() durante aprovação de voucher
 
     function abrirVouchers() {
       initAudio();
@@ -4089,6 +4091,10 @@
         if (!v) return;
 
         if (v.status === 'Ativo') {
+          // Suprime loadData() do listener de usuarios por 4s
+          _suppressReload = true;
+          setTimeout(() => { _suppressReload = false; }, 4000);
+
           // Voucher aprovado! Inicia timer.
           _voucherAtivo = { key: snap.key, ...v };
           soundCrystalChime();
@@ -4099,14 +4105,15 @@
             ['rgba(0,255,120,','rgba(0,212,255,','rgba(255,215,0,']);
           oraMsg('✅ O Mestre aprovou! ' + v.cristais + ' min de tela começando agora! ⏱');
 
-          // Inicia timer
+          // Inicia timer (sem chamar carregarVouchers — atualiza UI direto)
           if (_voucherTimerInterval) clearInterval(_voucherTimerInterval);
           _voucherTimerInterval = setInterval(_tickVoucher, 1000);
           _tickVoucher();
 
-          // Atualiza badge
+          // Atualiza HUD e badge sem Firebase roundtrip
           document.getElementById('voucher-footer-badge').style.display = 'none';
-          carregarVouchers();
+          document.getElementById('voucher-hud-bar').style.display = 'block';
+          document.getElementById('voucher-ativo-section').style.display = 'block';
 
         } else if (v.status === 'Expirado' || v.status === 'Recusado') {
           if (_voucherAtivo && _voucherAtivo.key === snap.key) {
