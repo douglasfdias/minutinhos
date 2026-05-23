@@ -275,6 +275,44 @@
     }
 
 
+
+    /* ══ MINI ORÁCULO NOS MODAIS ══ */
+    .modal-ora-row {
+      display: flex; align-items: flex-end; gap: 8px;
+      margin-bottom: 12px; padding: 0 2px;
+    }
+    .modal-ora-img {
+      width: 46px; height: 46px; object-fit: contain; flex-shrink: 0;
+      filter: drop-shadow(0 0 6px rgba(255,215,0,0.3));
+      animation: oracle-idle 3s ease-in-out infinite;
+    }
+    .modal-ora-bubble {
+      flex: 1; background: linear-gradient(135deg, rgba(253,245,230,0.92), rgba(240,220,180,0.88));
+      color: #4e342e; padding: 8px 12px; border-radius: 12px;
+      font-weight: 800; font-size: 0.78rem; text-align: center;
+      border: 2px solid #C8A96E; position: relative; min-height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 3px 0 #A0825A, 0 5px 10px rgba(0,0,0,0.3);
+    }
+    .modal-ora-bubble::before {
+      content: ''; position: absolute; left: -10px; bottom: 12px;
+      border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+      border-right: 10px solid rgba(253,245,230,0.92);
+    }
+    .modal-ora-talking { animation: bubble-bounce 0.3s ease-out; }
+
+    /* ══ BOTÃO CANCELAR ITEM (✕) ══ */
+    .btn-cancel-item {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 1.5px solid rgba(255,80,80,0.35);
+      background: rgba(255,60,60,0.1); color: rgba(255,120,120,0.8);
+      font-size: 0.75rem; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+      -webkit-user-select: none; margin-left: 6px;
+    }
+    .btn-cancel-item:active { background: rgba(255,60,60,0.28); transform: scale(0.88); }
+
     /* ══ BAÚ DE ARTEFATOS — Modal ══ */
     #bau-modal {
       position: fixed; inset: 0; z-index: 1001;
@@ -1711,6 +1749,12 @@
       <div class="bau-title">⚔️ Baú de Artefatos</div>
       <div class="bau-subtitle">✦ Missões da Ordem dos Guardiões ✦</div>
 
+      <!-- Mini Oráculo -->
+      <div class="modal-ora-row">
+        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="modal-ora-img">
+        <div class="modal-ora-bubble" id="ora-msg-bau">Complete missões e ganhe cristais, Guardião!</div>
+      </div>
+
       <div class="bau-tabs">
         <button class="bau-tab active" id="btab-missoes" onclick="bauTab('missoes')">⚔️ Missões</button>
         <button class="bau-tab" id="btab-hist" onclick="bauTab('hist')">📋 Histórico</button>
@@ -1740,6 +1784,12 @@
     <div class="vouchers-scroll">
       <div class="vouchers-title">📜 Vouchers de Tela</div>
       <div class="vouchers-subtitle">✦ Solicite tempo de tela ao Mestre ✦</div>
+
+      <!-- Mini Oráculo -->
+      <div class="modal-ora-row">
+        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="modal-ora-img">
+        <div class="modal-ora-bubble" id="ora-msg-voucher">Troque cristais por tempo de tela, Guardião!</div>
+      </div>
 
       <!-- Voucher Ativo -->
       <div id="voucher-ativo-section" style="display:none">
@@ -2240,12 +2290,11 @@
     ============================================================ */
     let oraTimer = null;
     function oraMsg(texto) {
+      // Oráculo principal (tela principal)
       const el = document.getElementById('ora-msg');
       el.classList.remove('oracle-talking');
       void el.offsetWidth;
       el.classList.add('oracle-talking');
-
-      // Typewriter
       if (oraTimer) clearTimeout(oraTimer);
       el.textContent = '';
       let i = 0;
@@ -2256,6 +2305,28 @@
         }
       }
       typeNext();
+
+      // Oráculos nos modais (se algum estiver aberto)
+      [
+        { modal: 'vouchers-modal', msg: 'ora-msg-voucher' },
+        { modal: 'bau-modal',      msg: 'ora-msg-bau'     }
+      ].forEach(({ modal, msg }) => {
+        const modalEl = document.getElementById(modal);
+        const msgEl   = document.getElementById(msg);
+        if (!modalEl || !msgEl) return;
+        if (!modalEl.classList.contains('open')) return;
+        msgEl.classList.remove('modal-ora-talking');
+        void msgEl.offsetWidth;
+        msgEl.classList.add('modal-ora-talking');
+        msgEl.textContent = '';
+        let j = 0;
+        (function typeModal() {
+          if (j < texto.length) {
+            msgEl.textContent += texto[j++];
+            setTimeout(typeModal, 22);
+          }
+        })();
+      });
     }
 
     function setForgeMsg(texto) {
@@ -3863,6 +3934,11 @@
       vibrate(50);
       soundButtonTap();
       document.getElementById('vouchers-modal').classList.add('open');
+      // Mostra timer imediatamente da memória se há voucher ativo
+      if (_voucherAtivo) {
+        document.getElementById('voucher-ativo-section').style.display = 'block';
+        _tickVoucher();
+      }
       carregarVouchers();
     }
 
@@ -3884,60 +3960,98 @@
       if (!currentUserEmail) return;
       const emailKey = sanitizeEmail(currentUserEmail);
 
-      // Atualiza saldo exibido
+      // Bug 2 fix: mostra timer da memória IMEDIATAMENTE, antes do Firebase
+      if (_voucherAtivo) {
+        document.getElementById('voucher-ativo-section').style.display = 'block';
+        _tickVoucher();
+      }
+
+      // Atualiza saldo
       try {
         const snapUser = await db.ref('usuarios/' + emailKey).get();
         const saldo = snapUser.exists() ? (Number(snapUser.val().saldo_cristais) || 0) : 0;
         document.getElementById('voucher-saldo-txt').textContent = 'Saldo disponível: ' + saldo + ' 💎';
       } catch(e) {}
 
-      // Carrega últimos vouchers
+      // Bug 1 fix: busca todos os vouchers sem orderByChild, ordena no cliente
       try {
-        const snap = await db.ref('vouchers/' + emailKey).orderByChild('timestamp_solicitacao').limitToLast(10).get();
+        const snap = await db.ref('vouchers/' + emailKey).get();
         const lista = document.getElementById('vouchers-lista');
 
         if (!snap.exists()) {
           lista.innerHTML = '<div style="text-align:center;color:rgba(200,200,200,0.35);font-size:0.8rem;padding:12px 0;">Nenhum voucher ainda.</div>';
-          document.getElementById('voucher-ativo-section').style.display = 'none';
+          if (!_voucherAtivo) document.getElementById('voucher-ativo-section').style.display = 'none';
           return;
         }
 
+        // Monta array e ordena: mais recentes primeiro
         const items = [];
-        snap.forEach(child => items.unshift({ key: child.key, ...child.val() }));
+        snap.forEach(child => items.push({ key: child.key, ...child.val() }));
+        items.sort((a, b) => {
+          const ta = a.timestamp_solicitacao || '';
+          const tb = b.timestamp_solicitacao || '';
+          return tb.localeCompare(ta);
+        });
 
-        // Verifica ativo
-        const ativo = items.find(v => v.status === 'Ativo');
-        if (ativo) {
-          _mostrarVoucherAtivo(ativo);
-        } else {
+        // Sincroniza voucher ativo com o que está no Firebase
+        const ativoFirebase = items.find(v => v.status === 'Ativo');
+        if (ativoFirebase) {
+          _mostrarVoucherAtivo(ativoFirebase);
+        } else if (!_voucherAtivo) {
           document.getElementById('voucher-ativo-section').style.display = 'none';
         }
 
-        // Lista (exceto ativo)
-        const outros = items.filter(v => v.status !== 'Ativo').slice(0, 6);
-        if (!outros.length) {
-          lista.innerHTML = ativo
-            ? ''
-            : '<div style="text-align:center;color:rgba(200,200,200,0.35);font-size:0.8rem;padding:12px 0;">Nenhum voucher ainda.</div>';
+        // Lista: pendentes primeiro, depois histórico (exceto ativo)
+        const pendentes = items.filter(v => v.status === 'Pendente');
+        const historico  = items.filter(v => v.status !== 'Ativo' && v.status !== 'Pendente').slice(0, 5);
+        const exibir     = [...pendentes, ...historico];
+
+        if (!exibir.length) {
+          lista.innerHTML = '<div style="text-align:center;color:rgba(200,200,200,0.35);font-size:0.8rem;padding:12px 0;">Nenhum voucher ainda.</div>';
           return;
         }
-        lista.innerHTML = outros.map(v => {
+
+        lista.innerHTML = exibir.map(v => {
           const data = v.timestamp_solicitacao
             ? new Date(v.timestamp_solicitacao).toLocaleDateString('pt-BR')
             : '—';
-          let cls = 'vs-pendente', txt = '⏳ Pendente';
-          if (v.status === 'Aprovado') { cls = 'vs-aprovado'; txt = '✓ Aguardando'; }
+          let cls = 'vs-pendente', txt = '⏳ Aguardando Mestre';
           if (v.status === 'Expirado') { cls = 'vs-expirado'; txt = '✕ Expirado'; }
           if (v.status === 'Recusado') { cls = 'vs-recusado'; txt = '✗ Recusado'; }
-          return '<div class="voucher-item">'
-            + '<div><div class="voucher-item-cristais">' + v.cristais + ' 💎 · ' + v.cristais + ' min</div>'
-            + '<div class="voucher-item-sub">' + data + '</div></div>'
-            + '<span class="voucher-item-status ' + cls + '">' + txt + '</span>'
-            + '</div>';
+
+          // Botão ✕ cancelar — só em Pendente
+          const btnCancelar = v.status === 'Pendente'
+            ? `<button class="btn-cancel-item" onclick="cancelarVoucher('${v.key}')" title="Cancelar pedido">✕</button>`
+            : '';
+
+          return `<div class="voucher-item">
+            <div style="flex:1">
+              <div class="voucher-item-cristais">${v.cristais} 💎 · ${v.cristais} min</div>
+              <div class="voucher-item-sub">${data}</div>
+            </div>
+            <span class="voucher-item-status ${cls}">${txt}</span>
+            ${btnCancelar}
+          </div>`;
         }).join('');
 
       } catch(e) {
         console.error('carregarVouchers error:', e);
+      }
+    }
+
+    // Bug 3: Cancelar voucher pendente
+    async function cancelarVoucher(vkey) {
+      if (!confirm('Cancelar este pedido de voucher?')) return;
+      const emailKey = sanitizeEmail(currentUserEmail);
+      try {
+        await db.ref('vouchers/' + emailKey + '/' + vkey).remove();
+        oraMsg('📜 Pedido cancelado, Guardião.');
+        soundTone(440, 'sine', 0.1, 0.15, 0.005);
+        vibrate(30);
+        carregarVouchers();
+      } catch(e) {
+        oraMsg('❌ Erro ao cancelar. Tente novamente.');
+        soundError();
       }
     }
 
@@ -4236,6 +4350,12 @@
             btnHTML = `<button class="btn-missao-concluir" id="btn-missao-${key}" onclick="solicitarMissao('${key}')">⚔️ Concluí esta tarefa!</button>`;
           }
 
+          // Botão ✕ cancelar — só em Pendente
+          const mKeyCancel = missao ? Object.keys(minhasMissoes).find(k => minhasMissoes[k] === missao) : null;
+          const btnCancelarMissao = (status === 'Pendente' && mKeyCancel)
+            ? `<button class="btn-cancel-item" style="margin:8px auto 0;display:block" onclick="cancelarMissao('${mKeyCancel}')" title="Cancelar solicitação">✕</button>`
+            : '';
+
           const cardClass = status === 'Pendente' ? 'pendente' : status === 'Aprovado' ? 'aprovado' : status === 'Recusado' ? 'recusado' : '';
 
           return `<div class="missao-card ${cardClass}">
@@ -4249,6 +4369,7 @@
             </div>
             ${statusHTML}
             ${btnHTML}
+            ${btnCancelarMissao}
           </div>`;
         }).join('');
       }
@@ -4326,6 +4447,22 @@
         oraMsg('❌ Erro ao enviar missão. Tente novamente.');
         soundError();
         if (btn) btn.disabled = false;
+      }
+    }
+
+    // Bug 4: Cancelar missão pendente
+    async function cancelarMissao(mkey) {
+      if (!confirm('Cancelar esta solicitação de missão?')) return;
+      const emailKey = sanitizeEmail(currentUserEmail);
+      try {
+        await db.ref('missoes/' + emailKey + '/' + mkey).remove();
+        oraMsg('⚔️ Solicitação cancelada, Guardião.');
+        soundTone(440, 'sine', 0.1, 0.15, 0.005);
+        vibrate(30);
+        carregarBau();
+      } catch(e) {
+        oraMsg('❌ Erro ao cancelar. Tente novamente.');
+        soundError();
       }
     }
 
