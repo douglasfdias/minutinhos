@@ -276,6 +276,67 @@
 
 
 
+
+    /* ══ MODAL DE CONFIRMAÇÃO MEDIEVAL ══ */
+    #confirm-modal {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(2,4,12,0.88);
+      display: none; align-items: center; justify-content: center;
+      padding: 24px;
+      animation: none;
+    }
+    #confirm-modal.open {
+      display: flex;
+    }
+    .confirm-box {
+      background: linear-gradient(160deg, rgba(20,8,45,0.99), rgba(8,2,18,0.99));
+      border: 3px solid var(--gold-dark);
+      border-radius: 20px;
+      padding: 28px 24px 22px;
+      width: 100%; max-width: 300px;
+      box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5);
+      text-align: center;
+      position: relative;
+      animation: confirm-pop 0.22s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes confirm-pop {
+      from { transform: scale(0.82); opacity: 0; }
+      to   { transform: scale(1);    opacity: 1; }
+    }
+    .confirm-box::before {
+      content: ''; position: absolute; inset: 6px;
+      border: 1px solid rgba(255,215,0,0.12); border-radius: 14px; pointer-events: none;
+    }
+    .confirm-icon { font-size: 2.4rem; margin-bottom: 8px; }
+    .confirm-title {
+      font-family: 'Cinzel', serif; font-size: 1.05rem; font-weight: 900;
+      color: var(--gold); margin-bottom: 10px;
+      text-shadow: 0 0 12px rgba(255,215,0,0.4);
+    }
+    .confirm-msg {
+      font-size: 0.84rem; color: rgba(220,200,160,0.85);
+      font-weight: 700; line-height: 1.45; margin-bottom: 20px;
+    }
+    .confirm-btns { display: flex; gap: 10px; }
+    .confirm-btn-ok {
+      flex: 1; height: 46px; border-radius: 12px; border: 2px solid rgba(220,38,38,0.4);
+      background: linear-gradient(135deg, #7f1d1d, #991b1b, #b91c1c);
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.88rem;
+      color: white; cursor: pointer;
+      box-shadow: 0 4px 0 #450a0a;
+      transition: transform 0.1s; -webkit-user-select: none;
+    }
+    .confirm-btn-ok:active { transform: translateY(3px); box-shadow: 0 1px 0 #450a0a; }
+    .confirm-btn-cancel {
+      flex: 1; height: 46px; border-radius: 12px;
+      border: 1.5px solid rgba(255,215,0,0.2);
+      background: rgba(255,215,0,0.07);
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.88rem;
+      color: rgba(220,200,160,0.8); cursor: pointer;
+      transition: background 0.15s; -webkit-user-select: none;
+    }
+    .confirm-btn-cancel:active { background: rgba(255,215,0,0.15); }
+
     /* ══ MINI ORÁCULO NOS MODAIS ══ */
     .modal-ora-row {
       display: flex; align-items: flex-end; gap: 8px;
@@ -1742,6 +1803,20 @@
 
 
 
+
+  <!-- ═══════════ MODAL DE CONFIRMAÇÃO ═══════════ -->
+  <div id="confirm-modal">
+    <div class="confirm-box">
+      <div class="confirm-icon" id="confirm-icon">⚔️</div>
+      <div class="confirm-title">Guardião da Ordem</div>
+      <div class="confirm-msg" id="confirm-msg">Tem certeza?</div>
+      <div class="confirm-btns">
+        <button class="confirm-btn-cancel" onclick="_confirmNo()">Não, voltar</button>
+        <button class="confirm-btn-ok" id="confirm-btn-ok" onclick="_confirmYes()">Sim, confirmar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══════════ MODAL BAÚ DE ARTEFATOS ═══════════ -->
   <div id="bau-modal">
     <button class="reading-close" onclick="fecharBau()">✕</button>
@@ -2289,8 +2364,10 @@
        ORÁCULO — com efeito typewriter
     ============================================================ */
     let oraTimer = null;
+    const _oraModalTimers = {};  // timers por modal para evitar typewriters simultâneos
+
     function oraMsg(texto) {
-      // Oráculo principal (tela principal)
+      // Oráculo principal
       const el = document.getElementById('ora-msg');
       el.classList.remove('oracle-talking');
       void el.offsetWidth;
@@ -2306,26 +2383,29 @@
       }
       typeNext();
 
-      // Oráculos nos modais (se algum estiver aberto)
+      // Oráculos nos modais — cancela timer anterior antes de iniciar novo
       [
-        { modal: 'vouchers-modal', msg: 'ora-msg-voucher' },
-        { modal: 'bau-modal',      msg: 'ora-msg-bau'     }
-      ].forEach(({ modal, msg }) => {
+        { modal: 'vouchers-modal', msg: 'ora-msg-voucher', key: 'v' },
+        { modal: 'bau-modal',      msg: 'ora-msg-bau',     key: 'b' }
+      ].forEach(({ modal, msg, key }) => {
         const modalEl = document.getElementById(modal);
         const msgEl   = document.getElementById(msg);
         if (!modalEl || !msgEl) return;
         if (!modalEl.classList.contains('open')) return;
+        // Cancela typewriter anterior deste modal
+        if (_oraModalTimers[key]) clearTimeout(_oraModalTimers[key]);
         msgEl.classList.remove('modal-ora-talking');
         void msgEl.offsetWidth;
         msgEl.classList.add('modal-ora-talking');
         msgEl.textContent = '';
         let j = 0;
-        (function typeModal() {
+        function typeModal() {
           if (j < texto.length) {
             msgEl.textContent += texto[j++];
-            setTimeout(typeModal, 22);
+            _oraModalTimers[key] = setTimeout(typeModal, 22);
           }
-        })();
+        }
+        typeModal();
       });
     }
 
@@ -3922,6 +4002,31 @@
     }
 
 
+    /* ══ MODAL DE CONFIRMAÇÃO ══ */
+    let _confirmResolve = null;
+
+    function showConfirm(msg, icon, okLabel) {
+      vibrate(30);
+      soundTone(440, 'triangle', 0.08, 0.12, 0.005);
+      document.getElementById('confirm-msg').textContent  = msg;
+      document.getElementById('confirm-icon').textContent = icon || '⚔️';
+      document.getElementById('confirm-btn-ok').textContent = okLabel || 'Sim, confirmar';
+      document.getElementById('confirm-modal').classList.add('open');
+      return new Promise(resolve => { _confirmResolve = resolve; });
+    }
+
+    function _confirmYes() {
+      document.getElementById('confirm-modal').classList.remove('open');
+      soundButtonTap(); vibrate(40);
+      if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
+    }
+
+    function _confirmNo() {
+      document.getElementById('confirm-modal').classList.remove('open');
+      soundTone(330, 'sine', 0.08, 0.1, 0.005);
+      if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
+    }
+
     /* ══════════════════════════════════════════════════════
        VOUCHERS — Sistema de Tempo de Tela
     ══════════════════════════════════════════════════════ */
@@ -4036,18 +4141,23 @@
 
       } catch(e) {
         console.error('carregarVouchers error:', e);
+        const listaErr = document.getElementById('vouchers-lista');
+        if (listaErr) listaErr.innerHTML = '<div style="color:rgba(255,120,80,0.85);font-size:0.78rem;text-align:center;padding:14px;font-weight:700">⚠️ Erro ao carregar.<br><small style="opacity:0.65">' + (e.message||'Verifique as regras do Firebase.') + '</small></div>';
       }
     }
 
     // Bug 3: Cancelar voucher pendente
     async function cancelarVoucher(vkey) {
-      if (!confirm('Cancelar este pedido de voucher?')) return;
+      const ok = await showConfirm(
+        'Deseja cancelar este pedido de voucher? O Mestre ainda não o aprovou.',
+        '📜', 'Sim, cancelar pedido'
+      );
+      if (!ok) return;
       const emailKey = sanitizeEmail(currentUserEmail);
       try {
         await db.ref('vouchers/' + emailKey + '/' + vkey).remove();
-        oraMsg('📜 Pedido cancelado, Guardião.');
-        soundTone(440, 'sine', 0.1, 0.15, 0.005);
-        vibrate(30);
+        oraMsg('📜 Pedido cancelado com sucesso, Guardião.');
+        vibrate([40, 20, 40]);
         carregarVouchers();
       } catch(e) {
         oraMsg('❌ Erro ao cancelar. Tente novamente.');
@@ -4452,13 +4562,16 @@
 
     // Bug 4: Cancelar missão pendente
     async function cancelarMissao(mkey) {
-      if (!confirm('Cancelar esta solicitação de missão?')) return;
+      const ok = await showConfirm(
+        'Deseja cancelar esta solicitação de missão? Você poderá enviar novamente quando quiser.',
+        '⚔️', 'Sim, cancelar missão'
+      );
+      if (!ok) return;
       const emailKey = sanitizeEmail(currentUserEmail);
       try {
         await db.ref('missoes/' + emailKey + '/' + mkey).remove();
-        oraMsg('⚔️ Solicitação cancelada, Guardião.');
-        soundTone(440, 'sine', 0.1, 0.15, 0.005);
-        vibrate(30);
+        oraMsg('⚔️ Missão cancelada. Pode enviar novamente quando concluir, Guardião!');
+        vibrate([40, 20, 40]);
         carregarBau();
       } catch(e) {
         oraMsg('❌ Erro ao cancelar. Tente novamente.');
