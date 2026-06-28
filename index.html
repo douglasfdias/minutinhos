@@ -1371,6 +1371,40 @@
       80%    { transform: translateX(3px); }
     }
 
+    /* ══ MODAL DE MENSAGENS (chat com a Mãe) ══ */
+    #mensagens-modal {
+      position: fixed; inset: 0; z-index: 2100;
+      background: rgba(2,5,15,0.96);
+      display: none; align-items: center; justify-content: center; padding: 14px;
+    }
+    #mensagens-modal.open { display: flex; }
+    .msg-box {
+      background: linear-gradient(160deg, #0A1428, #050A18);
+      border: 2px solid var(--gold-dark); border-radius: 20px;
+      width: 100%; max-width: 380px; height: min(78vh, 560px);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .msg-header {
+      font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 900;
+      color: var(--gold); text-align: center; padding: 16px 16px 12px;
+      border-bottom: 1px solid rgba(255,215,0,0.15); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .msg-header button { background:none; border:none; color: var(--gold-light); font-size: 1.1rem; cursor:pointer; }
+    .msg-list { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .msg-bubble { max-width: 80%; padding: 9px 13px; border-radius: 14px; font-size: 0.86rem; line-height: 1.35; word-wrap: break-word; }
+    .msg-bubble.dela { align-self: flex-start; background: rgba(255,215,0,0.12); border: 1px solid rgba(255,215,0,0.25); color: var(--gold-light); }
+    .msg-bubble.minha { align-self: flex-end; background: rgba(0,212,255,0.16); border: 1px solid rgba(0,212,255,0.3); color: #D6F6FF; }
+    .msg-time { font-size: 0.6rem; opacity: 0.55; margin-top: 3px; display:block; }
+    .msg-empty { text-align:center; color: rgba(255,255,255,0.35); font-size: 0.82rem; margin-top: 30px; }
+    .msg-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(255,215,0,0.15); flex-shrink: 0; }
+    .msg-input { flex: 1; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,215,0,0.25);
+      border-radius: 12px; color: white; padding: 10px 12px; font-size: 0.88rem; font-family: 'Nunito', sans-serif; }
+    .msg-input:focus { outline: none; border-color: var(--gold); }
+    .msg-send-btn { background: var(--gold); border: none; border-radius: 12px; width: 42px; flex-shrink:0;
+      font-size: 1.1rem; cursor: pointer; }
+    .msg-send-btn:active { transform: scale(0.93); }
+
     /* ══ HERO OVERLAY ══ */
     #hero-overlay {
       position: fixed; inset: 0; z-index: 2500;
@@ -1475,6 +1509,8 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 </head>
 <body>
 
@@ -1527,6 +1563,10 @@
           <button class="toggle on" id="toggle-vib" onclick="toggleVibracao()"></button>
         </div>
       </div>
+      <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div><div class="settings-label">🔔 Notificações no celular</div><div class="settings-sublabel">Avisos mesmo com o app fechado</div></div>
+        <button id="btn-ativar-push" class="settings-close" style="margin-top:0;" onclick="ativarNotificacoesPush()">🔔 Ativar Notificações</button>
+      </div>
       <button class="settings-close" onclick="fecharSettings()">⚔ Fechar</button>
     </div>
   </div>
@@ -1550,6 +1590,24 @@
 
       <div id="ranking-lista"></div>
       <button class="ranking-close" onclick="fecharRanking()">⚔ Fechar</button>
+    </div>
+  </div>
+
+  <!-- ══ MODAL DE MENSAGENS (chat com a Mãe) ══ -->
+  <div id="mensagens-modal">
+    <div class="msg-box">
+      <div class="msg-header">
+        <span>💬 Conversa com a Mãe</span>
+        <button onclick="fecharMensagens()">✕</button>
+      </div>
+      <div class="msg-list" id="msg-list">
+        <div class="msg-empty">Nenhuma mensagem ainda. Diga olá! 👋</div>
+      </div>
+      <div class="msg-input-row">
+        <input type="text" id="msg-input" class="msg-input" placeholder="Escreva sua mensagem..." maxlength="500"
+               onkeydown="if(event.key==='Enter') enviarMensagem()">
+        <button class="msg-send-btn" onclick="enviarMensagem()">📨</button>
+      </div>
     </div>
   </div>
 
@@ -1593,6 +1651,7 @@
       </div>
       <div class="hud-actions">
         <span class="hud-icon bell-wrap" id="bell-btn" onclick="verNotificacoes()">🔔<span class="bell-badge" id="bell-badge" style="display:none"></span></span>
+        <span class="hud-icon bell-wrap" id="chat-btn" onclick="abrirMensagens()">💬<span class="bell-badge" id="chat-badge" style="display:none"></span></span>
         <span class="hud-icon" onclick="abrirRanking()" title="Ranking Semanal">🏆</span>
         <span class="hud-icon" id="gear-icon" onclick="abrirSettings()">⚙️</span>
         <span class="btn-trocar" onclick="trocarGuardiao()" title="Trocar Guardião">🔀</span>
@@ -2427,9 +2486,104 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
 
     function sanitizeEmail(email) {
       return email.replace(/\./g, '_');
+    }
+
+    /* ============================================================
+       SEGURANÇA — Autenticação anônima + vínculo de dispositivo
+       Cada celular ganha uma identidade estável do Firebase Auth.
+       Na primeira vez que esse celular escolhe um Guardião, gravamos
+       esse vínculo em /usuarios/{chave}/device_uid. A partir daí, só
+       esse celular específico pode escrever os dados daquele Guardião
+       (ver firebase-rules.json) — sem isso, a chave pública do Firebase
+       (já visível no código da página) deixaria qualquer pessoa do
+       mundo ler/escrever tudo.
+    ============================================================ */
+    let authPronto = null;
+    function garantirAuth() {
+      if (authPronto) return authPronto;
+      authPronto = new Promise((resolve) => {
+        const unsub = auth.onAuthStateChanged(user => {
+          if (user) { unsub(); resolve(user); }
+        });
+        auth.signInAnonymously().catch(e => console.warn('Falha no auth anônimo:', e.message));
+      });
+      return authPronto;
+    }
+
+    async function vincularDispositivo(emailKey) {
+      try {
+        const user = await garantirAuth();
+        const ref = db.ref('usuarios/' + emailKey + '/device_uid');
+        const snap = await ref.get();
+        if (!snap.exists()) {
+          await ref.set(user.uid);
+        }
+      } catch (e) {
+        console.warn('Não foi possível vincular o dispositivo:', e.message);
+      }
+    }
+
+    /* ============================================================
+       PUSH NOTIFICATIONS — funciona com o app fechado
+       O envio em si passa por um Worker externo que guarda a
+       credencial secreta. O app só pede pra ele enviar, provando sua
+       identidade com o token do Firebase Auth.
+    ============================================================ */
+    const PUSH_WORKER_URL = 'https://minutinhos-push.douglasdias-dfd.workers.dev';
+    const VAPID_PUBLIC_KEY = 'Cz5xzWg5-0wdwAdrKdgajvrY6JP6B6YQA_FzIrxcK3eI';
+
+    async function enviarPush(destinoKey, titulo, mensagem, tipo, dados) {
+      try {
+        const user = await garantirAuth();
+        const idToken = await user.getIdToken();
+        await fetch(PUSH_WORKER_URL + '/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
+          body: JSON.stringify({
+            remetenteKey: currentUserEmail ? sanitizeEmail(currentUserEmail) : null,
+            destinoKey, titulo, mensagem, tipo, dados
+          })
+        });
+      } catch (e) {
+        // Falha de push nunca deve travar a ação principal do app
+        console.warn('Push não enviado:', e.message);
+      }
+    }
+
+    async function ativarNotificacoesPush() {
+      try {
+        if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+          oraMsg('⚠️ Este navegador não suporta notificações.');
+          return;
+        }
+        const permissao = await Notification.requestPermission();
+        if (permissao !== 'granted') {
+          oraMsg('🔔 Notificações não autorizadas. Você pode ativar depois nas Configurações do celular.');
+          return;
+        }
+        await garantirAuth();
+        const reg = await navigator.serviceWorker.ready;
+        const messaging = firebase.messaging();
+        const token = await messaging.getToken({ vapidKey: VAPID_PUBLIC_KEY, serviceWorkerRegistration: reg });
+        if (token && currentUserEmail) {
+          const emailKey = sanitizeEmail(currentUserEmail);
+          await db.ref('fcm_tokens/' + emailKey).push({
+            token: token,
+            criadoEm: new Date().toISOString(),
+            ua: navigator.userAgent.substring(0, 120)
+          });
+          const btn = document.getElementById('btn-ativar-push');
+          if (btn) btn.textContent = '🔔 Notificações ativadas';
+          oraMsg('🔔 Notificações ativadas! Você será avisado mesmo com o app fechado.');
+        }
+      } catch (e) {
+        console.warn('Erro ao ativar push:', e.message);
+        oraMsg('⚠️ Não foi possível ativar as notificações agora.');
+      }
     }
 
     /* ============================================================
@@ -2441,6 +2595,7 @@
        Busca guardiões dinamicamente do Firebase
     ============================================================ */
     let currentUserEmail = null;
+    let currentUserNome = null;
     const STORAGE_KEY = 'minutinhos_guardian';
 
     async function mostrarSelecao() {
@@ -2493,7 +2648,7 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: guardiao.email, nome: guardiao.nome }));
       } catch(e) {}
       currentUserEmail = guardiao.email;
-
+      currentUserNome = guardiao.nome;
       const wf = document.getElementById('welcome-flash');
       document.getElementById('welcome-text').textContent = `⚔ Bem-vindo, ${guardiao.nome}! ⚔`;
       wf.classList.remove('show'); void wf.offsetWidth; wf.classList.add('show');
@@ -2919,22 +3074,28 @@
       soundCrystalChime();
       vibrate([60, 30, 120]);
 
-      db.ref('transacoes').push({
-        data: new Date().toISOString(),
-        email: currentUserEmail,
-        tipo: 'Leitura',
-        quantidade: min,
-        detalhes: livro,
-        status: 'Pendente'
-      }).then(() => {
-        fecharLeitura();
-        oraMsg(`📜 "${livro}" registrado! ${min} min aguardando aprovação do Mestre.`);
-        vibrate([100, 50, 200]);
-        spawnFloat('+' + min + ' ⚡', '#FF8C00', window.innerWidth / 2, window.innerHeight / 3);
-        loadData();
-      }).catch(() => {
-        document.getElementById('reading-oracle-text').textContent = '❌ Erro ao registrar. Tente novamente.';
-        soundError();
+      garantirAuth().then(user => {
+        db.ref('transacoes').push({
+          data: new Date().toISOString(),
+          email: currentUserEmail,
+          tipo: 'Leitura',
+          quantidade: min,
+          detalhes: livro,
+          status: 'Pendente',
+          _uid: user.uid
+        }).then(() => {
+          fecharLeitura();
+          oraMsg(`📜 "${livro}" registrado! ${min} min aguardando aprovação do Mestre.`);
+          vibrate([100, 50, 200]);
+          spawnFloat('+' + min + ' ⚡', '#FF8C00', window.innerWidth / 2, window.innerHeight / 3);
+          loadData();
+          enviarPush('_mestre', '📖 Nova leitura aguardando',
+            `${currentUserNome || 'Um Guardião'} registrou ${min} min de "${livro}" e aguarda aprovação.`,
+            'solicitacao_leitura', { emailKey: sanitizeEmail(currentUserEmail) });
+        }).catch(() => {
+          document.getElementById('reading-oracle-text').textContent = '❌ Erro ao registrar. Tente novamente.';
+          soundError();
+        });
       });
     }
 
@@ -3874,11 +4035,18 @@
     ============================================================ */
     let listenerAtivo    = false;
     let filaNotificacoes = [];
+    let msgCache = [];
+    let mensagensNaoLidas = 0;
 
-    function iniciarListeners() {
+    async function iniciarListeners() {
       if (listenerAtivo) return;
       listenerAtivo = true;
       const emailKey = sanitizeEmail(currentUserEmail);
+
+      // Garante o vínculo do dispositivo ANTES de abrir os listeners
+      // (as regras de segurança exigem device_uid já gravado para ler
+      // /mensagens, /vouchers e /missoes deste Guardião)
+      await vincularDispositivo(emailKey);
 
       // Listener do usuário — recarrega tudo quando houver mudança
       // (cobre reset de dados, aprovação de leituras, alterações do Mestre)
@@ -3918,6 +4086,23 @@
         filaNotificacoes.push(notif);
         snap.ref.remove();
         tocarSino(notif);
+      });
+
+      // Mensagens — chat com a Mãe
+      let primeiraMsg = true;
+      db.ref('mensagens/' + emailKey).orderByChild('timestamp').on('child_added', snap => {
+        const msg = snap.val();
+        if (!msg) return;
+        msgCache.push({ key: snap.key, ...msg });
+        if (primeiraMsg) { primeiraMsg = false; renderMensagens(); return; }
+        renderMensagens();
+        if (msg.de !== emailKey) {
+          mensagensNaoLidas++;
+          atualizarBadgeChat();
+          initAudio();
+          vibrate([40, 20, 60]);
+          soundTone(1047, 'sine', 0.2, 0.15, 0.01);
+        }
       });
     }
 
@@ -3998,6 +4183,83 @@
         badge.style.display = 'block';
       } else {
         badge.style.display = 'none';
+      }
+    }
+
+    /* ============================================================
+       MENSAGENS — chat com a Mãe
+    ============================================================ */
+    function atualizarBadgeChat() {
+      const badge = document.getElementById('chat-badge');
+      if (!badge) return;
+      badge.style.display = mensagensNaoLidas > 0 ? 'block' : 'none';
+    }
+
+    function abrirMensagens() {
+      initAudio();
+      vibrate(30);
+      soundTone(700, 'sine', 0.12, 0.12, 0.005);
+      mensagensNaoLidas = 0;
+      atualizarBadgeChat();
+      document.getElementById('mensagens-modal').classList.add('open');
+      renderMensagens();
+      setTimeout(() => {
+        const lista = document.getElementById('msg-list');
+        if (lista) lista.scrollTop = lista.scrollHeight;
+        const inp = document.getElementById('msg-input');
+        if (inp) inp.focus();
+      }, 100);
+    }
+
+    function fecharMensagens() {
+      vibrate(20);
+      document.getElementById('mensagens-modal').classList.remove('open');
+    }
+
+    function escapeHtmlMsg(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function renderMensagens() {
+      const lista = document.getElementById('msg-list');
+      if (!lista) return;
+      if (!msgCache.length) {
+        lista.innerHTML = '<div class="msg-empty">Nenhuma mensagem ainda. Diga olá! 👋</div>';
+        return;
+      }
+      const emailKey = currentUserEmail ? sanitizeEmail(currentUserEmail) : '';
+      const ordenadas = [...msgCache].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      lista.innerHTML = ordenadas.map(m => {
+        const minha = m.de === emailKey;
+        const hora = m.timestamp
+          ? new Date(m.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+          : '';
+        return `<div class="msg-bubble ${minha ? 'minha' : 'dela'}">${escapeHtmlMsg(m.texto || '')}<span class="msg-time">${hora}</span></div>`;
+      }).join('');
+      lista.scrollTop = lista.scrollHeight;
+    }
+
+    async function enviarMensagem() {
+      const input = document.getElementById('msg-input');
+      const texto = input.value.trim();
+      if (!texto || !currentUserEmail) return;
+      input.value = '';
+      const emailKey = sanitizeEmail(currentUserEmail);
+      try {
+        await garantirAuth();
+        await db.ref('mensagens/' + emailKey).push({
+          de: emailKey,
+          texto: texto,
+          timestamp: new Date().toISOString()
+        });
+        vibrate(20);
+        soundTone(900, 'sine', 0.1, 0.12, 0.005);
+        enviarPush('_mestre', `💬 ${currentUserNome || 'Guardião'}`, texto, 'mensagem', { emailKey });
+      } catch (e) {
+        input.value = texto;
+        oraMsg('❌ Não foi possível enviar a mensagem. Tente novamente.');
       }
     }
 
@@ -4291,6 +4553,10 @@
           ['rgba(0,212,255,','rgba(0,255,120,']);
         oraMsg('📜 Pedido de ' + cristais + ' 💎 enviado ao Mestre! Aguarde a aprovação, Guardião!');
 
+        enviarPush('_mestre', '📜 Novo pedido de voucher',
+          `${currentUserNome || 'Um Guardião'} pediu ${cristais} min de tempo de tela.`,
+          'solicitacao_voucher', { emailKey, cristais });
+
         // Reset form
         document.getElementById('voucher-cristais').value = '';
         document.querySelectorAll('.voucher-preset').forEach(el => el.classList.remove('selected'));
@@ -4551,6 +4817,10 @@
           ['rgba(252,211,77,', 'rgba(180,83,9,', 'rgba(255,255,200,']);
         oraMsg('⚔️ Missão "' + art.nome + '" enviada ao Mestre! Aguarda a aprovação, Guardião!');
 
+        enviarPush('_mestre', '⚔️ Nova missão aguardando',
+          `${currentUserNome || 'Um Guardião'} concluiu "${art.nome}" e aguarda aprovação.`,
+          'solicitacao_missao', { emailKey, artefatoKey });
+
         // Recarrega o painel
         await carregarBau();
       } catch(e) {
@@ -4622,6 +4892,9 @@
       document.addEventListener('touchstart', () => initAudio(), { once: true });
       document.addEventListener('click',      () => initAudio(), { once: true });
 
+      // Autenticação anônima — começa em paralelo, não bloqueia a tela
+      garantirAuth();
+
       // Verifica guardião salvo no localStorage
       try {
         const salvo = localStorage.getItem(STORAGE_KEY);
@@ -4629,6 +4902,7 @@
           const dados = JSON.parse(salvo);
           if (dados && dados.email) {
             currentUserEmail = dados.email;
+            currentUserNome = dados.nome || null;
             document.getElementById('guardian-select').style.display = 'none';
             loadData();
             iniciarListeners();
