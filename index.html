@@ -2533,8 +2533,8 @@
        credencial secreta. O app só pede pra ele enviar, provando sua
        identidade com o token do Firebase Auth.
     ============================================================ */
-    const PUSH_WORKER_URL = 'https://minutinhos-push.douglasdias-dfd.workers.dev';
-    const VAPID_PUBLIC_KEY = 'Cz5xzWg5-0wdwAdrKdgajvrY6JP6B6YQA_FzIrxcK3eI';
+    const PUSH_WORKER_URL = 'https://minutinhos-push.SEU-SUBDOMINIO.workers.dev';
+    const VAPID_PUBLIC_KEY = 'COLE_AQUI_A_CHAVE_PUBLICA_VAPID_DO_FIREBASE';
 
     async function enviarPush(destinoKey, titulo, mensagem, tipo, dados) {
       try {
