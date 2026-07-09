@@ -821,6 +821,8 @@
       border-right: 1px solid rgba(255,255,255,0.07);
       padding: 2px 0; transition: opacity 0.2s;
       display: flex; flex-direction: column; align-items: center; gap: 1px;
+      -webkit-user-select: none; user-select: none;
+      -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
     }
     .menu-item:last-child { border-right: none; }
     .menu-item:active { opacity: 1; }
@@ -2657,8 +2659,8 @@
        credencial secreta. O app só pede pra ele enviar, provando sua
        identidade com o token do Firebase Auth.
     ============================================================ */
-    const PUSH_WORKER_URL = 'https://minutinhos-push.SEU-SUBDOMINIO.workers.dev';
-    const VAPID_PUBLIC_KEY = 'COLE_AQUI_A_CHAVE_PUBLICA_VAPID_DO_FIREBASE';
+    const PUSH_WORKER_URL = 'https://minutinhos-push.douglasdias-dfd.workers.dev';
+    const VAPID_PUBLIC_KEY = 'BAFX4PUHmQ4qT_Fyk9n9entF-RiEZaoIMki3FrqAQS_0tBiyFLes7C-bpZqr7eW0C5UYzlCQwho6sre3WTbMGPs';
 
     async function enviarPush(destinoKey, titulo, mensagem, tipo, dados) {
       try {
@@ -4217,17 +4219,12 @@
       });
 
       // Busca nomes dos Mestres (pai, mãe) do nó /admins
-      db.ref('admins').once('value').then(admSnap => {
-        if (!admSnap.exists()) return;
-        admSnap.forEach(child => {
-          const v = child.val();
-          if (v && typeof v === 'object' && v.nome) {
-            mestresInfo[child.key] = { nome: v.nome, emoji: v.emoji || '⚔️' };
-          } else {
-            mestresInfo[child.key] = { nome: 'Mestre', emoji: '⚔️' };
-          }
-        });
-      }).catch(() => {});
+      _carregarMestresInfo().then(() => {
+        // Se o overlay de chat já está aberto, re-renderiza com os nomes carregados
+        if (document.getElementById('chat-overlay').classList.contains('open')) {
+          renderContactList();
+        }
+      });
 
       // Mensagens — carrega histórico e escuta novas
       const emailKey2 = emailKey;
@@ -4359,8 +4356,13 @@
        CHAT — WhatsApp-style
     ============================================================ */
 
+    function escapeHtmlMsg(str) {
+      const div = document.createElement('div');
+      div.textContent = String(str || '');
+      return div.innerHTML;
+    }
+
     function _getMestreUidLegado(msg) {
-      // Mensagens antigas sem mestreUid: atribui ao primeiro Mestre
       if (msg.mestreUid) return msg.mestreUid;
       const uids = Object.keys(mestresInfo);
       return uids.length > 0 ? uids[0] : '_mestre';
@@ -4395,9 +4397,30 @@
       if (total > 0) badge.textContent = total > 9 ? '9+' : total;
     }
 
-    function abrirMensagens() {
+    async function _carregarMestresInfo() {
+      try {
+        await garantirAuth();
+        const snap = await db.ref('admins').once('value');
+        if (!snap.exists()) return;
+        snap.forEach(child => {
+          const v = child.val();
+          mestresInfo[child.key] = {
+            nome:  (v && v.nome)  ? v.nome  : 'Mestre',
+            emoji: (v && v.emoji) ? v.emoji : '⚔️'
+          };
+        });
+      } catch(e) { console.warn('Erro ao buscar mestres:', e.message); }
+    }
+
+    async function abrirMensagens() {
       initAudio(); vibrate(20);
       document.getElementById('chat-overlay').classList.add('open');
+      // Mostra loading até os dados estarem prontos
+      const list = document.getElementById('chat-contact-list');
+      if (list) list.innerHTML = '<div class="chat-no-contacts">⏳ Carregando...</div>';
+      if (!Object.keys(mestresInfo).length) {
+        await _carregarMestresInfo();
+      }
       renderContactList();
     }
 
