@@ -810,7 +810,7 @@
 
     /* ============ FOOTER ============ */
     .footer-menu {
-      display: grid; grid-template-columns: repeat(4, 1fr);
+      display: grid; grid-template-columns: repeat(5, 1fr);
       background: linear-gradient(180deg, #2C1A0E, #1A0A00);
       border-top: 3px solid var(--gold-dark); padding: 5px 2px;
       flex-shrink: 0;
@@ -824,7 +824,7 @@
     }
     .menu-item:last-child { border-right: none; }
     .menu-item:active { opacity: 1; }
-    .menu-icon { width: 34px; height: 34px; display: block; }
+    .menu-icon { width: 30px; height: 30px; display: block; }
 
     /* ============ FLOATING NUMBERS ============ */
     .float-number {
@@ -1371,39 +1371,132 @@
       80%    { transform: translateX(3px); }
     }
 
-    /* ══ MODAL DE MENSAGENS (chat com a Mãe) ══ */
-    #mensagens-modal {
+    /* ══ BADGE FOOTER DE MENSAGENS ══ */
+    .msg-badge-footer {
+      position: absolute; top: 2px; right: 6px;
+      background: #e74c3c; color: white; border-radius: 10px;
+      font-size: 0.58rem; font-weight: 900; padding: 1px 5px;
+      min-width: 14px; text-align: center; border: 1.5px solid #1A0A00;
+    }
+
+    /* ══ CHAT OVERLAY (WhatsApp-style) ══ */
+    #chat-overlay {
       position: fixed; inset: 0; z-index: 2100;
-      background: rgba(2,5,15,0.96);
-      display: none; align-items: center; justify-content: center; padding: 14px;
+      background: #070d1c;
+      display: none; flex-direction: column;
     }
-    #mensagens-modal.open { display: flex; }
-    .msg-box {
-      background: linear-gradient(160deg, #0A1428, #050A18);
-      border: 2px solid var(--gold-dark); border-radius: 20px;
-      width: 100%; max-width: 380px; height: min(78vh, 560px);
-      display: flex; flex-direction: column; overflow: hidden;
+    #chat-overlay.open { display: flex; }
+    .chat-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px; background: rgba(5,10,24,0.98);
+      border-bottom: 1.5px solid rgba(255,215,0,0.2); flex-shrink: 0;
     }
-    .msg-header {
+    .chat-header-title {
       font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 900;
-      color: var(--gold); text-align: center; padding: 16px 16px 12px;
-      border-bottom: 1px solid rgba(255,215,0,0.15); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: space-between;
+      color: var(--gold); flex: 1;
     }
-    .msg-header button { background:none; border:none; color: var(--gold-light); font-size: 1.1rem; cursor:pointer; }
-    .msg-list { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
-    .msg-bubble { max-width: 80%; padding: 9px 13px; border-radius: 14px; font-size: 0.86rem; line-height: 1.35; word-wrap: break-word; }
-    .msg-bubble.dela { align-self: flex-start; background: rgba(255,215,0,0.12); border: 1px solid rgba(255,215,0,0.25); color: var(--gold-light); }
-    .msg-bubble.minha { align-self: flex-end; background: rgba(0,212,255,0.16); border: 1px solid rgba(0,212,255,0.3); color: #D6F6FF; }
-    .msg-time { font-size: 0.6rem; opacity: 0.55; margin-top: 3px; display:block; }
-    .msg-empty { text-align:center; color: rgba(255,255,255,0.35); font-size: 0.82rem; margin-top: 30px; }
-    .msg-input-row { display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(255,215,0,0.15); flex-shrink: 0; }
-    .msg-input { flex: 1; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,215,0,0.25);
-      border-radius: 12px; color: white; padding: 10px 12px; font-size: 0.88rem; font-family: 'Nunito', sans-serif; }
-    .msg-input:focus { outline: none; border-color: var(--gold); }
-    .msg-send-btn { background: var(--gold); border: none; border-radius: 12px; width: 42px; flex-shrink:0;
-      font-size: 1.1rem; cursor: pointer; }
-    .msg-send-btn:active { transform: scale(0.93); }
+    .chat-back-btn {
+      color: var(--gold-light); font-size: 0.82rem; cursor: pointer;
+      display: flex; align-items: center; gap: 3px; flex: 1;
+      background: none; border: none; padding: 0; text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .chat-close-btn {
+      background: none; border: none; color: rgba(255,255,255,0.45);
+      font-size: 1.1rem; cursor: pointer; padding: 4px;
+    }
+
+    /* Lista de contatos */
+    .chat-contact-list { flex: 1; overflow-y: auto; scrollbar-width: none; }
+    .chat-contact-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 16px; border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s;
+    }
+    .chat-contact-item:active { background: rgba(255,255,255,0.04); }
+    .chat-contact-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(255,215,0,0.12); border: 1.5px solid rgba(255,215,0,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; flex-shrink: 0;
+    }
+    .chat-contact-info { flex: 1; min-width: 0; }
+    .chat-contact-name {
+      color: #fff; font-size: 0.9rem; font-weight: 700;
+      margin-bottom: 4px; font-family: 'Cinzel', serif;
+    }
+    .chat-contact-preview {
+      color: rgba(255,255,255,0.4); font-size: 0.78rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .chat-contact-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+    .chat-contact-time { color: rgba(255,255,255,0.3); font-size: 0.7rem; }
+    .chat-contact-unread {
+      background: var(--gold); color: #000;
+      border-radius: 10px; font-size: 0.68rem; font-weight: 900;
+      padding: 2px 6px; min-width: 18px; text-align: center;
+    }
+    .chat-no-contacts {
+      text-align: center; color: rgba(255,255,255,0.25);
+      font-size: 0.85rem; padding: 40px 20px;
+    }
+
+    /* Thread de mensagens */
+    #chat-thread {
+      position: absolute; inset: 0; background: #060d1a;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    #chat-thread.open { transform: translateX(0); }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 12px 10px;
+      display: flex; flex-direction: column; gap: 6px;
+      scrollbar-width: none;
+    }
+    .chat-date-sep { display: flex; justify-content: center; margin: 8px 0 4px; }
+    .chat-date-pill {
+      background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.2);
+      color: rgba(255,215,0,0.6); font-size: 0.7rem;
+      padding: 3px 14px; border-radius: 12px;
+    }
+    .chat-bubble-row { display: flex; }
+    .chat-bubble-row.recv { justify-content: flex-start; }
+    .chat-bubble-row.sent { justify-content: flex-end; }
+    .chat-bubble {
+      max-width: 76%; padding: 8px 12px; border-radius: 16px;
+      font-size: 0.84rem; line-height: 1.4; word-wrap: break-word;
+    }
+    .chat-bubble.recv {
+      background: rgba(255,255,255,0.09); color: #e8e8e8;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble.sent {
+      background: rgba(0,212,255,0.14); color: #D6F6FF;
+      border: 1px solid rgba(0,212,255,0.25);
+      border-bottom-right-radius: 4px;
+    }
+    .chat-bubble-time { font-size: 0.62rem; opacity: 0.45; display: block; margin-top: 4px; text-align: right; }
+    .chat-thread-empty { text-align: center; color: rgba(255,255,255,0.25); font-size: 0.82rem; margin-top: 30px; }
+    .chat-input-bar {
+      display: flex; gap: 8px; padding: 10px 12px;
+      background: rgba(5,10,24,0.97);
+      border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+    }
+    .chat-input {
+      flex: 1; background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,215,0,0.22); border-radius: 22px;
+      color: white; padding: 10px 14px; font-size: 0.86rem;
+      font-family: 'Nunito', sans-serif; outline: none;
+    }
+    .chat-input:focus { border-color: var(--gold); }
+    .chat-send-btn {
+      background: var(--gold); border: none; border-radius: 50%;
+      width: 40px; height: 40px; flex-shrink: 0;
+      font-size: 1rem; cursor: pointer;
+    }
+    .chat-send-btn:active { transform: scale(0.92); }
 
     /* ══ HERO OVERLAY ══ */
     #hero-overlay {
@@ -1593,20 +1686,29 @@
     </div>
   </div>
 
-  <!-- ══ MODAL DE MENSAGENS (chat com a Mãe) ══ -->
-  <div id="mensagens-modal">
-    <div class="msg-box">
-      <div class="msg-header">
-        <span>💬 Conversa com a Mãe</span>
-        <button onclick="fecharMensagens()">✕</button>
+  <!-- ══ CHAT MENSAGENS (WhatsApp-style) ══ -->
+  <div id="chat-overlay">
+    <!-- Painel 1 — lista de contatos (Mestres) -->
+    <div class="chat-header">
+      <span class="chat-header-title">💬 Mensagens</span>
+      <button class="chat-close-btn" onclick="fecharMensagens()">✕</button>
+    </div>
+    <div class="chat-contact-list" id="chat-contact-list">
+      <div class="chat-no-contacts">⏳ Carregando...</div>
+    </div>
+
+    <!-- Painel 2 — thread (desliza por cima) -->
+    <div id="chat-thread">
+      <div class="chat-header">
+        <button class="chat-back-btn" onclick="voltarParaLista()">‹ <span id="chat-thread-title">Conversa</span></button>
+        <button class="chat-close-btn" onclick="fecharMensagens()">✕</button>
       </div>
-      <div class="msg-list" id="msg-list">
-        <div class="msg-empty">Nenhuma mensagem ainda. Diga olá! 👋</div>
-      </div>
-      <div class="msg-input-row">
-        <input type="text" id="msg-input" class="msg-input" placeholder="Escreva sua mensagem..." maxlength="500"
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-bar">
+        <input type="text" id="chat-input" class="chat-input"
+               placeholder="Escreva uma mensagem..." maxlength="500"
                onkeydown="if(event.key==='Enter') enviarMensagem()">
-        <button class="msg-send-btn" onclick="enviarMensagem()">📨</button>
+        <button class="chat-send-btn" onclick="enviarMensagem()">📨</button>
       </div>
     </div>
   </div>
@@ -1651,7 +1753,6 @@
       </div>
       <div class="hud-actions">
         <span class="hud-icon bell-wrap" id="bell-btn" onclick="verNotificacoes()">🔔<span class="bell-badge" id="bell-badge" style="display:none"></span></span>
-        <span class="hud-icon bell-wrap" id="chat-btn" onclick="abrirMensagens()">💬<span class="bell-badge" id="chat-badge" style="display:none"></span></span>
         <span class="hud-icon" onclick="abrirRanking()" title="Ranking Semanal">🏆</span>
         <span class="hud-icon" id="gear-icon" onclick="abrirSettings()">⚙️</span>
         <span class="btn-trocar" onclick="trocarGuardiao()" title="Trocar Guardião">🔀</span>
@@ -1854,6 +1955,20 @@
           <polygon points="29,30 29.6,31.3 31,31.3 29.9,32.2 30.3,33.5 29,32.7 27.7,33.5 28.1,32.2 27,31.3 28.4,31.3" fill="url(#vchGold)"/>
         </svg>
         <span class="menu-label">Vouchers</span>
+      </div>
+      <div class="menu-item" id="footer-msg-btn" onclick="abrirMensagens()">
+        <span class="msg-badge-footer" id="chat-badge-footer" style="display:none"></span>
+        <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="msgGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FCD34D"/><stop offset="50%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#92400E"/></linearGradient>
+            <filter id="msgShadow"><feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.5"/></filter>
+          </defs>
+          <path d="M6 10 C6 7, 8 5, 11 5 L37 5 C40 5, 42 7, 42 10 L42 28 C42 31, 40 33, 37 33 L20 33 L10 42 L10 33 L11 33 C8 33, 6 31, 6 28 Z" fill="url(#msgGold)" filter="url(#msgShadow)"/>
+          <circle cx="17" cy="19" r="2.8" fill="#78350F"/>
+          <circle cx="24" cy="19" r="2.8" fill="#78350F"/>
+          <circle cx="31" cy="19" r="2.8" fill="#78350F"/>
+        </svg>
+        <span class="menu-label">Mensagens</span>
       </div>
     </div>
   </div>
@@ -4045,8 +4160,11 @@
     ============================================================ */
     let listenerAtivo    = false;
     let filaNotificacoes = [];
-    let msgCache = [];
-    let mensagensNaoLidas = 0;
+    // Chat — estado
+    let msgCache          = {};   // { mestreUid: [{key, de, mestreUid, texto, timestamp}] }
+    let mestresInfo       = {};   // { mestreUid: { nome, emoji } }
+    let selectedMestreUid = null; // conversa aberta
+    let mensagensNaoLidas = {};   // { mestreUid: count }
 
     async function iniciarListeners() {
       if (listenerAtivo) return;
@@ -4098,22 +4216,63 @@
         tocarSino(notif);
       });
 
-      // Mensagens — chat com a Mãe
-      let primeiraMsg = true;
-      db.ref('mensagens/' + emailKey).orderByChild('timestamp').on('child_added', snap => {
-        const msg = snap.val();
-        if (!msg) return;
-        msgCache.push({ key: snap.key, ...msg });
-        if (primeiraMsg) { primeiraMsg = false; renderMensagens(); return; }
-        renderMensagens();
-        if (msg.de !== emailKey) {
-          mensagensNaoLidas++;
-          atualizarBadgeChat();
-          initAudio();
-          vibrate([40, 20, 60]);
-          soundTone(1047, 'sine', 0.2, 0.15, 0.01);
+      // Busca nomes dos Mestres (pai, mãe) do nó /admins
+      db.ref('admins').once('value').then(admSnap => {
+        if (!admSnap.exists()) return;
+        admSnap.forEach(child => {
+          const v = child.val();
+          if (v && typeof v === 'object' && v.nome) {
+            mestresInfo[child.key] = { nome: v.nome, emoji: v.emoji || '⚔️' };
+          } else {
+            mestresInfo[child.key] = { nome: 'Mestre', emoji: '⚔️' };
+          }
+        });
+      }).catch(() => {});
+
+      // Mensagens — carrega histórico e escuta novas
+      const emailKey2 = emailKey;
+      const existingMsgKeys = new Set();
+
+      db.ref('mensagens/' + emailKey2).once('value').then(histSnap => {
+        if (histSnap.exists()) {
+          histSnap.forEach(c => {
+            existingMsgKeys.add(c.key);
+            const msg = c.val();
+            if (!msg) return;
+            const uid = _getMestreUidLegado(msg);
+            if (!msgCache[uid]) msgCache[uid] = [];
+            msgCache[uid].push({ key: c.key, ...msg });
+          });
         }
-      });
+
+        // Agora escuta novos (somente os que ainda não estavam)
+        db.ref('mensagens/' + emailKey2).on('child_added', snap => {
+          if (existingMsgKeys.has(snap.key)) return;
+          existingMsgKeys.add(snap.key);
+          const msg = snap.val();
+          if (!msg) return;
+          const uid = _getMestreUidLegado(msg);
+          if (!msgCache[uid]) msgCache[uid] = [];
+          msgCache[uid].push({ key: snap.key, ...msg });
+
+          // Atualiza thread se estiver aberta
+          if (selectedMestreUid === uid) renderThread(uid);
+          // Atualiza lista se estiver na lista
+          const overlay = document.getElementById('chat-overlay');
+          if (overlay.classList.contains('open') && !selectedMestreUid) renderContactList();
+
+          // Notifica se não for mensagem própria
+          const meuKey = sanitizeEmail(currentUserEmail || '');
+          if (msg.de !== meuKey) {
+            if (!overlay.classList.contains('open') || selectedMestreUid !== uid) {
+              mensagensNaoLidas[uid] = (mensagensNaoLidas[uid] || 0) + 1;
+              atualizarBadgeChat();
+              initAudio(); vibrate([40, 20, 60]);
+              soundTone(1047, 'sine', 0.2, 0.15, 0.01);
+            }
+          }
+        });
+      }).catch(() => {});
     }
 
     function tocarSino(notif) {
@@ -4197,62 +4356,135 @@
     }
 
     /* ============================================================
-       MENSAGENS — chat com a Mãe
+       CHAT — WhatsApp-style
     ============================================================ */
+
+    function _getMestreUidLegado(msg) {
+      // Mensagens antigas sem mestreUid: atribui ao primeiro Mestre
+      if (msg.mestreUid) return msg.mestreUid;
+      const uids = Object.keys(mestresInfo);
+      return uids.length > 0 ? uids[0] : '_mestre';
+    }
+
+    function _formatContactTime(ts) {
+      if (!ts) return '';
+      const d = new Date(ts), now = new Date();
+      const diff = Math.floor((now - d) / 86400000);
+      if (diff === 0) return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      if (diff === 1) return 'ontem';
+      if (diff < 7) return ['dom','seg','ter','qua','qui','sex','sáb'][d.getDay()];
+      return d.toLocaleDateString('pt-BR');
+    }
+
+    function _formatDateSep(ts) {
+      const d = new Date(ts), now = new Date();
+      const dDay  = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diff  = Math.round((today - dDay) / 86400000);
+      if (diff === 0) return 'Hoje';
+      if (diff === 1) return 'Ontem';
+      if (diff < 7) return ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'][d.getDay()];
+      return d.toLocaleDateString('pt-BR');
+    }
+
     function atualizarBadgeChat() {
-      const badge = document.getElementById('chat-badge');
+      const badge = document.getElementById('chat-badge-footer');
       if (!badge) return;
-      badge.style.display = mensagensNaoLidas > 0 ? 'block' : 'none';
+      const total = Object.values(mensagensNaoLidas).reduce((a, b) => a + b, 0);
+      badge.style.display = total > 0 ? 'block' : 'none';
+      if (total > 0) badge.textContent = total > 9 ? '9+' : total;
     }
 
     function abrirMensagens() {
-      initAudio();
-      vibrate(30);
-      soundTone(700, 'sine', 0.12, 0.12, 0.005);
-      mensagensNaoLidas = 0;
-      atualizarBadgeChat();
-      document.getElementById('mensagens-modal').classList.add('open');
-      renderMensagens();
-      setTimeout(() => {
-        const lista = document.getElementById('msg-list');
-        if (lista) lista.scrollTop = lista.scrollHeight;
-        const inp = document.getElementById('msg-input');
-        if (inp) inp.focus();
-      }, 100);
+      initAudio(); vibrate(20);
+      document.getElementById('chat-overlay').classList.add('open');
+      renderContactList();
     }
 
     function fecharMensagens() {
-      vibrate(20);
-      document.getElementById('mensagens-modal').classList.remove('open');
+      document.getElementById('chat-overlay').classList.remove('open');
+      document.getElementById('chat-thread').classList.remove('open');
+      selectedMestreUid = null;
+      vibrate(15);
     }
 
-    function escapeHtmlMsg(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
+    function voltarParaLista() {
+      document.getElementById('chat-thread').classList.remove('open');
+      selectedMestreUid = null;
+      renderContactList();
     }
 
-    function renderMensagens() {
-      const lista = document.getElementById('msg-list');
-      if (!lista) return;
-      if (!msgCache.length) {
-        lista.innerHTML = '<div class="msg-empty">Nenhuma mensagem ainda. Diga olá! 👋</div>';
+    function abrirConversa(mestreUid) {
+      selectedMestreUid = mestreUid;
+      mensagensNaoLidas[mestreUid] = 0;
+      atualizarBadgeChat();
+      const info = mestresInfo[mestreUid] || { nome: 'Mestre', emoji: '⚔️' };
+      document.getElementById('chat-thread-title').textContent =
+        info.emoji + ' Conversa com ' + info.nome;
+      renderThread(mestreUid);
+      document.getElementById('chat-thread').classList.add('open');
+    }
+
+    function renderContactList() {
+      const list = document.getElementById('chat-contact-list');
+      if (!list) return;
+      const uids = Object.keys(mestresInfo);
+      if (!uids.length) {
+        list.innerHTML = '<div class="chat-no-contacts">Nenhum Mestre disponível ainda.</div>';
         return;
       }
+      list.innerHTML = uids.map(uid => {
+        const info = mestresInfo[uid] || { nome: 'Mestre', emoji: '⚔️' };
+        const msgs = (msgCache[uid] || []).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        const last = msgs[msgs.length - 1];
+        const unread = mensagensNaoLidas[uid] || 0;
+        const preview = last ? escapeHtmlMsg(last.texto || '') : 'Sem mensagens ainda';
+        const time   = last ? _formatContactTime(last.timestamp) : '';
+        return `<div class="chat-contact-item" onclick="abrirConversa('${uid}')">
+          <div class="chat-contact-avatar">${info.emoji}</div>
+          <div class="chat-contact-info">
+            <div class="chat-contact-name">${escapeHtmlMsg(info.nome)}</div>
+            <div class="chat-contact-preview">${preview}</div>
+          </div>
+          <div class="chat-contact-meta">
+            <span class="chat-contact-time">${time}</span>
+            ${unread > 0 ? `<span class="chat-contact-unread">${unread > 9 ? '9+' : unread}</span>` : '<span style="width:18px"></span>'}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function renderThread(mestreUid) {
+      const area = document.getElementById('chat-messages');
+      if (!area) return;
       const emailKey = currentUserEmail ? sanitizeEmail(currentUserEmail) : '';
-      const ordenadas = [...msgCache].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-      lista.innerHTML = ordenadas.map(m => {
+      const msgs = (msgCache[mestreUid] || []).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      if (!msgs.length) {
+        area.innerHTML = '<div class="chat-thread-empty">Nenhuma mensagem ainda. Diga olá! 👋</div>';
+        return;
+      }
+      let html = '', lastSep = null;
+      msgs.forEach(m => {
+        const sep = _formatDateSep(m.timestamp);
+        if (sep !== lastSep) {
+          html += `<div class="chat-date-sep"><span class="chat-date-pill">${sep}</span></div>`;
+          lastSep = sep;
+        }
         const minha = m.de === emailKey;
-        const hora = m.timestamp
+        const hora  = m.timestamp
           ? new Date(m.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
           : '';
-        return `<div class="msg-bubble ${minha ? 'minha' : 'dela'}">${escapeHtmlMsg(m.texto || '')}<span class="msg-time">${hora}</span></div>`;
-      }).join('');
-      lista.scrollTop = lista.scrollHeight;
+        html += `<div class="chat-bubble-row ${minha ? 'sent' : 'recv'}">
+          <div class="chat-bubble ${minha ? 'sent' : 'recv'}">${escapeHtmlMsg(m.texto || '')}<span class="chat-bubble-time">${hora}</span></div>
+        </div>`;
+      });
+      area.innerHTML = html;
+      area.scrollTop = area.scrollHeight;
     }
 
     async function enviarMensagem() {
-      const input = document.getElementById('msg-input');
+      if (!selectedMestreUid) return;
+      const input = document.getElementById('chat-input');
       const texto = input.value.trim();
       if (!texto || !currentUserEmail) return;
       input.value = '';
@@ -4261,15 +4493,17 @@
         await garantirAuth();
         await db.ref('mensagens/' + emailKey).push({
           de: emailKey,
-          texto: texto,
+          mestreUid: selectedMestreUid,
+          texto,
           timestamp: new Date().toISOString()
         });
         vibrate(20);
         soundTone(900, 'sine', 0.1, 0.12, 0.005);
-        enviarPush('_mestre', `💬 ${currentUserNome || 'Guardião'}`, texto, 'mensagem', { emailKey });
+        enviarPush(selectedMestreUid, `💬 ${currentUserNome || 'Guardião'}`, texto,
+          'mensagem', { emailKey, mestreUid: selectedMestreUid });
       } catch (e) {
         input.value = texto;
-        oraMsg('❌ Não foi possível enviar a mensagem. Tente novamente.');
+        oraMsg('❌ Não foi possível enviar. Tente novamente.');
       }
     }
 
