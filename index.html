@@ -2527,14 +2527,23 @@
       }
     }
 
+    // Garante que auth E device_uid estão prontos antes de qualquer escrita.
+    // Chamado antes de cada pedido (leitura, voucher, missão, forja).
+    async function garantirPronto() {
+      await garantirAuth();
+      if (currentUserEmail) {
+        await vincularDispositivo(sanitizeEmail(currentUserEmail));
+      }
+    }
+
     /* ============================================================
        PUSH NOTIFICATIONS — funciona com o app fechado
        O envio em si passa por um Worker externo que guarda a
        credencial secreta. O app só pede pra ele enviar, provando sua
        identidade com o token do Firebase Auth.
     ============================================================ */
-    const PUSH_WORKER_URL = 'https://minutinhos-push.douglasdias-dfd.workers.dev';
-    const VAPID_PUBLIC_KEY = 'BAFX4PUHmQ4qT_Fyk9n9entF-RiEZaoIMki3FrqAQS_0tBiyFLes7C-bpZqr7eW0C5UYzlCQwho6sre3WTbMGPs';
+    const PUSH_WORKER_URL = 'https://minutinhos-push.SEU-SUBDOMINIO.workers.dev';
+    const VAPID_PUBLIC_KEY = 'COLE_AQUI_A_CHAVE_PUBLICA_VAPID_DO_FIREBASE';
 
     async function enviarPush(destinoKey, titulo, mensagem, tipo, dados) {
       try {
@@ -2954,6 +2963,7 @@
 
       (async () => {
         try {
+          await garantirPronto();
           const userKey = sanitizeEmail(currentUserEmail);
           const userRef = db.ref('usuarios/' + userKey);
           const snap = await userRef.get();
@@ -4415,6 +4425,7 @@
         '📜', 'Sim, cancelar pedido'
       );
       if (!ok) return;
+      await garantirPronto();
       const emailKey = sanitizeEmail(currentUserEmail);
       try {
         await db.ref('vouchers/' + emailKey + '/' + vkey).remove();
@@ -4515,6 +4526,7 @@
         soundError(); vibrate([80, 40, 80]); return;
       }
 
+      await garantirPronto();
       const emailKey = sanitizeEmail(currentUserEmail);
 
       // Verifica saldo
@@ -4779,6 +4791,7 @@
 
     async function solicitarMissao(artefatoKey) {
       if (!currentUserEmail) return;
+      await garantirPronto();
       const emailKey = sanitizeEmail(currentUserEmail);
 
       // Verifica se já tem pendente para este artefato
@@ -4837,6 +4850,7 @@
         '⚔️', 'Sim, cancelar missão'
       );
       if (!ok) return;
+      await garantirPronto();
       const emailKey = sanitizeEmail(currentUserEmail);
       try {
         await db.ref('missoes/' + emailKey + '/' + mkey).remove();
