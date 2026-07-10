@@ -2721,6 +2721,10 @@
       cardsEl.innerHTML = '<div class="gs-loading">⏳ Convocando Guardiões...</div>';
 
       try {
+        // Garante autenticação anônima antes de qualquer leitura do Firebase
+        // (as regras exigem auth != null para ler /usuarios)
+        await garantirAuth();
+
         const snap = await db.ref('usuarios').get();
         const usuarios = snap.exists() ? snap.val() : {};
 
@@ -2813,6 +2817,8 @@
 
     async function loadData() {
       try {
+        // Garante autenticação antes de ler qualquer dado
+        await garantirAuth();
         const userKey = sanitizeEmail(currentUserEmail);
         const userSnap = await db.ref('usuarios/' + userKey).get();
         if (!userSnap.exists()) {
