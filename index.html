@@ -1649,6 +1649,8 @@
       <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
         <div><div class="settings-label">🔔 Notificações no celular</div><div class="settings-sublabel">Avisos mesmo com o app fechado</div></div>
         <button id="btn-ativar-push" class="settings-close" style="margin-top:0;" onclick="ativarNotificacoesPush()">🔔 Ativar Notificações</button>
+        <button class="settings-close" style="margin-top:0;background:#5a3d8a;font-size:0.8rem;" onclick="diagnosticarPush()">🩺 Diagnosticar Notificações</button>
+        <pre id="diag-push-out" style="display:none;white-space:pre-wrap;word-break:break-word;font-size:0.62rem;line-height:1.35;background:rgba(0,0,0,0.55);color:#d8d8e8;padding:8px;border-radius:8px;max-height:210px;overflow:auto;margin:0;"></pre>
       </div>
       <button class="settings-close" onclick="fecharSettings()">⚔ Fechar</button>
     </div>
@@ -2688,48 +2690,63 @@
     }
 
     async function ativarNotificacoesPush() {
+      const btn = document.getElementById('btn-ativar-push');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Ativando...'; }
       try {
-        if (!('serviceWorker' in navigator) || !('Notification' in window)) {
-          oraMsg('⚠️ Este navegador não suporta notificações.');
-          return;
-        }
         const permissao = await Notification.requestPermission();
         if (permissao !== 'granted') {
-          oraMsg('🔔 Notificações não autorizadas. Você pode ativar depois nas Configurações do celular.');
-          return;
+          throw new Error('Permissão negada pelo navegador/celular. Autorize notificações para este site nas Configurações do aparelho.');
         }
         await garantirAuth();
-        if (currentUserEmail) {
-          await registrarTokenFCM(sanitizeEmail(currentUserEmail));
-          const btn = document.getElementById('btn-ativar-push');
-          if (btn) btn.textContent = '🔔 Notificações ativadas';
-          oraMsg('🔔 Notificações ativadas! Você será avisado mesmo com o app fechado.');
-        }
+        if (!currentUserEmail) throw new Error('Nenhum Guardião selecionado.');
+
+        await registrarTokenFCM(sanitizeEmail(currentUserEmail));
+
+        if (btn) btn.textContent = '🔔 Notificações ativadas';
+        oraMsg('🔔 Notificações ativadas! Você será avisado mesmo com o app fechado.');
       } catch (e) {
-        console.warn('Erro ao ativar push:', e.message);
-        oraMsg('⚠️ Não foi possível ativar as notificações agora.');
+        // NÃO engolir o erro: sem isso, o botão mentia "ativadas" e o token
+        // nunca chegava no banco — foi exatamente o que nos cegou por semanas.
+        if (btn) btn.textContent = '🔔 Ativar Notificações';
+        oraMsg('⚠️ Falhou: ' + (e && e.message ? e.message : e));
+        _pushUltimoErro = (e && e.message) ? e.message : String(e);
+        console.error('ativarNotificacoesPush:', e);
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
 
     /* ============================================================
-       RENOVAÇÃO DE TOKEN FCM (Metade B do item 2)
-       O token FCM é ROTACIONADO pelo Firebase de tempos em tempos.
-       Antes ele só era gravado no botão "Ativar" e nunca renovado:
-       quando rotacionava, o Worker apagava o token morto (certo) mas
-       nada gravava o novo => o push parava de chegar em silêncio.
-       Agora renovamos a cada carregamento (só se a permissão já foi
-       concedida) e gravamos sob um ID de dispositivo ESTÁVEL, então o
-       mesmo aparelho sempre sobrescreve o próprio registro (sem
-       acumular tokens nem gerar push duplicado).
+       REGISTRO / RENOVAÇÃO DE TOKEN FCM
+       Sem um token gravado em /fcm_tokens/{guardiao}, o Worker não tem
+       para onde enviar e retorna {enviados: 0} — ou seja, NENHUM push sai.
+       Por isso esta função agora PROPAGA os erros (antes eram engolidos em
+       console.warn, e o botão dizia "ativadas" mesmo tendo falhado).
+       O token também é renovado a cada carregamento (o Firebase o rotaciona)
+       e gravado sob um ID de dispositivo ESTÁVEL, para o mesmo aparelho
+       sobrescrever o próprio registro em vez de acumular tokens.
     ============================================================ */
-    async function registrarTokenFCM(emailKey) {
+    let _pushUltimoErro = null;
+
+    async function registrarTokenFCM(emailKey, silencioso) {
       try {
-        if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
-        if (Notification.permission !== 'granted' || !emailKey) return;
+        if (!emailKey) throw new Error('Guardião não identificado.');
+        if (!('serviceWorker' in navigator)) throw new Error('Este navegador não suporta Service Worker.');
+        if (!('Notification' in window)) throw new Error('Este navegador não suporta notificações.');
+        if (!('PushManager' in window)) throw new Error('Este navegador não suporta Push (no iPhone: instale o app na Tela de Início).');
+        if (Notification.permission !== 'granted') {
+          if (silencioso) return null; // no load, não incomoda quem nunca ativou
+          throw new Error('Permissão de notificação não concedida.');
+        }
+        if (firebase.messaging && firebase.messaging.isSupported) {
+          const ok = await firebase.messaging.isSupported();
+          if (!ok) throw new Error('FCM não é suportado neste navegador/dispositivo.');
+        }
+
         const reg = await navigator.serviceWorker.ready;
         const messaging = guardiaoApp.messaging();
         const token = await messaging.getToken({ vapidKey: VAPID_PUBLIC_KEY, serviceWorkerRegistration: reg });
-        if (!token) return;
+        if (!token) throw new Error('getToken() retornou vazio (verifique a chave VAPID no Firebase Console).');
 
         let deviceId = localStorage.getItem('fcm_device_id');
         if (!deviceId) {
@@ -2737,25 +2754,76 @@
           localStorage.setItem('fcm_device_id', deviceId);
         }
 
-        const base = db.ref('fcm_tokens/' + emailKey);
-        // Remove registros antigos (formato push()) com o MESMO token, pra não
-        // gerar push duplicado. A criança pode não ter permissão de LEITURA aqui
-        // (a lista é admin-only); se falhar, apenas seguimos e sobrescrevemos o nó.
-        try {
-          const snap = await base.get();
-          if (snap.exists()) {
-            const updates = {};
-            snap.forEach(c => { if (c.key !== deviceId && c.val() && c.val().token === token) updates[c.key] = null; });
-            if (Object.keys(updates).length) await base.update(updates);
-          }
-        } catch (_) { /* sem permissão de leitura — ok */ }
-
-        await base.child(deviceId).set({
+        // Escreve em fcm_tokens/{emailKey}/{deviceId} — nível exigido pelas regras.
+        await db.ref('fcm_tokens/' + emailKey + '/' + deviceId).set({
           token, criadoEm: new Date().toISOString(), ua: navigator.userAgent.substring(0, 120)
         });
+
+        _pushUltimoErro = null;
+        return token;
       } catch (e) {
-        console.warn('registrarTokenFCM:', e.message);
+        _pushUltimoErro = (e && e.message) ? e.message : String(e);
+        if (silencioso) { console.warn('registrarTokenFCM:', _pushUltimoErro); return null; }
+        throw e;
       }
+    }
+
+    /* ── DIAGNÓSTICO DE PUSH (visível no celular, sem console) ──
+       Roda cada etapa em ordem e mostra exatamente qual falhou. */
+    async function diagnosticarPush() {
+      const L = [];
+      const ok = (t) => L.push('✅ ' + t);
+      const no = (t) => L.push('❌ ' + t);
+      const inf = (t) => L.push('•  ' + t);
+
+      inf('UA: ' + navigator.userAgent.substring(0, 80));
+      location.protocol === 'https:' || location.hostname === 'localhost'
+        ? ok('HTTPS (contexto seguro)') : no('NÃO está em HTTPS — push exige HTTPS');
+
+      const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      inf('Instalado na Tela de Início (PWA): ' + (standalone ? 'SIM' : 'NÃO'));
+
+      'serviceWorker' in navigator ? ok('Service Worker suportado') : no('Service Worker NÃO suportado');
+      'Notification' in window ? ok('Notification API suportada') : no('Notification API NÃO suportada');
+      'PushManager' in window ? ok('PushManager suportado')
+        : no('PushManager NÃO suportado (iPhone: precisa instalar na Tela de Início)');
+      inf('Permissão atual: ' + (window.Notification ? Notification.permission : 'n/d'));
+
+      try {
+        if (firebase.messaging && firebase.messaging.isSupported) {
+          (await firebase.messaging.isSupported()) ? ok('FCM suportado') : no('FCM NÃO suportado aqui');
+        }
+      } catch (e) { no('isSupported() erro: ' + e.message); }
+
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        ok('Service Worker ativo (scope: ' + reg.scope + ')');
+      } catch (e) { no('Service Worker não ficou pronto: ' + e.message); }
+
+      try {
+        const u = await garantirAuth();
+        ok('Autenticado (uid: ' + u.uid.substring(0, 10) + '…)');
+      } catch (e) { no('Falha na autenticação: ' + e.message); }
+
+      inf('Guardião: ' + (currentUserEmail || '(nenhum)'));
+
+      if (Notification.permission === 'granted') {
+        try {
+          const t = await registrarTokenFCM(sanitizeEmail(currentUserEmail));
+          ok('Token FCM obtido e GRAVADO no banco');
+          inf('Token: ' + String(t).substring(0, 28) + '…');
+        } catch (e) {
+          no('FALHOU AQUI → ' + e.message);
+        }
+      } else {
+        no('Permissão não concedida — toque em "Ativar Notificações" primeiro');
+      }
+
+      const texto = L.join('\n');
+      const box = document.getElementById('diag-push-out');
+      if (box) { box.style.display = 'block'; box.textContent = texto; }
+      try { await navigator.clipboard.writeText(texto); } catch (e) {}
+      return texto;
     }
 
     /* ============================================================
@@ -4232,7 +4300,7 @@
 
       // Mantém o token FCM fresco a cada carregamento (só age se a permissão
       // já foi concedida antes; não dispara pedido de permissão no load).
-      registrarTokenFCM(emailKey);
+      registrarTokenFCM(emailKey, true);
 
       // Listener do usuário — recarrega tudo quando houver mudança
       // (cobre reset de dados, aprovação de leituras, alterações do Mestre)
