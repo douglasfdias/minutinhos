@@ -2613,12 +2613,22 @@
     let authPronto = null;
     function garantirAuth() {
       if (authPronto) return authPronto;
-      authPronto = new Promise((resolve) => {
+      authPronto = new Promise((resolve, reject) => {
+        // Timeout de segurança: se em 8s não houver auth, mostra erro claro
+        const timeout = setTimeout(() => {
+          reject(new Error('Login anônimo não habilitado no Firebase. Ative em Authentication → Sign-in method → Anonymous.'));
+        }, 8000);
+
         const unsub = auth.onAuthStateChanged(user => {
-          if (user) { unsub(); resolve(user); }
+          if (user) { clearTimeout(timeout); unsub(); resolve(user); }
         });
-        auth.signInAnonymously().catch(e => console.warn('Falha no auth anônimo:', e.message));
+        auth.signInAnonymously().catch(e => {
+          clearTimeout(timeout); unsub();
+          reject(new Error('Falha no login anônimo: ' + e.message + ' — Verifique se está ativado no Firebase Console.'));
+        });
       });
+      // Se falhar, limpa o cache para permitir nova tentativa futura
+      authPronto.catch(() => { authPronto = null; });
       return authPronto;
     }
 
@@ -2721,10 +2731,8 @@
       cardsEl.innerHTML = '<div class="gs-loading">⏳ Convocando Guardiões...</div>';
 
       try {
-        // Garante autenticação anônima antes de qualquer leitura do Firebase
-        // (as regras exigem auth != null para ler /usuarios)
+        // Garante autenticação antes de ler qualquer dado
         await garantirAuth();
-
         const snap = await db.ref('usuarios').get();
         const usuarios = snap.exists() ? snap.val() : {};
 
@@ -2756,8 +2764,10 @@
           cardsEl.appendChild(card);
         });
       } catch(e) {
-        // Fallback: mostrar mensagem de erro
-        cardsEl.innerHTML = '<div class="gs-loading">⚠️ Erro ao carregar Guardiões. Verifique a conexão.</div>';
+        const msg = e.message && e.message.includes('anônimo')
+          ? '🔐 Login anônimo desativado.<br><small>Ative em Firebase Console → Auth → Anonymous</small>'
+          : '⚠️ Erro ao carregar Guardiões.<br><small>' + (e.message || 'Verifique a conexão.') + '</small>';
+        cardsEl.innerHTML = `<div class="gs-loading">${msg}</div>`;
       }
     }
 
