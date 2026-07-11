@@ -2592,9 +2592,15 @@
       messagingSenderId: "205117538078",
       appId: "1:205117538078:web:33a0c88a10c6b3d7f5930f"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const auth = firebase.auth();
+    // ISOLAMENTO POR INSTÂNCIA NOMEADA (previne a contaminação do device_uid).
+    // O painel do Mestre roda no MESMO domínio e usa a app default ([DEFAULT]).
+    // Ao nomear a instância das crianças de 'guardiao', a sessão anônima passa a
+    // usar uma CHAVE DE ARMAZENAMENTO diferente no navegador — então o app das
+    // crianças nunca mais herda a sessão de login do Mestre (nem vice-versa).
+    // Ver CONTINUIDADE.md §9.1 (bug) e §10 item 1 (esta correção definitiva).
+    const guardiaoApp = firebase.initializeApp(firebaseConfig, 'guardiao');
+    const db = guardiaoApp.database();
+    const auth = guardiaoApp.auth();
 
     function sanitizeEmail(email) {
       return email.replace(/\./g, '_');
@@ -2694,7 +2700,7 @@
         }
         await garantirAuth();
         const reg = await navigator.serviceWorker.ready;
-        const messaging = firebase.messaging();
+        const messaging = guardiaoApp.messaging();
         const token = await messaging.getToken({ vapidKey: VAPID_PUBLIC_KEY, serviceWorkerRegistration: reg });
         if (token && currentUserEmail) {
           const emailKey = sanitizeEmail(currentUserEmail);
