@@ -4216,14 +4216,50 @@
       // Listener do Baú de Artefatos
       _iniciarListenerBau();
 
-      // Notificações — enfileira e toca sino
-      db.ref('notificacoes/' + emailKey).on('child_added', snap => {
-        const notif = snap.val();
-        if (!notif) return;
-        filaNotificacoes.push(notif);
-        snap.ref.remove();
-        tocarSino(notif);
-      });
+      // Notificações — drena o acúmulo em SILÊNCIO e só depois escuta as novas.
+      // (Antes: tocava o sino para cada item da pilha ao abrir o app, o que
+      //  causava uma tempestade de som/vibração quando havia notificações
+      //  acumuladas — ex.: período em que o device_uid estava quebrado.)
+      const notifRef    = db.ref('notificacoes/' + emailKey);
+      const notifVistas = new Set();
+      let   sinoLote    = [];
+      let   sinoTimer   = null;
+
+      function _dispararSinoLote() {
+        const lote = sinoLote.splice(0);
+        if (!lote.length) return;
+        atualizarBadge();
+        // Um único toque para o lote inteiro; o Oráculo fala a mais recente.
+        tocarSino(lote[lote.length - 1]);
+      }
+
+      notifRef.once('value').then(snap => {
+        // 1) Backlog: guarda na fila (para o sino mostrar quando tocado),
+        //    apaga do banco e atualiza o badge — porém SEM som/vibração.
+        if (snap.exists()) {
+          snap.forEach(c => {
+            notifVistas.add(c.key);
+            const n = c.val();
+            if (n) filaNotificacoes.push(n);
+            c.ref.remove().catch(() => {});
+          });
+          atualizarBadge();
+        }
+
+        // 2) A partir daqui, escuta apenas notificações NOVAS.
+        notifRef.on('child_added', s => {
+          if (notifVistas.has(s.key)) return;   // ignora o que já veio no backlog
+          notifVistas.add(s.key);
+          const notif = s.val();
+          s.ref.remove().catch(() => {});
+          if (!notif) return;
+          filaNotificacoes.push(notif);
+          // Agrupa rajadas: várias notificações em <1s viram UM único sino.
+          sinoLote.push(notif);
+          clearTimeout(sinoTimer);
+          sinoTimer = setTimeout(_dispararSinoLote, 700);
+        });
+      }).catch(() => {});
 
       // Busca nomes dos Mestres (pai, mãe) do nó /admins
       _carregarMestresInfo().then(() => {
