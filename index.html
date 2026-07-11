@@ -2699,16 +2699,8 @@
           return;
         }
         await garantirAuth();
-        const reg = await navigator.serviceWorker.ready;
-        const messaging = guardiaoApp.messaging();
-        const token = await messaging.getToken({ vapidKey: VAPID_PUBLIC_KEY, serviceWorkerRegistration: reg });
-        if (token && currentUserEmail) {
-          const emailKey = sanitizeEmail(currentUserEmail);
-          await db.ref('fcm_tokens/' + emailKey).push({
-            token: token,
-            criadoEm: new Date().toISOString(),
-            ua: navigator.userAgent.substring(0, 120)
-          });
+        if (currentUserEmail) {
+          await registrarTokenFCM(sanitizeEmail(currentUserEmail));
           const btn = document.getElementById('btn-ativar-push');
           if (btn) btn.textContent = '🔔 Notificações ativadas';
           oraMsg('🔔 Notificações ativadas! Você será avisado mesmo com o app fechado.');
@@ -2716,6 +2708,53 @@
       } catch (e) {
         console.warn('Erro ao ativar push:', e.message);
         oraMsg('⚠️ Não foi possível ativar as notificações agora.');
+      }
+    }
+
+    /* ============================================================
+       RENOVAÇÃO DE TOKEN FCM (Metade B do item 2)
+       O token FCM é ROTACIONADO pelo Firebase de tempos em tempos.
+       Antes ele só era gravado no botão "Ativar" e nunca renovado:
+       quando rotacionava, o Worker apagava o token morto (certo) mas
+       nada gravava o novo => o push parava de chegar em silêncio.
+       Agora renovamos a cada carregamento (só se a permissão já foi
+       concedida) e gravamos sob um ID de dispositivo ESTÁVEL, então o
+       mesmo aparelho sempre sobrescreve o próprio registro (sem
+       acumular tokens nem gerar push duplicado).
+    ============================================================ */
+    async function registrarTokenFCM(emailKey) {
+      try {
+        if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+        if (Notification.permission !== 'granted' || !emailKey) return;
+        const reg = await navigator.serviceWorker.ready;
+        const messaging = guardiaoApp.messaging();
+        const token = await messaging.getToken({ vapidKey: VAPID_PUBLIC_KEY, serviceWorkerRegistration: reg });
+        if (!token) return;
+
+        let deviceId = localStorage.getItem('fcm_device_id');
+        if (!deviceId) {
+          deviceId = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+          localStorage.setItem('fcm_device_id', deviceId);
+        }
+
+        const base = db.ref('fcm_tokens/' + emailKey);
+        // Remove registros antigos (formato push()) com o MESMO token, pra não
+        // gerar push duplicado. A criança pode não ter permissão de LEITURA aqui
+        // (a lista é admin-only); se falhar, apenas seguimos e sobrescrevemos o nó.
+        try {
+          const snap = await base.get();
+          if (snap.exists()) {
+            const updates = {};
+            snap.forEach(c => { if (c.key !== deviceId && c.val() && c.val().token === token) updates[c.key] = null; });
+            if (Object.keys(updates).length) await base.update(updates);
+          }
+        } catch (_) { /* sem permissão de leitura — ok */ }
+
+        await base.child(deviceId).set({
+          token, criadoEm: new Date().toISOString(), ua: navigator.userAgent.substring(0, 120)
+        });
+      } catch (e) {
+        console.warn('registrarTokenFCM:', e.message);
       }
     }
 
@@ -4190,6 +4229,10 @@
       // (as regras de segurança exigem device_uid já gravado para ler
       // /mensagens, /vouchers e /missoes deste Guardião)
       await vincularDispositivo(emailKey);
+
+      // Mantém o token FCM fresco a cada carregamento (só age se a permissão
+      // já foi concedida antes; não dispara pedido de permissão no load).
+      registrarTokenFCM(emailKey);
 
       // Listener do usuário — recarrega tudo quando houver mudança
       // (cobre reset de dados, aprovação de leituras, alterações do Mestre)
