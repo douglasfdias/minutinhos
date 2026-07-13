@@ -1650,6 +1650,7 @@
         <div><div class="settings-label">🔔 Notificações no celular</div><div class="settings-sublabel">Avisos mesmo com o app fechado</div></div>
         <button id="btn-ativar-push" class="settings-close" style="margin-top:0;" onclick="ativarNotificacoesPush()">🔔 Ativar Notificações</button>
         <button class="settings-close" style="margin-top:0;background:#5a3d8a;font-size:0.8rem;" onclick="diagnosticarPush()">🩺 Diagnosticar Notificações</button>
+        <div id="app-versao-txt" style="font-size:0.62rem;opacity:0.55;text-align:center;margin-top:2px;"></div>
         <pre id="diag-push-out" style="display:none;white-space:pre-wrap;word-break:break-word;font-size:0.62rem;line-height:1.35;background:rgba(0,0,0,0.55);color:#d8d8e8;padding:8px;border-radius:8px;max-height:210px;overflow:auto;margin:0;"></pre>
       </div>
       <button class="settings-close" onclick="fecharSettings()">⚔ Fechar</button>
@@ -2726,6 +2727,7 @@
        e gravado sob um ID de dispositivo ESTÁVEL, para o mesmo aparelho
        sobrescrever o próprio registro em vez de acumular tokens.
     ============================================================ */
+    const APP_VERSAO = 'v29';
     let _pushUltimoErro = null;
 
     async function registrarTokenFCM(emailKey, silencioso) {
@@ -2770,12 +2772,19 @@
 
     /* ── DIAGNÓSTICO DE PUSH (visível no celular, sem console) ──
        Roda cada etapa em ordem e mostra exatamente qual falhou. */
+    // Mostra a versão na tela de Configurações (confirma se o deploy chegou)
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('app-versao-txt');
+      if (el) el.textContent = 'Versão do app: ' + APP_VERSAO;
+    });
+
     async function diagnosticarPush() {
       const L = [];
       const ok = (t) => L.push('✅ ' + t);
       const no = (t) => L.push('❌ ' + t);
       const inf = (t) => L.push('•  ' + t);
 
+      inf('VERSÃO DO APP: ' + APP_VERSAO);
       inf('UA: ' + navigator.userAgent.substring(0, 80));
       location.protocol === 'https:' || location.hostname === 'localhost'
         ? ok('HTTPS (contexto seguro)') : no('NÃO está em HTTPS — push exige HTTPS');
