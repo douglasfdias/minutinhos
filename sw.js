@@ -25,8 +25,8 @@ messaging.onBackgroundMessage((payload) => {
   const corpo = payload.notification?.body || '';
   self.registration.showNotification(titulo, {
     body: corpo,
-    icon: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
-    badge: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
+    icon: (payload.data && payload.data.icone) || '/minutinhos/icon-192.png',
+    badge: '/minutinhos/icon-192.png',
     vibrate: [60, 30, 60, 30, 120],
     data: payload.data || {},
     tag: payload.data?.tipo || 'minutinhos'
@@ -46,7 +46,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-const CACHE_NAME = 'minutinhos-v29';
+const CACHE_NAME = 'minutinhos-v30';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
