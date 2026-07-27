@@ -2733,7 +2733,7 @@
        e gravado sob um ID de dispositivo ESTÁVEL, para o mesmo aparelho
        sobrescrever o próprio registro em vez de acumular tokens.
     ============================================================ */
-    const APP_VERSAO = 'v30';
+    const APP_VERSAO = 'v31';
     let _pushUltimoErro = null;
     let _pushUltimaResposta = null;
 
@@ -4269,6 +4269,17 @@
             }
           });
         });
+
+        // Procura versão nova ao abrir, ao voltar para o app e a cada 30 min.
+        // Sem isto o navegador só checava quando bem entendia — e num PWA
+        // instalado que fica em memória a atualização podia nunca chegar.
+        const checar = () => reg.update().catch(() => {});
+        checar();
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') checar();
+        });
+        window.addEventListener('focus', checar);
+        setInterval(checar, 30 * 60 * 1000);
       }).catch(() => {});
 
       // Quando o SW assumir controle, recarrega a página
