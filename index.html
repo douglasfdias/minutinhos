@@ -2676,7 +2676,7 @@
       try {
         const user = await garantirAuth();
         const idToken = await user.getIdToken();
-        await fetch(PUSH_WORKER_URL + '/notify', {
+        const resp = await fetch(PUSH_WORKER_URL + '/notify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
           body: JSON.stringify({
@@ -2684,6 +2684,12 @@
             destinoKey, titulo, mensagem, tipo, dados
           })
         });
+        // Um 403/400 do Worker não lança exceção — precisa ser lido do corpo.
+        // Sem isso, a falha some e o app parece ter enviado normalmente.
+        const r = await resp.json().catch(() => ({}));
+        _pushUltimaResposta = { status: resp.status, ...r };
+        if (!resp.ok || r.erro) console.warn('Push recusado pelo Worker:', _pushUltimaResposta);
+        else if (r.enviados === 0) console.warn('Push aceito, mas nenhum token no destino:', destinoKey);
       } catch (e) {
         // Falha de push nunca deve travar a ação principal do app
         console.warn('Push não enviado:', e.message);
@@ -2727,8 +2733,9 @@
        e gravado sob um ID de dispositivo ESTÁVEL, para o mesmo aparelho
        sobrescrever o próprio registro em vez de acumular tokens.
     ============================================================ */
-    const APP_VERSAO = 'v29';
+    const APP_VERSAO = 'v30';
     let _pushUltimoErro = null;
+    let _pushUltimaResposta = null;
 
     async function registrarTokenFCM(emailKey, silencioso) {
       try {
@@ -4694,7 +4701,10 @@
         });
         vibrate(20);
         soundTone(900, 'sine', 0.1, 0.12, 0.005);
-        enviarPush(selectedMestreUid, `💬 ${currentUserNome || 'Guardião'}`, texto,
+        // O Worker só aceita '_mestre' como destino vindo de um não-admin
+        // (qualquer outro valor devolve 403). Antes mandávamos o UID do Mestre,
+        // e o 403 era engolido em silêncio — por isso o Mestre nunca recebia.
+        enviarPush('_mestre', `💬 ${currentUserNome || 'Guardião'}`, texto,
           'mensagem', { emailKey, mestreUid: selectedMestreUid });
       } catch (e) {
         input.value = texto;
