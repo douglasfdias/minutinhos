@@ -25,8 +25,8 @@ messaging.onBackgroundMessage((payload) => {
   const corpo = payload.notification?.body || '';
   self.registration.showNotification(titulo, {
     body: corpo,
-    icon: (payload.data && payload.data.icone) || '/minutinhos/icon-192.png',
-    badge: '/minutinhos/icon-192.png',
+    icon: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
+    badge: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
     vibrate: [60, 30, 60, 30, 120],
     data: payload.data || {},
     tag: payload.data?.tipo || 'minutinhos'
@@ -46,7 +46,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-const CACHE_NAME = 'minutinhos-v31';
+const CACHE_NAME = 'minutinhos-v27';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
@@ -70,16 +70,10 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
-  // Não ativa sozinho — o app mostra o banner e o usuário decide.
-  // Mas baixa SEMPRE da rede: sem { cache: 'reload' } o GitHub Pages
-  // devolve o HTML antigo do cache HTTP e a versão nova nunca chega.
+  // Não ativa automaticamente — espera o app chamar skipWaiting via mensagem
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
-      Promise.allSettled(
-        ASSETS_TO_CACHE.map(url =>
-          cache.add(new Request(url, { cache: 'reload' })).catch(() => {})
-        )
-      )
+      Promise.allSettled(ASSETS_TO_CACHE.map(url => cache.add(url).catch(() => {})))
     )
   );
 });
@@ -94,66 +88,32 @@ self.addEventListener('activate', event => {
   );
 });
 
-/* Rede primeiro para o que muda (HTML/JS/CSS do próprio app),
-   cache primeiro só para bibliotecas externas e imagens.
-   Antes era cache-primeiro para TUDO — por isso o app das crianças
-   continuava servindo o index.html velho mesmo com o SW novo ativo. */
-const ROOT = '/minutinhos/';
-
-function ehConteudoDoApp(request, url) {
-  if (request.mode === 'navigate') return true;
-  if (url.origin !== self.location.origin) return false;
-  return /\.(html|js|css|json)$/i.test(url.pathname) || url.pathname === ROOT;
-}
-
-async function redePrimeiro(request) {
-  try {
-    const res = await fetch(new Request(request.url, { cache: 'no-store' }));
-    if (res && res.status === 200) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, res.clone());
-    }
-    return res;
-  } catch (e) {
-    const cached = await caches.match(request);
-    if (cached) return cached;
-    if (request.mode === 'navigate') {
-      return (await caches.match(ROOT + 'index.html')) || (await caches.match(ROOT));
-    }
-    throw e;
-  }
-}
-
-async function cachePrimeiro(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
-  const res = await fetch(request);
-  if (request.method === 'GET' && res && res.status === 200) {
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(request, res.clone());
-  }
-  return res;
-}
-
 self.addEventListener('fetch', event => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
-
-  const url = new URL(req.url);
-  if (url.hostname.includes('firebaseio.com') ||
-      url.hostname.includes('firebase.googleapis.com') ||
-      url.hostname.includes('googleapis.com') ||
-      url.hostname.includes('firebaseinstallations')) return;
-
-  event.respondWith(ehConteudoDoApp(req, url) ? redePrimeiro(req) : cachePrimeiro(req));
+  if (event.request.url.includes('firebaseio.com') ||
+      event.request.url.includes('firebase.googleapis.com')) {
+    return;
+  }
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request).then(response => {
+        if (event.request.method === 'GET' && response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
+        return response;
+      }).catch(() => {
+        if (event.request.destination === 'document') {
+          return caches.match('/minutinhos/');
+        }
+      });
+    })
+  );
 });
 
 // Recebe mensagem do app para ativar nova versão
 self.addEventListener('message', event => {
   if (event.data === 'SKIP_WAITING') {
     self.skipWaiting();
-  }
-  if (event.data === 'LIMPAR_CACHE') {
-    event.waitUntil(caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))));
   }
 });
