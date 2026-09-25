@@ -1649,9 +1649,6 @@
       <div class="settings-row" style="flex-direction:column; align-items:stretch; gap:8px;">
         <div><div class="settings-label">🔔 Notificações no celular</div><div class="settings-sublabel">Avisos mesmo com o app fechado</div></div>
         <button id="btn-ativar-push" class="settings-close" style="margin-top:0;" onclick="ativarNotificacoesPush()">🔔 Ativar Notificações</button>
-        <button class="settings-close" style="margin-top:0;background:#5a3d8a;font-size:0.8rem;" onclick="diagnosticarPush()">🩺 Diagnosticar Notificações</button>
-        <div id="app-versao-txt" style="font-size:0.62rem;opacity:0.55;text-align:center;margin-top:2px;"></div>
-        <pre id="diag-push-out" style="display:none;white-space:pre-wrap;word-break:break-word;font-size:0.62rem;line-height:1.35;background:rgba(0,0,0,0.55);color:#d8d8e8;padding:8px;border-radius:8px;max-height:210px;overflow:auto;margin:0;"></pre>
       </div>
       <button class="settings-close" onclick="fecharSettings()">⚔ Fechar</button>
     </div>
@@ -2595,15 +2592,9 @@
       messagingSenderId: "205117538078",
       appId: "1:205117538078:web:33a0c88a10c6b3d7f5930f"
     };
-    // ISOLAMENTO POR INSTÂNCIA NOMEADA (previne a contaminação do device_uid).
-    // O painel do Mestre roda no MESMO domínio e usa a app default ([DEFAULT]).
-    // Ao nomear a instância das crianças de 'guardiao', a sessão anônima passa a
-    // usar uma CHAVE DE ARMAZENAMENTO diferente no navegador — então o app das
-    // crianças nunca mais herda a sessão de login do Mestre (nem vice-versa).
-    // Ver CONTINUIDADE.md §9.1 (bug) e §10 item 1 (esta correção definitiva).
-    const guardiaoApp = firebase.initializeApp(firebaseConfig, 'guardiao');
-    const db = guardiaoApp.database();
-    const auth = guardiaoApp.auth();
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
 
     function sanitizeEmail(email) {
       return email.replace(/\./g, '_');
@@ -2654,6 +2645,48 @@
       }
     }
 
+    // Verifica ANTES de abrir os listeners restritos se este aparelho é o
+    // mesmo que está gravado em device_uid. Evita a "perda de conexão"
+    // silenciosa (PERMISSION_DENIED) quando o Guardião é aberto num
+    // aparelho novo/diferente — em vez disso, mostra um aviso claro.
+    // Retorna true se este aparelho pode prosseguir.
+    async function verificarDispositivo(emailKey) {
+      try {
+        const user = await garantirAuth();
+        const snap = await db.ref('usuarios/' + emailKey + '/device_uid').get();
+        if (!snap.exists() || snap.val() === user.uid) return true; // livre ou já é este aparelho
+        mostrarBloqueioDispositivo();
+        return false;
+      } catch (e) {
+        // Se nem der pra checar, deixa seguir — os listeners restritos
+        // vão apenas não trazer dados, sem travar o resto do app.
+        return true;
+      }
+    }
+
+    function mostrarBloqueioDispositivo() {
+      listenerAtivo = false; // permite tentar de novo depois de liberado
+      const overlay = document.getElementById('device-block-overlay');
+      if (overlay) { overlay.style.display = 'flex'; return; }
+      const div = document.createElement('div');
+      div.id = 'device-block-overlay';
+      div.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,10,20,0.92);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;';
+      div.innerHTML = `
+        <div style="max-width:340px;background:#1c1c2e;border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:24px;color:#fff;">
+          <div style="font-size:2.4rem;margin-bottom:8px;">📵</div>
+          <div style="font-weight:800;font-size:1.05rem;margin-bottom:10px;">Este Guardião já está vinculado a outro aparelho</div>
+          <div style="font-size:0.85rem;opacity:0.85;line-height:1.5;margin-bottom:18px;">
+            Por segurança, cada Guardião só pode ser usado no primeiro aparelho onde ele foi aberto.
+            Peça ao Mestre para tocar em <b>"🔓 Liberar Aparelho"</b> no painel dele — depois, volte aqui e recarregue a página.
+          </div>
+          <button onclick="trocarGuardiao(); document.getElementById('device-block-overlay').style.display='none';"
+            style="background:#f39c12;color:#1c1c2e;border:none;border-radius:10px;padding:10px 18px;font-weight:800;font-size:0.85rem;">
+            ⬅️ Escolher outro Guardião
+          </button>
+        </div>`;
+      document.body.appendChild(div);
+    }
+
     // Garante que auth E device_uid estão prontos antes de qualquer escrita.
     // Chamado antes de cada pedido (leitura, voucher, missão, forja).
     async function garantirPronto() {
@@ -2676,7 +2709,7 @@
       try {
         const user = await garantirAuth();
         const idToken = await user.getIdToken();
-        const resp = await fetch(PUSH_WORKER_URL + '/notify', {
+        await fetch(PUSH_WORKER_URL + '/notify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
           body: JSON.stringify({
@@ -2684,12 +2717,6 @@
             destinoKey, titulo, mensagem, tipo, dados
           })
         });
-        // Um 403/400 do Worker não lança exceção — precisa ser lido do corpo.
-        // Sem isso, a falha some e o app parece ter enviado normalmente.
-        const r = await resp.json().catch(() => ({}));
-        _pushUltimaResposta = { status: resp.status, ...r };
-        if (!resp.ok || r.erro) console.warn('Push recusado pelo Worker:', _pushUltimaResposta);
-        else if (r.enviados === 0) console.warn('Push aceito, mas nenhum token no destino:', destinoKey);
       } catch (e) {
         // Falha de push nunca deve travar a ação principal do app
         console.warn('Push não enviado:', e.message);
@@ -2697,149 +2724,35 @@
     }
 
     async function ativarNotificacoesPush() {
-      const btn = document.getElementById('btn-ativar-push');
-      if (btn) { btn.disabled = true; btn.textContent = '⏳ Ativando...'; }
       try {
+        if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+          oraMsg('⚠️ Este navegador não suporta notificações.');
+          return;
+        }
         const permissao = await Notification.requestPermission();
         if (permissao !== 'granted') {
-          throw new Error('Permissão negada pelo navegador/celular. Autorize notificações para este site nas Configurações do aparelho.');
+          oraMsg('🔔 Notificações não autorizadas. Você pode ativar depois nas Configurações do celular.');
+          return;
         }
         await garantirAuth();
-        if (!currentUserEmail) throw new Error('Nenhum Guardião selecionado.');
-
-        await registrarTokenFCM(sanitizeEmail(currentUserEmail));
-
-        if (btn) btn.textContent = '🔔 Notificações ativadas';
-        oraMsg('🔔 Notificações ativadas! Você será avisado mesmo com o app fechado.');
-      } catch (e) {
-        // NÃO engolir o erro: sem isso, o botão mentia "ativadas" e o token
-        // nunca chegava no banco — foi exatamente o que nos cegou por semanas.
-        if (btn) btn.textContent = '🔔 Ativar Notificações';
-        oraMsg('⚠️ Falhou: ' + (e && e.message ? e.message : e));
-        _pushUltimoErro = (e && e.message) ? e.message : String(e);
-        console.error('ativarNotificacoesPush:', e);
-      } finally {
-        if (btn) btn.disabled = false;
-      }
-    }
-
-    /* ============================================================
-       REGISTRO / RENOVAÇÃO DE TOKEN FCM
-       Sem um token gravado em /fcm_tokens/{guardiao}, o Worker não tem
-       para onde enviar e retorna {enviados: 0} — ou seja, NENHUM push sai.
-       Por isso esta função agora PROPAGA os erros (antes eram engolidos em
-       console.warn, e o botão dizia "ativadas" mesmo tendo falhado).
-       O token também é renovado a cada carregamento (o Firebase o rotaciona)
-       e gravado sob um ID de dispositivo ESTÁVEL, para o mesmo aparelho
-       sobrescrever o próprio registro em vez de acumular tokens.
-    ============================================================ */
-    const APP_VERSAO = 'v31';
-    let _pushUltimoErro = null;
-    let _pushUltimaResposta = null;
-
-    async function registrarTokenFCM(emailKey, silencioso) {
-      try {
-        if (!emailKey) throw new Error('Guardião não identificado.');
-        if (!('serviceWorker' in navigator)) throw new Error('Este navegador não suporta Service Worker.');
-        if (!('Notification' in window)) throw new Error('Este navegador não suporta notificações.');
-        if (!('PushManager' in window)) throw new Error('Este navegador não suporta Push (no iPhone: instale o app na Tela de Início).');
-        if (Notification.permission !== 'granted') {
-          if (silencioso) return null; // no load, não incomoda quem nunca ativou
-          throw new Error('Permissão de notificação não concedida.');
-        }
-        if (firebase.messaging && firebase.messaging.isSupported) {
-          const ok = await firebase.messaging.isSupported();
-          if (!ok) throw new Error('FCM não é suportado neste navegador/dispositivo.');
-        }
-
         const reg = await navigator.serviceWorker.ready;
-        const messaging = guardiaoApp.messaging();
+        const messaging = firebase.messaging();
         const token = await messaging.getToken({ vapidKey: VAPID_PUBLIC_KEY, serviceWorkerRegistration: reg });
-        if (!token) throw new Error('getToken() retornou vazio (verifique a chave VAPID no Firebase Console).');
-
-        let deviceId = localStorage.getItem('fcm_device_id');
-        if (!deviceId) {
-          deviceId = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-          localStorage.setItem('fcm_device_id', deviceId);
+        if (token && currentUserEmail) {
+          const emailKey = sanitizeEmail(currentUserEmail);
+          await db.ref('fcm_tokens/' + emailKey).push({
+            token: token,
+            criadoEm: new Date().toISOString(),
+            ua: navigator.userAgent.substring(0, 120)
+          });
+          const btn = document.getElementById('btn-ativar-push');
+          if (btn) btn.textContent = '🔔 Notificações ativadas';
+          oraMsg('🔔 Notificações ativadas! Você será avisado mesmo com o app fechado.');
         }
-
-        // Escreve em fcm_tokens/{emailKey}/{deviceId} — nível exigido pelas regras.
-        await db.ref('fcm_tokens/' + emailKey + '/' + deviceId).set({
-          token, criadoEm: new Date().toISOString(), ua: navigator.userAgent.substring(0, 120)
-        });
-
-        _pushUltimoErro = null;
-        return token;
       } catch (e) {
-        _pushUltimoErro = (e && e.message) ? e.message : String(e);
-        if (silencioso) { console.warn('registrarTokenFCM:', _pushUltimoErro); return null; }
-        throw e;
+        console.warn('Erro ao ativar push:', e.message);
+        oraMsg('⚠️ Não foi possível ativar as notificações agora.');
       }
-    }
-
-    /* ── DIAGNÓSTICO DE PUSH (visível no celular, sem console) ──
-       Roda cada etapa em ordem e mostra exatamente qual falhou. */
-    // Mostra a versão na tela de Configurações (confirma se o deploy chegou)
-    document.addEventListener('DOMContentLoaded', () => {
-      const el = document.getElementById('app-versao-txt');
-      if (el) el.textContent = 'Versão do app: ' + APP_VERSAO;
-    });
-
-    async function diagnosticarPush() {
-      const L = [];
-      const ok = (t) => L.push('✅ ' + t);
-      const no = (t) => L.push('❌ ' + t);
-      const inf = (t) => L.push('•  ' + t);
-
-      inf('VERSÃO DO APP: ' + APP_VERSAO);
-      inf('UA: ' + navigator.userAgent.substring(0, 80));
-      location.protocol === 'https:' || location.hostname === 'localhost'
-        ? ok('HTTPS (contexto seguro)') : no('NÃO está em HTTPS — push exige HTTPS');
-
-      const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      inf('Instalado na Tela de Início (PWA): ' + (standalone ? 'SIM' : 'NÃO'));
-
-      'serviceWorker' in navigator ? ok('Service Worker suportado') : no('Service Worker NÃO suportado');
-      'Notification' in window ? ok('Notification API suportada') : no('Notification API NÃO suportada');
-      'PushManager' in window ? ok('PushManager suportado')
-        : no('PushManager NÃO suportado (iPhone: precisa instalar na Tela de Início)');
-      inf('Permissão atual: ' + (window.Notification ? Notification.permission : 'n/d'));
-
-      try {
-        if (firebase.messaging && firebase.messaging.isSupported) {
-          (await firebase.messaging.isSupported()) ? ok('FCM suportado') : no('FCM NÃO suportado aqui');
-        }
-      } catch (e) { no('isSupported() erro: ' + e.message); }
-
-      try {
-        const reg = await navigator.serviceWorker.ready;
-        ok('Service Worker ativo (scope: ' + reg.scope + ')');
-      } catch (e) { no('Service Worker não ficou pronto: ' + e.message); }
-
-      try {
-        const u = await garantirAuth();
-        ok('Autenticado (uid: ' + u.uid.substring(0, 10) + '…)');
-      } catch (e) { no('Falha na autenticação: ' + e.message); }
-
-      inf('Guardião: ' + (currentUserEmail || '(nenhum)'));
-
-      if (Notification.permission === 'granted') {
-        try {
-          const t = await registrarTokenFCM(sanitizeEmail(currentUserEmail));
-          ok('Token FCM obtido e GRAVADO no banco');
-          inf('Token: ' + String(t).substring(0, 28) + '…');
-        } catch (e) {
-          no('FALHOU AQUI → ' + e.message);
-        }
-      } else {
-        no('Permissão não concedida — toque em "Ativar Notificações" primeiro');
-      }
-
-      const texto = L.join('\n');
-      const box = document.getElementById('diag-push-out');
-      if (box) { box.style.display = 'block'; box.textContent = texto; }
-      try { await navigator.clipboard.writeText(texto); } catch (e) {}
-      return texto;
     }
 
     /* ============================================================
@@ -4269,17 +4182,6 @@
             }
           });
         });
-
-        // Procura versão nova ao abrir, ao voltar para o app e a cada 30 min.
-        // Sem isto o navegador só checava quando bem entendia — e num PWA
-        // instalado que fica em memória a atualização podia nunca chegar.
-        const checar = () => reg.update().catch(() => {});
-        checar();
-        document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible') checar();
-        });
-        window.addEventListener('focus', checar);
-        setInterval(checar, 30 * 60 * 1000);
       }).catch(() => {});
 
       // Quando o SW assumir controle, recarrega a página
@@ -4325,9 +4227,10 @@
       // /mensagens, /vouchers e /missoes deste Guardião)
       await vincularDispositivo(emailKey);
 
-      // Mantém o token FCM fresco a cada carregamento (só age se a permissão
-      // já foi concedida antes; não dispara pedido de permissão no load).
-      registrarTokenFCM(emailKey, true);
+      // Se este aparelho NÃO é o dono do vínculo, avisa e não tenta abrir
+      // os listeners restritos (evita PERMISSION_DENIED silencioso).
+      const podeAbrir = await verificarDispositivo(emailKey);
+      if (!podeAbrir) { listenerAtivo = false; return; }
 
       // Listener do usuário — recarrega tudo quando houver mudança
       // (cobre reset de dados, aprovação de leituras, alterações do Mestre)
@@ -4402,6 +4305,9 @@
           sinoLote.push(notif);
           clearTimeout(sinoTimer);
           sinoTimer = setTimeout(_dispararSinoLote, 700);
+        }, err => {
+          // PERMISSION_DENIED aqui = o vínculo do dispositivo mudou/quebrou.
+          if (err && err.code === 'PERMISSION_DENIED') mostrarBloqueioDispositivo();
         });
       }).catch(() => {});
 
@@ -4455,6 +4361,8 @@
               soundTone(1047, 'sine', 0.2, 0.15, 0.01);
             }
           }
+        }, err => {
+          if (err && err.code === 'PERMISSION_DENIED') mostrarBloqueioDispositivo();
         });
       }).catch(() => {});
     }
@@ -4712,10 +4620,7 @@
         });
         vibrate(20);
         soundTone(900, 'sine', 0.1, 0.12, 0.005);
-        // O Worker só aceita '_mestre' como destino vindo de um não-admin
-        // (qualquer outro valor devolve 403). Antes mandávamos o UID do Mestre,
-        // e o 403 era engolido em silêncio — por isso o Mestre nunca recebia.
-        enviarPush('_mestre', `💬 ${currentUserNome || 'Guardião'}`, texto,
+        enviarPush(selectedMestreUid, `💬 ${currentUserNome || 'Guardião'}`, texto,
           'mensagem', { emailKey, mestreUid: selectedMestreUid });
       } catch (e) {
         input.value = texto;
@@ -5081,6 +4986,8 @@
           }
           carregarVouchers();
         }
+      }, err => {
+        if (err && err.code === 'PERMISSION_DENIED') mostrarBloqueioDispositivo();
       });
 
       // Ao abrir o app, verifica se já tem ativo pendente
