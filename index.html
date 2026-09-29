@@ -268,7 +268,7 @@
 
 
 
-    /* ══ FOOTER — Ícones ativos e bloqueados ══ */
+    /* ══ FOOTER - Ícones ativos e bloqueados ══ */
     .menu-item.locked .menu-icon {
       filter: grayscale(1) brightness(0.3) contrast(0.8);
     }
@@ -390,7 +390,7 @@
     }
     .btn-cancel-item:active { background: rgba(255,60,60,0.28); transform: scale(0.88); }
 
-    /* ══ BAÚ DE ARTEFATOS — Modal ══ */
+    /* ══ BAÚ DE ARTEFATOS - Modal ══ */
     #bau-modal {
       position: fixed; inset: 0; z-index: 1001;
       background: radial-gradient(ellipse at center, rgba(20,8,45,0.97), rgba(5,2,12,0.99));
@@ -498,7 +498,7 @@
     }
     .bau-close:active { background:rgba(180,83,9,0.25); }
 
-    /* ══ VOUCHER — Barra de Timer HUD ══ */
+    /* ══ VOUCHER - Barra de Timer HUD ══ */
     #voucher-hud-bar {
       display: none; padding: 3px 12px 0; flex-shrink: 0;
     }
@@ -525,7 +525,7 @@
       font-size: 0.68rem; color: rgba(0,212,255,0.65); font-weight: 800; margin-left: auto;
     }
 
-    /* ══ VOUCHER — Badge no footer ══ */
+    /* ══ VOUCHER - Badge no footer ══ */
     .menu-item { position: relative; }
     #voucher-footer-badge {
       display: none; position: absolute; top: 3px; right: 6px;
@@ -533,7 +533,7 @@
       background: #00FF88; border: 1.5px solid var(--blue-deep);
     }
 
-    /* ══ VOUCHER — Modal ══ */
+    /* ══ VOUCHER - Modal ══ */
     #vouchers-modal {
       position: fixed; inset: 0; z-index: 1001;
       background: radial-gradient(ellipse at center, rgba(5,20,50,0.97), rgba(2,5,15,0.99));
@@ -758,7 +758,7 @@
 
     .btn-label { font-size: 0.85rem; font-family: 'Cinzel', serif; font-weight: 700; }
 
-    /* Fase 1 — três botões de ação (Leitura · Duolingo · Forja): ícone sobre o rótulo */
+    /* Fase 1 - três botões de ação (Leitura · Duolingo · Forja): ícone sobre o rótulo */
     .action-grid.tres .btn-epic { flex-direction: column; gap: 1px; height: 58px; min-width: 0; padding: 0 4px; }
     .action-grid.tres .btn-label { font-size: 0.72rem; white-space: nowrap; letter-spacing: 0.02em; }
     .btn-duo {
@@ -805,6 +805,25 @@
       border-right: 12px solid rgba(253,245,230,0.95);
     }
     .oracle-talking { animation: bubble-bounce 0.3s ease-out; }
+    .speech-bubble { cursor: pointer; }
+    .speech-bubble.ora-multi {
+      flex-direction: column; align-items: stretch; justify-content: flex-start;
+      gap: 6px; max-height: 9.4em; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    .ora-linha { width: 100%; line-height: 1.3; }
+    .ora-linha + .ora-linha { border-top: 1px dashed rgba(160,130,90,0.55); padding-top: 6px; }
+    .ora-pag { display: block; font-size: 0.62rem; color: #8d6e63; letter-spacing: 0.04em; animation: ora-pag-pulso 1.4s ease-in-out infinite; }
+    @keyframes ora-pag-pulso { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+    .modal-ora-bubble { white-space: pre-line; }
+
+    /* Comportamento de app: sem seleção de texto, sem menu do navegador, sem zoom por toque duplo */
+    html, body, * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+    html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+    img { -webkit-user-drag: none; user-drag: none; }
+    [data-fala] { cursor: pointer; }
+    .toque-pulso { animation: toque-pulso 0.45s ease-out; }
+    @keyframes toque-pulso { 0% { transform: scale(1); } 35% { transform: scale(1.06); filter: brightness(1.25); } 100% { transform: scale(1); } }
     @keyframes bubble-bounce { 0%{transform:scale(0.97)} 60%{transform:scale(1.02)} 100%{transform:scale(1)} }
 
     /* ============ DIÁRIO ============ */
@@ -1406,7 +1425,7 @@
       min-width: 14px; text-align: center; border: 1.5px solid #1A0A00;
     }
 
-    /* ══ CHAT (WhatsApp-style — igual nos dois apps) ══ */
+    /* ══ CHAT (WhatsApp-style - igual nos dois apps) ══ */
     #chat-overlay {
       position: fixed; inset: 0; z-index: 2100;
       background: white; display: none; flex-direction: column;
@@ -1639,8 +1658,8 @@
       <div class="gs-subtitle">✦ MINUTINHOS ✦</div>
 
       <div class="gs-oracle-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="gs-oracle-img">
-        <div class="gs-oracle-bubble">
+        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="gs-oracle-img" data-fala="gs_toque">
+        <div class="gs-oracle-bubble" data-fala="gs_toque">
           Saudações, Guardião! Toque no seu avatar para entrar na Ordem!
         </div>
       </div>
@@ -1682,7 +1701,7 @@
   <!-- ══ MODAL RANKING ══ -->
   <div id="ranking-modal">
     <div class="ranking-box">
-      <div class="ranking-title" id="ranking-titulo">⚔ Duelo dos Guardiões ⚔</div>
+      <div class="ranking-title" id="ranking-titulo" data-fala="rank_titulo">⚔ Duelo dos Guardiões ⚔</div>
       <div class="ranking-week" id="ranking-semana"></div>
 
       <!-- Nível 1: Leitura / Duolingo -->
@@ -1703,7 +1722,7 @@
 
   <!-- ══ CHAT MENSAGENS (WhatsApp-style) ══ -->
   <div id="chat-overlay">
-    <!-- Painel 1 — lista de contatos (Mestres) -->
+    <!-- Painel 1 - lista de contatos (Mestres) -->
     <div class="chat-header">
       <span class="chat-header-title">💬 Mensagens</span>
       <button class="chat-close-btn" onclick="fecharMensagens()">✕</button>
@@ -1712,7 +1731,7 @@
       <div class="chat-no-contacts">⏳ Carregando...</div>
     </div>
 
-    <!-- Painel 2 — thread (desliza por cima) -->
+    <!-- Painel 2 - thread (desliza por cima) -->
     <div id="chat-thread">
       <div class="chat-header">
         <button class="chat-back-btn" onclick="voltarParaLista()" id="chat-back-btn">
@@ -1735,13 +1754,13 @@
   <div id="hero-overlay" onclick="fecharHeroOverlay()">
     <div class="hero-overlay-inner" onclick="event.stopPropagation()">
       <div class="hero-overlay-aura">
-        <img id="hero-overlay-img" class="hero-overlay-img" src="">
+        <img id="hero-overlay-img" class="hero-overlay-img" src="" data-fala="heroi_toque">
       </div>
       <div class="hero-overlay-title-wrap">
         <div class="hero-overlay-name" id="hero-overlay-name">Guardião</div>
         <div class="hero-overlay-sub" id="hero-overlay-sub">✦ GUARDIÃO DA ORDEM ✦</div>
       </div>
-      <div class="hero-overlay-bubble" id="hero-overlay-bubble"></div>
+      <div class="hero-overlay-bubble" id="hero-overlay-bubble" data-fala="heroi_toque"></div>
       <div class="hero-overlay-close">✦ toque para fechar ✦</div>
     </div>
   </div>
@@ -1823,12 +1842,12 @@
       <div class="streak-duo-wrap">
         <div class="streak-duo-top">
           <span class="streak-duo-title">🦉 ORÁCULO DO SABER</span>
-          <span class="streak-duo-record" id="duo-record">Recorde: 0 dias</span>
+          <span class="streak-duo-record" id="duo-record" data-fala="duo_rotulo_record">Recorde: 0 dias</span>
         </div>
         <div class="streak-duo-heads" id="duo-heads"></div>
         <div class="streak-duo-progress">
-          <span class="streak-duo-days" id="duo-days-label">0 / 7 dias esta semana</span>
-          <span class="streak-duo-reward" id="duo-reward-label">🎯 Complete para +20 💎</span>
+          <span class="streak-duo-days" id="duo-days-label" data-fala="duo_rotulo_dias">0 / 7 dias esta semana</span>
+          <span class="streak-duo-reward" id="duo-reward-label" data-fala="duo_rotulo_premio">🎯 Complete para +20 💎</span>
         </div>
       </div>
     </div>
@@ -1867,7 +1886,7 @@
       <div class="oracle-avatar-wrap">
         <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="oracle-avatar" onclick="tocarOraculo(this)">
       </div>
-      <div id="ora-msg" class="speech-bubble">A sabedoria é o maior tesouro, Guardião. Use sua Energia com inteligência.</div>
+      <div id="ora-msg" class="speech-bubble" onclick="tocarBalao()">A sabedoria é o maior tesouro, Guardião. Use sua Energia com inteligência.</div>
     </div>
 
     <!-- Diário -->
@@ -1882,7 +1901,7 @@
 
     <!-- Footer -->
     <div class="footer-menu">
-      <div class="menu-item locked" onclick="tocarFooter(this,'A Loja de Avatares abrirá em breve, Guardião!', '🧙')">
+      <div class="menu-item locked" onclick="tocarFooter(this,'footer_avatares', '🧙')">
         <span class="footer-lock-badge">🔒</span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -1925,7 +1944,7 @@
         </svg>
         <span class="menu-label">Artefatos</span>
       </div>
-      <div class="menu-item locked" onclick="tocarFooter(this,'A Loja Épica exige Nível 5!', '🏰')">
+      <div class="menu-item locked" onclick="tocarFooter(this,'footer_loja', '🏰')">
         <span class="footer-lock-badge">🔒</span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -2022,8 +2041,8 @@
 
       <!-- Mini Oráculo -->
       <div class="modal-ora-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="modal-ora-img">
-        <div class="modal-ora-bubble" id="ora-msg-bau">Complete missões e ganhe cristais, Guardião!</div>
+        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="modal-ora-img" data-fala="bau_toque">
+        <div class="modal-ora-bubble" id="ora-msg-bau" data-fala="bau_toque">Complete missões e ganhe cristais, Guardião!</div>
       </div>
 
       <div class="bau-tabs">
@@ -2058,8 +2077,8 @@
 
       <!-- Mini Oráculo -->
       <div class="modal-ora-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="modal-ora-img">
-        <div class="modal-ora-bubble" id="ora-msg-voucher">Troque cristais por tempo de tela, Guardião!</div>
+        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="modal-ora-img" data-fala="voucher_toque">
+        <div class="modal-ora-bubble" id="ora-msg-voucher" data-fala="voucher_toque">Troque cristais por tempo de tela, Guardião!</div>
       </div>
 
       <!-- Voucher Ativo -->
@@ -2072,7 +2091,7 @@
       </div>
 
       <!-- Lista de vouchers -->
-      <div class="voucher-section-lbl">📋 Meus Vouchers</div>
+      <div class="voucher-section-lbl" data-fala="voucher_titulo">📋 Meus Vouchers</div>
       <div id="vouchers-lista">
         <div style="text-align:center;color:rgba(200,200,200,0.35);font-size:0.8rem;padding:12px 0;">
           Nenhum voucher ainda.
@@ -2111,8 +2130,8 @@
       <div class="reading-subtitle" id="reading-subtitle">✦ Relate sua aventura de leitura ao Oráculo ✦</div>
 
       <div class="reading-oracle-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="reading-oracle-img">
-        <div class="reading-oracle-bubble" id="reading-oracle-text">
+        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="reading-oracle-img" data-fala="reg_toque">
+        <div class="reading-oracle-bubble" id="reading-oracle-text" data-fala="reg_toque">
           Qual livro você leu hoje, Guardião? Cada página é um passo para o próximo nível!
         </div>
       </div>
@@ -2140,8 +2159,8 @@
     <button class="close-btn" onclick="fecharForja()">✕</button>
 
     <div class="forge-oracle-row">
-      <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="forge-oracle-avatar">
-      <div id="ora-msg-forge">O calor da forja aumenta... Vamos criar cristais, Guardião!</div>
+      <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="forge-oracle-avatar" data-fala="forja_toque">
+      <div id="ora-msg-forge" data-fala="forja_toque">O calor da forja aumenta... Vamos criar cristais, Guardião!</div>
     </div>
 
     <div class="forge-title">⚔ A FORJA ÉPICA ⚔</div>
@@ -2158,7 +2177,7 @@
 
   <script>
     /* ============================================================
-       MOTOR DE ÁUDIO v2 — Web Audio API avançado
+       MOTOR DE ÁUDIO v2 - Web Audio API avançado
        Reverb sintético, ruído, distorção, ADSR completo
     ============================================================ */
     let audioCtx = null;
@@ -2177,7 +2196,7 @@
       } catch(e) {}
     }
 
-    // Reverb sintético via ConvolverNode — sem arquivos de áudio
+    // Reverb sintético via ConvolverNode - sem arquivos de áudio
     function _criarReverb(durSec, decay) {
       const len = Math.floor(audioCtx.sampleRate * durSec);
       const buf = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
@@ -2214,7 +2233,7 @@
       return node;
     }
 
-    // Nota base com ADSR — reverb opcional
+    // Nota base com ADSR - reverb opcional
     function _nota(freq, tipo, dur, vol, atk, dcy, sus, rel, delay, comReverb) {
       if (!audioCtx) return;
       const t = audioCtx.currentTime + (delay || 0);
@@ -2245,7 +2264,7 @@
       if (!audioCtx) return;
       const t = audioCtx.currentTime;
 
-      // Thud grave — impacto físico
+      // Thud grave - impacto físico
       const thud = audioCtx.createOscillator();
       const thudG = audioCtx.createGain();
       thud.connect(thudG); thudG.connect(masterGain);
@@ -2256,7 +2275,7 @@
       thudG.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
       thud.start(t); thud.stop(t + 0.22);
 
-      // Clang metálico — harmônicos com reverb
+      // Clang metálico - harmônicos com reverb
       [820, 1240, 1680, 2480].forEach((f, i) => {
         const osc = audioCtx.createOscillator();
         const g = audioCtx.createGain();
@@ -2270,7 +2289,7 @@
         osc.start(t); osc.stop(t + durs[i] + 0.05);
       });
 
-      // Woosh de faísca — ruído high-pass
+      // Woosh de faísca - ruído high-pass
       const noise = _criarRuido(0.14);
       const nf = audioCtx.createBiquadFilter();
       const ng = audioCtx.createGain();
@@ -2321,7 +2340,7 @@
       });
     }
 
-    // FANFARRA ÉPICA DA FORJA — 3 segundos de glória
+    // FANFARRA ÉPICA DA FORJA - 3 segundos de glória
     function soundForgeEpic() {
       if (!audioCtx) return;
       const t = audioCtx.currentTime;
@@ -2347,7 +2366,7 @@
       explG.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
       expl.start(t); expl.stop(t + 0.25);
 
-      // Melodia triunfal — orquestra sintética
+      // Melodia triunfal - orquestra sintética
       const melodia = [
         [523,  0],  [659, 180], [784, 340], [880, 480],
         [1047, 640],[1319, 860],[1568, 1060],
@@ -2388,7 +2407,7 @@
       cym.start(cymAt); cym.stop(cymAt + 1.5);
     }
 
-    // Utilitário inline — interações
+    // Utilitário inline - interações
     function soundTone(freq, tipo, dur, vol, atk) {
       if (!audioCtx) return;
       _nota(freq, tipo || 'sine', dur, vol || 0.2, atk || 0.01, 0.05, 0.5, 0.05);
@@ -2397,7 +2416,7 @@
     function playTone(freq, type, duration, vol, attack) { soundTone(freq, type, duration, vol, attack); }
 
     /* ============================================================
-       SISTEMA DE PARTÍCULAS — com anel de choque (shockwave)
+       SISTEMA DE PARTÍCULAS - com anel de choque (shockwave)
     ============================================================ */
     const canvas = document.getElementById('particle-canvas');
     const ctx = canvas.getContext('2d');
@@ -2529,7 +2548,7 @@
     }
 
     /* ============================================================
-       VIBRAÇÃO — gerenciada por cfgVibracao (ver configurações)
+       VIBRAÇÃO - gerenciada por cfgVibracao (ver configurações)
     ============================================================ */
 
     /* ============================================================
@@ -2557,60 +2576,1044 @@
     }
 
     /* ============================================================
-       ORÁCULO — com efeito typewriter
+       ORÁCULO - com efeito typewriter
     ============================================================ */
-    let oraTimer = null;
-    const _oraModalTimers = {};  // timers por modal para evitar typewriters simultâneos
+    /* ============================================================
+       FALAS DO ORÁCULO
+       Regras: sempre temáticas (Ordem, Guardiões, magia), fáceis para
+       criança entender, sem travessão. Novas falas entram AQUI, nunca
+       soltas no código. Use {nome}, {min}, etc. como espaços a preencher.
+    ============================================================ */
+    const FALAS = {
+      /* ── Toques na tela principal ── */
+      energia: [
+        '⚡ A energia nasce das páginas que você lê, {nome}! Abra um livro e veja ela crescer!',
+        '⚡ Cada minuto de leitura acende uma faísca dentro deste cristal de poder!',
+        '⚡ Energia guardada é magia esperando a hora certa. Leve-a até a Forja!',
+        '⚡ Quanto mais você lê, mais forte fica o brilho da sua energia!',
+        '⚡ Ouvi um estalo mágico! É a energia da Ordem saudando você, {nome}!',
+        '⚡ Um Guardião sem energia precisa descansar. Um Guardião que lê nunca para!',
+        '⚡ Sua energia nunca desaparece. Ela espera você transformá-la em cristais!',
+        '⚡ Estudar Duolingo também enche este poder! Cada língua nova é uma magia nova!'
+      ],
+      cristais: [
+        '💎 Cristais são o tesouro da Ordem! Cada um vale um minuto de tempo de tela!',
+        '💎 Estes cristais brilham para quem estuda com coragem, {nome}!',
+        '💎 Cada cristal nasceu da energia de uma boa leitura. Que beleza!',
+        '💎 Guarde seus cristais com sabedoria, pois tempo de tela vale ouro!',
+        '💎 As missões do Baú também rendem cristais! Que tal ajudar em casa hoje?',
+        '💎 Ouço o tilintar dos seus cristais! É som de Guardião dedicado!',
+        '💎 Quem forja com paciência conquista os melhores tesouros da Ordem!'
+      ],
+      nivel: [
+        '🌟 Cada livro lido eleva seu nível na Ordem dos Guardiões!',
+        '🌟 Seu nível mostra o quanto você se dedicou, {nome}. A Ordem tem orgulho!',
+        '🌟 São 500 minutos de estudo para cada nível novo. Você consegue!',
+        '🌟 Os Guardiões lendários também começaram no nível 1, como você!',
+        '🌟 Seu nome ecoa pelos salões da Ordem. Continue sua jornada!',
+        '🌟 Quanto maior o nível, mais bonito fica o título de Guardião!',
+        '🌟 Toque no seu avatar e descubra qual título a Ordem deu a você!'
+      ],
+      xp: [
+        '📊 Cada minuto lido enche sua barra de poder! Continue!',
+        '📊 Ao completar 500 minutos, você sobe de nível, {nome}!',
+        '📊 Sua barra de poder cresce a cada página virada!',
+        '📊 Você está no caminho certo para a glória, Guardião!',
+        '📊 Registre suas leituras e veja a barra brilhar cada vez mais!',
+        '📊 Já sinto o poder subindo aí dentro. Falta pouco para a próxima conquista!'
+      ],
+      oraculo_conselho: [
+        'Ehehe! Você me tocou! Sou o Oráculo da Ordem, guardião do conhecimento!',
+        'Um bom Guardião lê um pouquinho todos os dias. Esse é o segredo da Ordem!',
+        'Dica de Oráculo: leia antes de dormir e seus sonhos ficam cheios de aventuras!',
+        'Se um livro estiver difícil, não desista! Os grandes heróis também enfrentam dragões!',
+        'Estudar um pouco por dia vale mais que muito de uma vez. Confie no Oráculo!',
+        'Psiu... entre nós: quem lê mais, sempre vence! É segredo da Ordem!',
+        'Escolha um livro que faça seus olhos brilharem. A magia funciona melhor assim!',
+        'Cada página que você vira deixa a Ordem mais forte. Continue!'
+      ],
+      oraculo_elogio: [
+        'Ei! Eu vi você terminar aquele livro! Que Guardião incrível!',
+        'Minhas profecias nunca falham: você vai subir de nível em breve!',
+        'Você é uma das melhores coisas que aconteceu à Ordem, {nome}!',
+        'Obrigado por cuidar de mim, Guardião. Juntos somos mais fortes!',
+        'Sabe o que eu mais gosto? De ver você voltando aqui todo dia. Isso é coragem!',
+        'Seu esforço faz meus olhos brilharem. Sou o Oráculo mais orgulhoso do reino!',
+        'Os Mestres contam histórias sobre Guardiões como você. Continue assim!',
+        'Ninguém lê do jeito que você lê, {nome}. Isso é um talento raro!'
+      ],
+      oraculo_historia: [
+        'Sou feito de sabedoria ancestral e um pouquinho de magia... hehe!',
+        'Há muito tempo, a Ordem guardava todos os livros do mundo numa torre gigante!',
+        'Dizem que o primeiro Oráculo nasceu de uma página brilhante que caiu do céu!',
+        'Cuido de todos os Guardiões com carinho. Leia muito e me deixe feliz!',
+        'Já vi milhares de livros passarem por aqui. O seu está entre os meus favoritos!',
+        'Na Ordem, uma coruja curiosa vale mais que um dragão faminto. Somos parecidos, hehe!',
+        'Moro nesta biblioteca desde antes dos primeiros Guardiões. Sei de todos os segredos!',
+        'Toda língua que você aprende abre uma porta secreta no castelo da Ordem!'
+      ],
+      oraculo_streak: [
+        'Sua chama de {streak} dias brilha tanto que ilumina a biblioteca inteira!',
+        'São {streak} dias seguidos! Até os dragões respeitam essa sequência, {nome}!',
+        'Uma sequência de {streak} dias! Estou de queixo caído e de asas abertas!',
+        'A Ordem inteira comenta seus {streak} dias de chama acesa. Não deixe apagar!'
+      ],
+      oraculo_duo: [
+        'Você acendeu {duo} das minhas cabeças esta semana! Que orgulho, {nome}!',
+        'Minhas cabeças brilham por causa do seu estudo de línguas. Continue!',
+        'O Duolingo e eu somos bons amigos, e você é nosso Guardião favorito!',
+        'Já pensou em falar com pessoas do mundo inteiro? Você está no caminho!'
+      ],
+      oraculo_nivel: [
+        'Nível {nivel}! Quando eu era um Oráculo pequenino, também sonhava em chegar lá!',
+        'Você já chegou ao nível {nivel}, {nome}! Os salões da Ordem estão em festa!',
+        'Nível {nivel} e subindo! Sinto seu poder daqui!',
+        'Com o nível {nivel} você já pode ensinar muita coisa aos novos Guardiões!'
+      ],
+      balao_toque: [
+        'Hehe, gosto quando você conversa comigo, {nome}!',
+        'Estou sempre por aqui. Pode me chamar quando quiser!',
+        'Toque no meu rosto e eu faço mágica! Vá, experimente!',
+        'Psiu! Tem muita coisa para tocar nesta tela. Explore, Guardião!',
+        'Cada toque seu me faz cócegas mágicas. Ehehe!',
+        'Quer uma dica? Registre seu estudo de hoje antes de dormir!',
+        'Sou um Oráculo muito atento. Nada escapa dos meus olhos brilhantes!',
+        'Fale comigo sempre que precisar. A Ordem nunca deixa um Guardião sozinho!'
+      ],
+      toque_generico: [
+        'Hmm, isso aí é só enfeite, mas gostei do seu toque, {nome}!',
+        'Nada de mágico por aqui, mas os cantinhos da Ordem escondem surpresas!',
+        'Você está explorando tudo! Boa, Guardião curioso!',
+        'Toque nos ícones brilhantes que eu mostro do que cada um é capaz!',
+        'Ops, esse lugar está em silêncio. Tente tocar em outro tesouro!',
+        'Tudo que brilha nesta tela tem um segredo. Continue procurando!'
+      ],
 
-    function oraMsg(texto) {
-      // Oráculo principal
-      const el = document.getElementById('ora-msg');
-      el.classList.remove('oracle-talking');
-      void el.offsetWidth;
-      el.classList.add('oracle-talking');
-      if (oraTimer) clearTimeout(oraTimer);
-      el.textContent = '';
-      let i = 0;
-      function typeNext() {
-        if (i < texto.length) {
-          el.textContent += texto[i++];
-          oraTimer = setTimeout(typeNext, 22);
-        }
+      /* ── Sequência, meta e cabeças ── */
+      streak_zero: [
+        '🔥 Registre uma leitura hoje e acenda a chama da sua sequência, {nome}!',
+        '🔥 Sua chama ainda está apagada. Um livro hoje e ela acende de novo!',
+        '🔥 Que tal começar uma sequência lendária? O primeiro dia é sempre o mais especial!',
+        '🔥 A chama da Ordem espera por você. Leia um pouquinho hoje!'
+      ],
+      streak_n: [
+        '🔥 {streak} dias seguidos! Continue assim, Guardião!',
+        '🔥 Sua chama não se apaga! São {streak} dias de sequência!',
+        '🔥 Lendário! {streak} dias lendo sem parar!',
+        '🔥 {streak} dias de fogo mágico! Nenhum dragão te para, {nome}!',
+        '🔥 A Ordem inteira vê sua chama de {streak} dias brilhar!'
+      ],
+      meta_completa: [
+        '🌟 Meta da semana cumprida! Você é um Guardião lendário!',
+        '🌟 Missão da semana completa! Os Mestres vão ficar orgulhosos, {nome}!',
+        '🌟 Você bateu a meta! Hoje o castelo inteiro comemora!',
+        '🌟 Semana conquistada! Que leitura poderosa!'
+      ],
+      meta_faltam: [
+        '📖 Faltam {faltam} minutos para bater a meta da semana! Vamos ler?',
+        '📖 Só {faltam} minutos e a meta da semana é sua, {nome}!',
+        '📖 Estamos quase lá! Faltam {faltam} minutos de leitura!',
+        '📖 A meta está logo ali, faltam {faltam} minutos. Um livro resolve!',
+        '📖 Falta pouco: {faltam} minutos de aventura para completar a semana!'
+      ],
+      cabeca_ok: [
+        '🦉 Boa! Você estudou Duolingo neste dia! Uma das minhas cabeças brilha por você!',
+        '🦉 Esta cabeça está acesa graças ao seu esforço, {nome}!',
+        '🦉 Dia conquistado! As línguas antigas sorriem para você!',
+        '🦉 Que estudo bonito neste dia! Continue acendendo minhas cabeças!'
+      ],
+      cabeca_vazia: [
+        '🦉 Este dia ainda está apagado. Que tal abrir o Duolingo agora, {nome}?',
+        '🦉 Minha cabeça está esperando o seu estudo. Um pouquinho já acende ela!',
+        '🦉 Nada por aqui ainda. Estudar sete minutos já acende esta cabeça!',
+        '🦉 Esta cabeça está tristinha. Vamos deixá-la feliz com um estudo?'
+      ],
+      duo_rotulo_record: [
+        '🏆 Este é o seu recorde de dias seguidos no Duolingo. Será que você consegue superar?',
+        '🏆 Aqui fica guardada sua maior sequência de estudo de línguas. Que tal bater ela?',
+        '🏆 Recorde é o seu melhor momento na Ordem. Sempre dá para superar!'
+      ],
+      duo_rotulo_dias: [
+        '🦉 Aqui eu conto quantas das minhas cabeças você acendeu nesta semana!',
+        '🦉 Cada dia de estudo acende uma cabeça minha. Vamos acender todas?',
+        '🦉 A semana começa na segunda-feira. Quantas cabeças você acende até domingo?'
+      ],
+      duo_rotulo_premio: [
+        '💎 Acendendo todas as minhas cabeças na semana, você ganha um prêmio em cristais!',
+        '💎 O prêmio semanal só chega quando o Mestre aprova seus estudos. Paciência, Guardião!',
+        '💎 Complete a semana inteira e os cristais aparecem, como mágica!'
+      ],
+      celebra_marco: [
+        '🔥 INCRÍVEL, {nome}! {dias} dias seguidos de leitura! +{bonus} ⚡ de bônus!',
+        '🔥 A chama chegou a {dias} dias! A Ordem entrega a você +{bonus} ⚡ de bônus!',
+        '🔥 Que sequência, {nome}! {dias} dias de pura leitura! Aqui vão +{bonus} ⚡!'
+      ],
+      celebra_duo: [
+        '🦉 {nome}! Você acendeu todas as {meta} cabeças desta semana! +{recompensa} 💎 de cristais!',
+        '🦉 Semana perfeita de Duolingo, {nome}! O Oráculo entrega +{recompensa} 💎!',
+        '🦉 Todas as {meta} cabeças brilham! Você ganhou +{recompensa} 💎, Guardião!'
+      ],
+
+      /* ── Boas-vindas contextuais (ao abrir o app) ── */
+      ora_boas_vindas: [
+        'Bem-vindo de volta, {nome}! Que sua jornada seja épica.',
+        'A sabedoria é o maior tesouro, Guardião. Vamos buscá-la hoje?',
+        'Leia mais, cresça mais. A Ordem conta com você!',
+        'Que bom ver você, {nome}! Os livros já estão de portas abertas.',
+        'Uma nova aventura começa hoje. Por qual história vamos começar?',
+        'O castelo estava silencioso sem você, {nome}. Que bom que chegou!'
+      ],
+      ora_streak_alto: [
+        '🔥 {streak} dias seguidos! Você é incrível, {nome}!',
+        '🔥 Sua chama de {streak} dias ilumina a Ordem inteira, {nome}!'
+      ],
+      ora_streak_marco: [
+        '🔥 {streakTxt} de sequência! Faltam {faltam} para o próximo marco!',
+        '🔥 Sua chama já tem {streakTxt}. Só mais {faltam} para o próximo prêmio!'
+      ],
+      ora_duo_semana: [
+        '🦉 {diasTxt} de Duolingo esta semana! Continue assim!',
+        '🦉 Já são {cabecasTxt} nesta semana, {nome}!'
+      ],
+
+      /* ── Diário de Aventuras ── */
+      diario_Leitura: [
+        'Cada página lida é um passo para a glória, Guardião!',
+        'Os livros são a chave para o próximo nível!',
+        'Leitura registrada na memória da Ordem!',
+        'Esta aventura ficou guardada nos pergaminhos da biblioteca!'
+      ],
+      diario_Forja: [
+        'Cristais forjados com suor e dedicação!',
+        'A Forja Épica transforma esforço em poder!',
+        'O martelo da Ordem ecoa até hoje por causa desta forja!'
+      ],
+      diario_Duolingo: [
+        'O Oráculo aprova seu estudo de línguas!',
+        'Cada minuto de Duolingo acende uma chama nas minhas cabeças!',
+        'Esta aventura de idiomas foi gravada na Torre das Línguas!',
+        'Uma língua nova é uma porta nova. Você abriu mais uma!'
+      ],
+      diario_Gasto: [
+        'Tempo de tela conquistado com mérito!',
+        'Os cristais foram bem investidos, Guardião!',
+        'Cristais viraram diversão. Aproveite com sabedoria!'
+      ],
+      diario_Bonus: [
+        'Bônus concedido pela Ordem pelo seu esforço!',
+        'Recompensa especial pelos seus marcos!',
+        'A Ordem premia quem não desiste. Esse bônus é seu!'
+      ],
+      diario_Missao: [
+        'Uma missão cumprida! A casa inteira agradece, Guardião!',
+        'Ajudar em casa também é coisa de herói. Bela missão!',
+        'Esta missão rendeu cristais e muito orgulho!'
+      ],
+      diario_Voucher: [
+        'Tempo de tela liberado pelo Mestre. Aproveite bem!',
+        'Um voucher bem merecido pelos seus esforços!',
+        'Este pergaminho de tela foi assinado pelo Mestre. Use com sabedoria!'
+      ],
+      diario_outro: [
+        'Aventura registrada no Diário da Ordem!',
+        'Mais uma linha escrita na sua história de Guardião!',
+        'O Diário da Ordem guarda tudo que você faz!'
+      ],
+      diario_pendente: [
+        'Ela ainda espera o selo do Mestre, mas já está no caminho!',
+        'O Mestre ainda vai conferir essa. Paciência, Guardião!',
+        'Falta só a aprovação do Mestre para o selo final!'
+      ],
+      diario_reprovado: [
+        'O Mestre não aprovou dessa vez. Converse com ele e tente de novo!',
+        'Esta aventura não foi aprovada. Nem todo herói vence de primeira!',
+        'O selo não veio desta vez. Amanhã tem outra chance, Guardião!'
+      ],
+
+      /* ── Rodapé bloqueado ── */
+      footer_avatares: [
+        '🔒 A Loja de Avatares ainda está lacrada por magia. Em breve ela abre, Guardião!',
+        '🔒 Os avatares estão sendo forjados pelos ferreiros da Ordem. Falta pouco!',
+        '🔒 Esta porta só abre quando os feitiços terminarem. Aguarde, Guardião!'
+      ],
+      footer_loja: [
+        '🔒 A Loja Épica exige Nível 5. Continue subindo para abrir este portão!',
+        '🔒 Só Guardiões de Nível 5 atravessam este portão. Você chega lá!',
+        '🔒 Grandes tesouros esperam do outro lado, mas o portão pede Nível 5!'
+      ],
+
+      /* ── Herói (toque no avatar) ── */
+      heroi_30: [
+        '⚡ TRINTA DIAS SEGUIDOS! A Ordem canta seu nome, {nome}! Você é uma lenda!',
+        '⚡ Trinta dias de chama! Os bardos já escrevem canções sobre você, {nome}!'
+      ],
+      heroi_14: [
+        '🔥 {streak} dias de leitura sem parar! {nome}, você tem a chama de um campeão!',
+        '🔥 {streak} dias seguidos! {nome}, nem o vento apaga a sua chama!'
+      ],
+      heroi_7: [
+        '🔥 Uma semana inteira lendo! {nome}, a Ordem se orgulha de você!',
+        '🔥 Sete dias de chama acesa! {nome}, você faz a biblioteca brilhar!'
+      ],
+      heroi_3: [
+        '⚔️ {streak} dias seguidos, {nome}! Continue e alcance novos marcos!',
+        '⚔️ Sua chama já dura {streak} dias, {nome}! Vamos mais longe?'
+      ],
+      heroi_duo_meta: [
+        '🦉 Meta do Duolingo concluída esta semana! {nome}, as línguas se curvam diante de você!',
+        '🦉 Todas as cabeças acesas! {nome}, você domina as línguas da Ordem!'
+      ],
+      heroi_duo: [
+        '🦉 {diasTxt} de Duolingo! {nome}, o Oráculo sorri para você!',
+        '🦉 O Oráculo acendeu {cabecasTxt} por você, {nome}! Continue!'
+      ],
+      heroi_nivel: [
+        '⭐ Nível {nivel}! {nome}, sua sabedoria cresce a cada página virada!',
+        '⭐ Você já é nível {nivel}, {nome}! Os salões da Ordem aplaudem!'
+      ],
+      heroi_energia: [
+        '⚡ {energia} de energia! {nome}, a Ordem sente sua força!',
+        '⚡ Tanta energia guardada, {nome}! Que tal forjar alguns cristais?'
+      ],
+      heroi_geral: [
+        '⚔️ {nome}! Cada livro lido forja um Guardião mais forte!',
+        '🛡️ A Ordem conta com você, {nome}! Continue sua jornada!',
+        '✨ Seu avatar mostra sua dedicação, {nome}. Orgulho da Ordem!',
+        '📚 Um Guardião que lê nunca é derrotado, {nome}!',
+        '🌟 {nome}, os Mestres do passado sorriem ao ver seu progresso!',
+        '🏰 O castelo inteiro sabe seu nome, {nome}. Continue brilhando!'
+      ],
+
+      /* ── Registro de leitura e Duolingo ── */
+      reg_leitura_abrir: [
+        'Qual tomo mágico você leu hoje, {nome}? Cada página é um passo para o próximo nível!',
+        'Conte ao Oráculo: que aventura você viveu nos livros hoje?',
+        'Abra o grimório e me diga o nome do livro. Eu anoto tudo na Ordem!',
+        'Que história você desvendou hoje, {nome}? Estou ansioso para saber!'
+      ],
+      reg_duo_abrir: [
+        'Quantos minutos você dedicou à língua dos antigos, {nome}? A partir de {minimo}, uma das minhas cabeças acende!',
+        'Conte ao Oráculo: quanto tempo você treinou suas palavras mágicas hoje?',
+        'Cada lição de Duolingo é um feitiço novo. Quantos minutos você lançou hoje?',
+        'Com {minimo} minutos ou mais, eu acendo uma cabeça por você. Quanto foi hoje?'
+      ],
+      reg_leitura_toque: [
+        'Escolha seu livro e me diga os minutos. Eu cuido do resto!',
+        'Os minutos podem ser de mais de uma leitura no dia. Eu anoto todas!',
+        'Depois que você enviar, o Mestre confere e a energia chega até você!',
+        'Cada minuto de leitura vira energia. Depois a energia vira cristais!',
+        'Hehe, adoro quando você vem registrar uma aventura de leitura!'
+      ],
+      reg_duo_toque: [
+        'Pode registrar mais de uma sessão no mesmo dia. Eu anoto todas!',
+        'Assim que você enviar, a cabeça do Oráculo acende. A energia chega quando o Mestre aprovar!',
+        'Cada sessão precisa ter pelo menos {minimo} minutos para valer.',
+        'Estudar línguas é como colecionar chaves mágicas. Cada lição abre uma porta!',
+        'Hehe, esta coruja aqui adora quando você vem registrar seu Duolingo!'
+      ],
+      reg_erro_livro: [
+        '⚠️ Diga o nome do livro, {nome}! Não posso registrar sem saber qual foi a aventura!',
+        '⚠️ Faltou o nome do tomo mágico, Guardião! Escreva o livro que você leu!',
+        '⚠️ Preciso saber qual livro você leu para anotar no grimório da Ordem!'
+      ],
+      reg_erro_min_leitura: [
+        '⚠️ Quantos minutos você leu, {nome}? Todo minuto conta para subir de nível!',
+        '⚠️ Faltou dizer o tempo de leitura! Digite os minutos ou escolha um atalho!',
+        '⚠️ Sem os minutos eu não consigo anotar. Quanto tempo você leu?'
+      ],
+      reg_erro_min_duo: [
+        '⚠️ Quantos minutos de Duolingo você estudou, {nome}? Todo minuto conta!',
+        '⚠️ Faltou o tempo de estudo! Digite os minutos ou escolha um atalho!',
+        '⚠️ Sem os minutos, minhas cabeças não sabem se acendem. Quanto foi?'
+      ],
+      reg_abaixo_leitura: [
+        '⚠️ O mínimo por leitura é {minimo} minutos, {nome}! Cada sessão precisa valer a pena!',
+        '⚠️ Ainda faltam minutos! Uma leitura precisa ter pelo menos {minimo} para ser registrada!',
+        '⚠️ A Ordem pede pelo menos {minimo} minutos por leitura. Que tal ler um pouquinho mais?'
+      ],
+      reg_abaixo_duo: [
+        '⚠️ O mínimo por sessão de Duolingo é {minimo} minutos, {nome}!',
+        '⚠️ Minhas cabeças só acendem com {minimo} minutos ou mais por sessão!',
+        '⚠️ Estude mais um pouquinho: cada sessão precisa de pelo menos {minimo} minutos!'
+      ],
+      reg_envia_leitura: [
+        '📜 Anotando {min} minutos de "{livro}"... Aguardando o selo do Mestre!',
+        '📜 Escrevendo no grimório: {min} minutos de "{livro}". O Mestre vai conferir!',
+        '📜 Registrando sua aventura em "{livro}"... O selo do Mestre vem em breve!'
+      ],
+      reg_envia_duo: [
+        '📜 Anotando {min} minutos de Duolingo... Aguardando o selo do Mestre!',
+        '📜 Escrevendo no grimório: {min} minutos de línguas. O Mestre vai conferir!',
+        '📜 Registrando seu estudo de {min} minutos... O selo do Mestre vem em breve!'
+      ],
+      reg_ok_leitura: [
+        '📜 "{livro}" registrado! São {min} minutos esperando o selo do Mestre.',
+        '📜 Aventura em "{livro}" anotada! Assim que o Mestre aprovar, {min} ⚡ chegam até você!',
+        '📜 Pronto, {nome}! {min} minutos de "{livro}" seguem para o Mestre.'
+      ],
+      reg_ok_duo: [
+        '🦉 {min} minutos de Duolingo registrados! Minha cabeça já acendeu, mas os ⚡ só chegam quando o Mestre aprovar.',
+        '🦉 Estudo anotado! Acendi uma cabeça por você agora, e a energia vem quando o Mestre aprovar.',
+        '🦉 Lição registrada, {nome}! A cabeça já brilha, e o Mestre libera os ⚡ depois de conferir.'
+      ],
+      reg_erro_envio: [
+        '❌ O corvo mensageiro se perdeu no caminho. Tente enviar de novo, Guardião!',
+        '❌ Algo travou na magia do envio. Tente mais uma vez!',
+        '❌ Não consegui entregar sua mensagem ao Mestre. Tente novamente!'
+      ],
+
+      /* ── Forja ── */
+      forja_abrir: [
+        'O calor da forja aumenta... Vamos criar cristais, {nome}!',
+        'O fogo já está aceso! Bata no martelo e forje seus cristais!',
+        'As chamas da Ordem estão prontas. Toque no martelo e faça a magia!',
+        'Hora de transformar energia em tesouro. Segure firme o martelo!'
+      ],
+      forja_toque: [
+        'A forja transforma energia em cristais. Quanto mais martelos, mais tesouros!',
+        'Cuidado com o fogo! Ele é quente, mas os cristais valem a pena!',
+        'Cada golpe do martelo gasta energia e cria cristais brilhantes!',
+        'Uma dica de Oráculo: sem energia não tem cristal. Leia mais para forjar mais!',
+        'Ouço o barulho do martelo! Isso é música para os ouvidos da Ordem!'
+      ],
+      forja_sem_energia: [
+        '⚡ Energia insuficiente! Leia mais livros para ganhar energia, {nome}.',
+        '⚡ A forja está com fome de energia! Leia um pouco e volte aqui!',
+        '⚡ Sem energia suficiente, a forja apaga. Uma leitura resolve!',
+        '⚡ Faltou poder para este golpe. Estude mais e a forja acende de novo!'
+      ],
+      forja_selando: [
+        'As chamas da Ordem selam a forja... Aguarde!',
+        'Os cristais estão esfriando na bancada... Só um instante!',
+        'A magia está trabalhando... Já já os cristais chegam!'
+      ],
+      forja_ok: [
+        '⚒️ Forja concluída! +{n} cristais adquiridos!',
+        '⚒️ Que forja linda! Você ganhou {n} cristais brilhantes!',
+        '⚒️ Os ferreiros da Ordem aplaudem! +{n} cristais para você!',
+        '⚒️ Sucesso, {nome}! {n} cristais saíram fresquinhos da forja!'
+      ],
+      forja_erro: [
+        '❌ As chamas falharam na conexão. Tente de novo, Guardião!',
+        '❌ O fogo da forja apagou por um instante. Tente novamente!',
+        '❌ Algo deu errado com a magia. Tente mais uma vez!'
+      ],
+
+      /* ── Avisos gerais ── */
+      erro_conexao: [
+        '⚠️ Não consegui falar com a Torre da Ordem. Tente de novo em instantes!',
+        '⚠️ O mensageiro voltou sem resposta. Tente de novo, Guardião!',
+        '⚠️ A conexão com o castelo caiu. Vamos tentar outra vez?'
+      ],
+      erro_generico: [
+        '❌ Não foi possível enviar. Tente novamente, Guardião!',
+        '❌ A mensagem se perdeu pelo caminho. Envie de novo!',
+        '❌ Algo travou por aqui. Tente mais uma vez!'
+      ],
+      sem_guardiao: [
+        '⚠️ Não encontrei você nos registros da Ordem. Peça ajuda ao Mestre!',
+        '⚠️ Seu nome não está no livro da Ordem. Fale com o Mestre, Guardião!'
+      ],
+      push_sem_suporte: [
+        '⚠️ Este navegador ainda não sabe receber avisos da Ordem.',
+        '⚠️ Este aparelho não recebe os corvos mensageiros (notificações).'
+      ],
+      push_negada: [
+        '🔔 Os avisos não foram liberados. Você pode ativar depois nas configurações do celular.',
+        '🔔 Sem problema! Se mudar de ideia, libere os avisos nas configurações do celular.'
+      ],
+      push_ok: [
+        '🔔 Avisos ativados! Os corvos mensageiros vão encontrar você mesmo com o app fechado.',
+        '🔔 Tudo pronto! Agora você recebe recados da Ordem mesmo com o app fechado.'
+      ],
+      push_falha: [
+        '⚠️ Não consegui ativar os avisos agora. Tente mais tarde, Guardião.',
+        '⚠️ Os corvos mensageiros não quiseram voar agora. Tente de novo depois!'
+      ],
+      sino_vazio: [
+        'Nenhum recado novo do Mestre, {nome}! O sino toca quando houver novidades. 🔔',
+        'O sino está quietinho por enquanto. Assim que chegar recado, eu aviso! 🔔',
+        'Sem novidades no correio da Ordem agora. Volte a olhar mais tarde! 🔔',
+        'Nenhum corvo chegou ainda com mensagens. Continue sua jornada! 🔔'
+      ],
+
+      /* ── Vouchers de tela ── */
+      voucher_abrir: [
+        'Troque cristais por tempo de tela, {nome}! Cada cristal vale um minuto.',
+        'O pergaminho de vouchers está aberto. Escolha quanto tempo de tela você quer!',
+        'Seus cristais viram diversão aqui. Peça ao Mestre com carinho!',
+        'Lembre-se: o Mestre precisa aprovar cada pedido. Peça com educação!'
+      ],
+      voucher_toque: [
+        'Um voucher é um pergaminho mágico que vale tempo de tela. O Mestre é quem assina!',
+        'Você pode fazer vários pedidos, mas só um voucher fica ativo de cada vez.',
+        'Quando o tempo acabar, eu toco um alarme épico. Depois é hora de estudar!',
+        'Um cristal vale um minuto de tela. Faça as contas antes de pedir!',
+        'Dica do Oráculo: quem forja mais cristais tem mais tempo para brincar!'
+      ],
+      voucher_titulo: [
+        'Aqui ficam todos os seus pedidos, do mais novo ao mais antigo. Toque neles para ver o que eu digo!',
+        'Este é o livro de registros dos seus vouchers. Nada escapa da memória da Ordem!',
+        'Seus vouchers aparecem aqui com o carimbo do Mestre. Cada um conta uma história!'
+      ],
+      voucher_item_Pendente: [
+        '⏳ Este pedido ainda espera o Mestre. Tocar no ✕ cancela o pedido.',
+        '⏳ O Mestre ainda vai olhar este pergaminho. Paciência, Guardião!',
+        '⏳ Pedido enviado! Assim que o Mestre aprovar, o tempo começa a correr.'
+      ],
+      voucher_item_Ativo: [
+        '⏱ Este voucher está valendo agora! Aproveite cada minuto com sabedoria!',
+        '⏱ O relógio mágico está correndo. Curta o tempo de tela!',
+        '⏱ Tempo de tela liberado! Quando acabar, eu aviso com um alarme.'
+      ],
+      voucher_item_Expirado: [
+        '✅ Este voucher já foi usado até o fim. Foi divertido, não foi?',
+        '✅ Tempo de tela cumprido! Você soube aproveitar, {nome}!',
+        '✅ Pergaminho gasto e missão cumprida. Que tal forjar mais cristais?'
+      ],
+      voucher_item_Recusado: [
+        '📜 O Mestre não aprovou este pedido. Converse com ele e tente outro!',
+        '📜 Este pergaminho voltou sem selo. Às vezes o Mestre tem seus motivos.',
+        '📜 Não deu desta vez, mas sempre dá para tentar outro pedido mais tarde!'
+      ],
+      voucher_sem_valor: [
+        '⚠️ Escolha ou digite a quantidade de cristais, {nome}!',
+        '⚠️ Quantos cristais você quer trocar? Escolha um atalho ou digite o valor!',
+        '⚠️ Faltou dizer quantos cristais serão usados. Diga um valor!'
+      ],
+      voucher_saldo: [
+        '⚠️ Você tem só {saldo} 💎! Forje mais cristais na Forja, {nome}!',
+        '⚠️ Seus cristais não chegam a esse valor, pois você tem {saldo} 💎. Vá até a Forja!',
+        '⚠️ Faltam cristais! Seu tesouro tem {saldo} 💎 e o pedido é maior que isso.'
+      ],
+      voucher_ja_ativo: [
+        '⚠️ Já existe um voucher ativo! Espere ele terminar antes de pedir outro.',
+        '⚠️ Um voucher ainda está valendo. Peça o próximo quando o tempo acabar!',
+        '⚠️ Só um voucher por vez, Guardião! Aguarde o atual acabar.'
+      ],
+      voucher_enviado: [
+        '📜 Pedido de {cristais} 💎 enviado ao Mestre! Aguarde a aprovação, {nome}!',
+        '📜 O corvo já voou com seu pedido de {cristais} 💎 até o Mestre! Agora é esperar.',
+        '📜 Pergaminho de {cristais} 💎 entregue! O Mestre vai avaliar em breve.'
+      ],
+      voucher_erro: [
+        '❌ O corvo se perdeu e o pedido não chegou. Tente de novo, Guardião!',
+        '❌ Não consegui enviar o pedido. Tente novamente!',
+        '❌ Algo travou no caminho até o Mestre. Envie mais uma vez!'
+      ],
+      voucher_cancelado: [
+        '📜 Pedido cancelado com sucesso, {nome}.',
+        '📜 Pronto, o pergaminho foi rasgado. Você pode pedir outro quando quiser!',
+        '📜 Pedido desfeito! Seus cristais continuam guardados.'
+      ],
+      voucher_cancela_erro: [
+        '❌ Não consegui cancelar o pedido. Tente de novo!',
+        '❌ O pergaminho resistiu e não rasgou. Tente novamente!',
+        '❌ Algo deu errado ao cancelar. Tente mais uma vez!'
+      ],
+      voucher_aprovado: [
+        '✅ O Mestre aprovou! São {cristais} minutos de tela começando agora! ⏱',
+        '✅ Selo do Mestre carimbado! Curta seus {cristais} minutos de tela! ⏱',
+        '✅ Pedido aprovado, {nome}! O relógio de {cristais} minutos já está correndo! ⏱'
+      ],
+      voucher_recusado: [
+        '📜 O Mestre não aprovou este voucher. Converse com ele e peça outro, {nome}!',
+        '📜 Desta vez o selo não veio. Você pode fazer um novo pedido mais tarde!',
+        '📜 O pergaminho voltou sem aprovação. Sem estresse, tente depois!'
+      ],
+      voucher_acabou: [
+        '⏱ SEU TEMPO DE TELA ACABOU, {nome}! Hora de voltar às aventuras dos estudos! ⚔️',
+        '⏱ O relógio mágico zerou! Guarde a tela e volte para os livros, Guardião! ⚔️',
+        '⏱ Fim do tempo de tela! A Ordem chama você de volta, {nome}! ⚔️'
+      ],
+
+      /* ── Baú de Artefatos (missões) ── */
+      bau_abrir: [
+        'Complete missões e ganhe cristais, {nome}!',
+        'O Baú de Artefatos está aberto! Cada tarefa cumprida vira tesouro.',
+        'Ajudar em casa também é coisa de herói. Escolha uma missão!',
+        'Toque em uma missão e eu explico o que fazer. Depois é só avisar o Mestre!'
+      ],
+      bau_toque: [
+        'Cada missão é uma tarefa de casa. Quando você termina, avisa o Mestre e ganha cristais!',
+        'O Mestre confere a missão antes de liberar os cristais. Faça com capricho!',
+        'Toque em qualquer missão para eu explicar o que ela pede!',
+        'Missões e leituras são os dois caminhos para cristais. Use os dois!',
+        'Um Guardião de verdade ajuda a Ordem dentro e fora dos livros!'
+      ],
+      bau_missao: [
+        '{emoji} {nomeItem}: {descItem} Vale +{cristais} 💎 quando o Mestre aprovar!',
+        '{emoji} Missão "{nomeItem}". {descItem} Recompensa: +{cristais} 💎!',
+        '{emoji} Escutou o chamado, {nome}? {nomeItem}! {descItem} O prêmio é +{cristais} 💎!'
+      ],
+      bau_missao_sem_desc: [
+        '{emoji} Missão "{nomeItem}"! Cumpra e ganhe +{cristais} 💎 quando o Mestre aprovar!',
+        '{emoji} {nomeItem} vale +{cristais} 💎. Faça com capricho, {nome}!',
+        '{emoji} O Baú guarda +{cristais} 💎 para quem cumprir "{nomeItem}"!'
+      ],
+      bau_pendente_ja: [
+        '⚠️ Esta missão já está esperando o Mestre, {nome}!',
+        '⚠️ Você já avisou sobre esta missão. Aguarde o selo do Mestre!',
+        '⚠️ Um pedido dessa missão já está a caminho. Paciência, Guardião!'
+      ],
+      bau_enviada: [
+        '⚔️ Missão "{nomeItem}" enviada ao Mestre! Aguarde a aprovação, {nome}!',
+        '⚔️ O corvo levou o aviso de "{nomeItem}" ao Mestre. Agora é esperar!',
+        '⚔️ Missão "{nomeItem}" registrada! Quando o Mestre aprovar, os cristais chegam!'
+      ],
+      bau_erro: [
+        '❌ Não consegui enviar a missão. Tente de novo, Guardião!',
+        '❌ O aviso se perdeu no caminho. Envie mais uma vez!',
+        '❌ Algo deu errado com a missão. Tente novamente!'
+      ],
+      bau_cancelada: [
+        '⚔️ Missão cancelada. Você pode avisar de novo quando concluir, {nome}!',
+        '⚔️ Aviso desfeito! Quando terminar a tarefa de verdade, é só enviar de novo!',
+        '⚔️ Missão cancelada com sucesso. O Baú espera você voltar!'
+      ],
+      bau_cancela_erro: [
+        '❌ Não consegui cancelar a missão. Tente de novo!',
+        '❌ O aviso resistiu e não sumiu. Tente novamente!',
+        '❌ Algo deu errado ao cancelar. Tente mais uma vez!'
+      ],
+
+      /* ── Tela de entrada e ranking ── */
+      gs_toque: [
+        'Saudações, Guardião! Toque no seu avatar para entrar na Ordem!',
+        'Ehehe! Sou o Oráculo da Ordem. Escolha seu avatar e a aventura começa!',
+        'Os portões do castelo estão abertos. Qual Guardião vai entrar hoje?',
+        'Cada Guardião tem sua própria jornada. Toque no seu rosto!'
+      ],
+      rank_linha: [
+        '{nomeItem} tem {mins} {unidade} nesta disputa! Será que dá para alcançar?',
+        '{mins} {unidade} para {nomeItem}! A Ordem está de olho neste duelo!',
+        'Vejo {nomeItem} com {mins} {unidade}. Quem vai vencer? Só o esforço decide!'
+      ],
+      rank_titulo: [
+        'Aqui os Guardiões disputam quem estudou mais. Vence quem tem mais minutos!',
+        'Nesta arena, cada minuto vale pontos. Continue estudando para subir na tabela!',
+        'A disputa é amistosa, mas a glória é de verdade. Boa sorte, Guardião!'
+      ],
+
+      /* ── Notificações do Mestre (montadas aqui para manter o tom da Ordem) ── */
+      notif_leitura_ok: [
+        '📖 O Mestre selou sua leitura! +{quantidade} ⚡ chegaram à sua conta!',
+        '📖 Leitura aprovada! Você recebeu +{quantidade} ⚡, Guardião!',
+        '📖 Aventura aprovada pelo Mestre! +{quantidade} ⚡ de energia para você!'
+      ],
+      notif_leitura_menos: [
+        '📖 O Mestre aprovou {quantidade} dos {pedido} minutos que você registrou! +{quantidade} ⚡ para você!',
+        '📖 Leitura aprovada com ajuste: {quantidade} de {pedido} minutos. Você ganhou +{quantidade} ⚡!'
+      ],
+      notif_leitura_mais: [
+        '📖 O Mestre aprovou {quantidade} minutos, mais do que os {pedido} que você registrou! +{quantidade} ⚡!',
+        '📖 Boa notícia: sua leitura valeu {quantidade} minutos, e não só {pedido}! +{quantidade} ⚡!'
+      ],
+      notif_leitura_mestre: [
+        '📖 O Mestre anotou +{quantidade} minutos de leitura do dia {dataRef}! +{quantidade} ⚡ para você!',
+        '📖 Uma leitura do dia {dataRef} foi registrada pelo Mestre: +{quantidade} ⚡!',
+        '📖 O Mestre lembrou de você! +{quantidade} minutos de leitura ({dataRef}) viraram +{quantidade} ⚡!'
+      ],
+      notif_leitura_no: [
+        '📖 O Mestre não aprovou esta leitura desta vez. Converse com ele e tente de novo!',
+        '📖 Esta leitura voltou sem o selo. Tente de novo, {nome}!',
+        '📖 O selo do Mestre não veio desta vez. Amanhã tem outra chance!'
+      ],
+      notif_duo_ok: [
+        '🦉 O Mestre aprovou seu Duolingo! +{quantidade} ⚡ chegaram à sua conta!',
+        '🦉 Estudo de línguas aprovado! Você recebeu +{quantidade} ⚡, Guardião!',
+        '🦉 Selo do Mestre carimbado no seu Duolingo! +{quantidade} ⚡ de energia!'
+      ],
+      notif_duo_menos: [
+        '🦉 O Mestre aprovou {quantidade} dos {pedido} minutos de Duolingo que você registrou! +{quantidade} ⚡!',
+        '🦉 Duolingo aprovado com ajuste: {quantidade} de {pedido} minutos. Você ganhou +{quantidade} ⚡!'
+      ],
+      notif_duo_mais: [
+        '🦉 O Mestre aprovou {quantidade} minutos de Duolingo, mais do que os {pedido} que você registrou! +{quantidade} ⚡!',
+        '🦉 Boa notícia: seu estudo valeu {quantidade} minutos, e não só {pedido}! +{quantidade} ⚡!'
+      ],
+      notif_duo_mestre: [
+        '🦉 O Mestre anotou +{quantidade} minutos de Duolingo do dia {dataRef}! +{quantidade} ⚡ para você!',
+        '🦉 Um estudo do dia {dataRef} foi registrado pelo Mestre: +{quantidade} ⚡!',
+        '🦉 O Mestre viu seu estudo de línguas ({dataRef}) e creditou +{quantidade} ⚡!'
+      ],
+      notif_duo_no: [
+        '🦉 O Mestre não aprovou seu registro de {pedido} minutos de Duolingo. Converse com ele se tiver dúvidas!',
+        '🦉 Este estudo de {pedido} minutos voltou sem o selo. Fale com o Mestre, {nome}!',
+        '🦉 Desta vez o Mestre não aprovou o Duolingo de {pedido} minutos. Tente de novo!'
+      ],
+      notif_gasto: [
+        '💎 {quantidade} cristais viraram tempo de tela. Aproveite, Guardião! 🎮',
+        '💎 O Mestre trocou {quantidade} cristais por tempo de tela. Divirta-se! 🎮',
+        '💎 Tesouro gasto: {quantidade} cristais. Use bem esse tempo! 🎮'
+      ],
+      notif_voucher_ok: [
+        '📜 O Mestre aprovou {quantidade} minutos de tela! Aproveite, Guardião! ⏱',
+        '📜 Voucher selado! São {quantidade} minutos de tela para você! ⏱',
+        '📜 Tempo de tela liberado: {quantidade} minutos! Divirta-se, {nome}! ⏱'
+      ],
+      notif_voucher_no: [
+        '📜 O Mestre não aprovou este voucher. Converse com ele e tente de novo!',
+        '📜 Este pergaminho voltou sem selo. Você pode fazer outro pedido depois!',
+        '📜 Desta vez não deu para liberar a tela. Tente de novo mais tarde!'
+      ],
+      notif_voucher_fim: [
+        '⏱ O Mestre encerrou seu tempo de tela. Hora de voltar às aventuras!',
+        '⏱ O relógio mágico foi parado pelo Mestre. A Ordem chama você de volta!',
+        '⏱ Seu tempo de tela terminou por ordem do Mestre. Vá ler algo legal!'
+      ],
+      notif_artefato: [
+        '⚔️ O Mestre aprovou {item}! +{quantidade} 💎 chegaram à sua conta!',
+        '⚔️ Missão {item} cumprida! O Mestre entregou +{quantidade} 💎, Guardião!',
+        '⚔️ Que herói! {item} aprovado, com +{quantidade} 💎 de recompensa!'
+      ],
+      notif_artefato_no: [
+        '⚔️ O Mestre não aprovou esta tarefa desta vez. Tente de novo com mais capricho!',
+        '⚔️ A missão voltou sem selo. Converse com o Mestre e refaça!',
+        '⚔️ Desta vez não deu para aprovar a missão. Você consegue na próxima!'
+      ]
+    };
+
+    const _falaUltima = {};
+    function falar(chave, dados) {
+      const lista = FALAS[chave];
+      if (!lista || !lista.length) return '';
+      let i = Math.floor(Math.random() * lista.length);
+      if (lista.length > 1 && i === _falaUltima[chave]) {
+        i = (i + 1 + Math.floor(Math.random() * (lista.length - 1))) % lista.length;
       }
-      typeNext();
+      _falaUltima[chave] = i;
+      const hs = (typeof heroState !== 'undefined' && heroState) ? heroState : {};
+      const base = {
+        nome:    hs.nome || (typeof currentUserNome !== 'undefined' && currentUserNome) || 'Guardião',
+        streak:  hs.streakLeitura || 0,
+        nivel:   hs.nivel || 1,
+        duo:     hs.duoBatidos || 0,
+        energia: hs.energia || 0
+      };
+      const d = Object.assign(base, dados || {});
+      return lista[i].replace(/\{(\w+)\}/g, (m, k) => (d[k] != null ? d[k] : m));
+    }
 
-      // Oráculos nos modais — cancela timer anterior antes de iniciar novo
+    // Monta a fala de uma notificação do Mestre. Se faltar dado (notificação antiga), usa o texto salvo.
+    function textoNotif(n) {
+      const q = Number(n.quantidade) || 0, p = Number(n.pedido) || 0;
+      const d = { quantidade: q, pedido: p, item: n.item || '', dataRef: n.dataRef || '' };
+      const cai = (chave) => falar(chave, d);
+      let t = '';
+      switch (n.tipo) {
+        case 'leitura_aprovada':
+          if (!q) break;
+          t = n.origem === 'mestre' && n.dataRef ? cai('notif_leitura_mestre')
+            : (p && q < p) ? cai('notif_leitura_menos')
+            : (p && q > p) ? cai('notif_leitura_mais') : cai('notif_leitura_ok');
+          break;
+        case 'leitura_reprovada': t = cai('notif_leitura_no'); break;
+        case 'duolingo_aprovado':
+          if (!q) break;
+          t = (p && q < p) ? cai('notif_duo_menos') : (p && q > p) ? cai('notif_duo_mais') : cai('notif_duo_ok');
+          break;
+        case 'duolingo':
+          if (!q) break;
+          t = n.dataRef ? cai('notif_duo_mestre') : cai('notif_duo_ok');
+          break;
+        case 'duolingo_reprovado': if (p) t = cai('notif_duo_no'); break;
+        case 'gasto': if (q) t = cai('notif_gasto'); break;
+        case 'voucher_aprovado': if (q) t = cai('notif_voucher_ok'); break;
+        case 'voucher_recusado': t = cai('notif_voucher_no'); break;
+        case 'voucher_encerrado': t = cai('notif_voucher_fim'); break;
+        case 'artefato': if (q && n.item) t = cai('notif_artefato'); break;
+        case 'artefato_recusado': t = cai('notif_artefato_no'); break;
+      }
+      if (t) return t;
+      const icones = { duolingo:'🦉', duolingo_aprovado:'🦉✅', duolingo_reprovado:'🦉❌', gasto:'💎',
+        leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌',
+        voucher_encerrado:'⏱⏹', artefato:'⚔️✅', artefato_recusado:'⚔️❌' };
+      return `${icones[n.tipo] || '⚔️'} ${n.mensagem || ''}`.trim();
+    }
+
+    /* ============================================================
+       MOTOR DO BALÃO DO ORÁCULO
+       - 1 mensagem: balão normal, com efeito de digitação.
+       - 2 a 3 mensagens: empilhadas, uma em cima da outra.
+       - 4 ou mais: uma por vez, tocar no balão avança.
+       Tocar no balão: completa o texto na hora; com o texto completo,
+       o Oráculo reage com uma fala nova.
+    ============================================================ */
+    let oraTimer = null;                  // (compatibilidade) timer do balão principal
+    const _oraTimers = {};                // um timer por balão
+    const _oraModalTimers = {};           // espelho nos modais (voucher, baú)
+    let _oraPag = null;                   // { msgs, i } quando há paginação
+    let _oraDigitando = false;
+    let _oraCompletar = null;
+
+    function _digitar(el, texto, vel, chave, aoFim) {
+      clearTimeout(_oraTimers[chave]);
+      const chars = Array.from(texto);
+      let i = 0;
+      el.textContent = '';
+      const passo = () => {
+        if (i < chars.length) {
+          el.textContent += chars[i++];
+          _oraTimers[chave] = setTimeout(passo, vel);
+        } else {
+          _oraTimers[chave] = null;
+          if (aoFim) aoFim();
+        }
+      };
+      passo();
+    }
+
+    function _oraCancelar() {
+      clearTimeout(_oraTimers.main);
+      _oraTimers.main = null;
+      _oraDigitando = false;
+      _oraCompletar = null;
+    }
+
+    function _oraRenderLinhas(el, msgs) {
+      el.innerHTML = '';
+      el.classList.toggle('ora-multi', msgs.length > 1);
+      const linhas = msgs.map(() => {
+        const d = document.createElement('div');
+        d.className = 'ora-linha';
+        el.appendChild(d);
+        return d;
+      });
+      _oraDigitando = true;
+      _oraCompletar = () => {
+        clearTimeout(_oraTimers.main);
+        linhas.forEach((d, k) => { d.textContent = msgs[k]; });
+        _oraDigitando = false;
+        _oraCompletar = null;
+      };
+      const vel = msgs.length > 1 ? 14 : 22;
+      const proxima = (k) => {
+        if (k >= msgs.length) { _oraDigitando = false; _oraCompletar = null; return; }
+        _digitar(linhas[k], msgs[k], vel, 'main', () => proxima(k + 1));
+      };
+      proxima(0);
+    }
+
+    function _oraRenderPagina(el) {
+      const { msgs, i } = _oraPag;
+      el.innerHTML = '';
+      el.classList.add('ora-multi');
+      const linha = document.createElement('div');
+      linha.className = 'ora-linha';
+      const ind = document.createElement('span');
+      ind.className = 'ora-pag';
+      ind.textContent = i < msgs.length - 1
+        ? `▼ toque para a próxima (${i + 1}/${msgs.length})`
+        : `✦ última mensagem (${i + 1}/${msgs.length})`;
+      ind.style.visibility = 'hidden';
+      el.appendChild(linha);
+      el.appendChild(ind);
+      _oraDigitando = true;
+      _oraCompletar = () => {
+        clearTimeout(_oraTimers.main);
+        linha.textContent = msgs[i];
+        ind.style.visibility = 'visible';
+        _oraDigitando = false;
+        _oraCompletar = null;
+      };
+      _digitar(linha, msgs[i], 18, 'main', () => {
+        ind.style.visibility = 'visible';
+        _oraDigitando = false;
+        _oraCompletar = null;
+      });
+      _oraEspelhar(msgs[i]);
+    }
+
+    // Espelha a fala nos Oráculos dos modais que estiverem abertos
+    function _oraEspelhar(texto) {
       [
         { modal: 'vouchers-modal', msg: 'ora-msg-voucher', key: 'v' },
         { modal: 'bau-modal',      msg: 'ora-msg-bau',     key: 'b' }
       ].forEach(({ modal, msg, key }) => {
         const modalEl = document.getElementById(modal);
         const msgEl   = document.getElementById(msg);
-        if (!modalEl || !msgEl) return;
-        if (!modalEl.classList.contains('open')) return;
-        // Cancela typewriter anterior deste modal
+        if (!modalEl || !msgEl || !modalEl.classList.contains('open')) return;
         if (_oraModalTimers[key]) clearTimeout(_oraModalTimers[key]);
         msgEl.classList.remove('modal-ora-talking');
         void msgEl.offsetWidth;
         msgEl.classList.add('modal-ora-talking');
-        msgEl.textContent = '';
+        const chars = Array.from(texto);
         let j = 0;
-        function typeModal() {
-          if (j < texto.length) {
-            msgEl.textContent += texto[j++];
-            _oraModalTimers[key] = setTimeout(typeModal, 22);
+        msgEl.textContent = '';
+        const passo = () => {
+          if (j < chars.length) {
+            msgEl.textContent += chars[j++];
+            _oraModalTimers[key] = setTimeout(passo, 22);
           }
-        }
-        typeModal();
+        };
+        passo();
       });
     }
 
+    // entrada: texto ou lista de textos
+    function oraMsg(entrada) {
+      const msgs = (Array.isArray(entrada) ? entrada : [entrada])
+        .map(m => String(m == null ? '' : m).trim()).filter(Boolean);
+      if (!msgs.length) return;
+      const el = document.getElementById('ora-msg');
+      if (!el) return;
+      el.classList.remove('oracle-talking');
+      void el.offsetWidth;
+      el.classList.add('oracle-talking');
+      _oraCancelar();
+      if (msgs.length <= 3) {
+        _oraPag = null;
+        _oraRenderLinhas(el, msgs);
+        _oraEspelhar(msgs.join('\n'));
+      } else {
+        _oraPag = { msgs, i: 0 };
+        _oraRenderPagina(el);
+      }
+    }
+
+    // Fala em qualquer outro balão (modal de registro, forja, tela de entrada...)
+    function oraFalarEm(idOuEl, texto) {
+      const el = typeof idOuEl === 'string' ? document.getElementById(idOuEl) : idOuEl;
+      if (!el) return;
+      const chave = 'x_' + (el.id || 'anon');
+      _digitar(el, String(texto), 20, chave);
+    }
+
     function setForgeMsg(texto) {
-      document.getElementById('ora-msg-forge').textContent = texto;
+      oraFalarEm('ora-msg-forge', texto);
+    }
+
+    // Toque no balão principal
+    function tocarBalao() {
+      const el = document.getElementById('ora-msg');
+      if (_oraDigitando) {
+        if (_oraCompletar) _oraCompletar();
+        vibrate(10);
+        return;
+      }
+      if (_oraPag) {
+        if (_oraPag.i < _oraPag.msgs.length - 1) {
+          _oraPag.i++;
+          soundTone(700, 'sine', 0.12, 0.12, 0.005);
+          vibrate(15);
+          _oraCancelar();
+          _oraRenderPagina(el);
+          return;
+        }
+        _oraPag = null;   // acabou a fila: cai na reação normal
+      }
+      const r = el.getBoundingClientRect();
+      soundTone(600, 'sine', 0.18, 0.14, 0.005);
+      setTimeout(() => soundTone(800, 'sine', 0.18, 0.12, 0.005), 90);
+      vibrate([20, 20, 30]);
+      spawnColorSparks(r.left + r.width / 2, r.top + r.height / 2, 10,
+        ['rgba(255,215,0,', 'rgba(255,255,150,', 'rgba(200,150,255,']);
+      oraMsg(falar('balao_toque'));
     }
 
     /* ============================================================
-       FIREBASE — configuração e inicialização
+       INTERAÇÃO UNIVERSAL
+       - data-fala="chave": tocar no elemento faz o Oráculo falar,
+         com som, faíscas e vibração. Dados extras vêm de data-*.
+       - Toques em áreas sem reação própria ganham um feedback suave.
+       - Sem seleção de texto, sem menu do navegador, sem zoom.
+    ============================================================ */
+    let _ultimoEfeito = 0;
+    let _toquesSemFala = 0;
+
+    const _RESOLVE_FALA = {
+      reg_toque: () => (_modoRegistro === 'duolingo' ? 'reg_duo_toque' : 'reg_leitura_toque')
+    };
+
+    function _falarNoContexto(el, texto) {
+      if (el.closest('#reading-modal'))  return oraFalarEm('reading-oracle-text', texto);
+      if (el.closest('#forge-modal'))    return oraFalarEm('ora-msg-forge', texto);
+      if (el.closest('#guardian-select')) return oraFalarEm(document.querySelector('.gs-oracle-bubble'), texto);
+      if (el.closest('#hero-overlay'))   return oraFalarEm('hero-overlay-bubble', texto);
+      return oraMsg(texto);   // tela principal, vouchers e baú (espelhado)
+    }
+
+    function reagirFala(el, ev) {
+      let chave = el.dataset.fala;
+      if (_RESOLVE_FALA[chave]) chave = _RESOLVE_FALA[chave]();
+      const dados = Object.assign({}, el.dataset);
+      delete dados.fala;
+      if (chave === 'bau_missao' && !String(dados.descItem || '').trim()) chave = 'bau_missao_sem_desc';
+      if (chave.indexOf('reg_') === 0) dados.minimo = _minimoRegistro(_modoRegistro);
+      const texto = chave === 'heroi_toque' ? gerarFalaHeroi() : falar(chave, dados);
+      if (!texto) return;
+      const r = el.getBoundingClientRect();
+      const cx = (ev && ev.clientX) || (r.left + r.width / 2);
+      const cy = (ev && ev.clientY) || (r.top + r.height / 2);
+      vibrate([20, 15, 30]);
+      soundTone(560, 'sine', 0.16, 0.13, 0.005);
+      setTimeout(() => soundTone(760, 'sine', 0.14, 0.11, 0.005), 80);
+      spawnColorSparks(cx, cy, 9, ['rgba(255,215,0,', 'rgba(255,255,170,', 'rgba(150,220,255,']);
+      el.classList.remove('toque-pulso');
+      void el.offsetWidth;
+      el.classList.add('toque-pulso');
+      setTimeout(() => el.classList.remove('toque-pulso'), 500);
+      _falarNoContexto(el, texto);
+    }
+
+    function _toqueSuave(ev) {
+      _toquesSemFala++;
+      vibrate(8);
+      soundTone(520, 'sine', 0.12, 0.07, 0.005);
+      spawnColorSparks(ev.clientX, ev.clientY, 5, ['rgba(255,215,0,', 'rgba(255,255,170,']);
+      if (_toquesSemFala % 4 === 0 && !_oraDigitando && !_oraPag) oraMsg(falar('toque_generico'));
+    }
+
+    function _iniciarInteracaoUniversal() {
+      // Marca qualquer efeito (som, vibração, faíscas, fala) para saber se um toque já teve reação
+      ['vibrate', 'soundTone', 'spawnColorSparks', 'oraMsg', 'oraFalarEm'].forEach(nome => {
+        const original = window[nome];
+        if (typeof original !== 'function') return;
+        window[nome] = function () { _ultimoEfeito = performance.now(); return original.apply(this, arguments); };
+      });
+
+      // Fase de captura: funciona mesmo dentro de overlays que interrompem a propagação do clique
+      document.addEventListener('click', (ev) => {
+        const t = ev.target;
+        if (!t || !t.closest) return;
+        const comFala = t.closest('[data-fala]');
+        if (!comFala) return;
+        const ativo = t.closest('button, a, [onclick]');       // botão dentro de um card com fala: o botão manda
+        if (ativo && ativo !== comFala && comFala.contains(ativo)) return;
+        reagirFala(comFala, ev);
+      }, true);
+
+      // Fase normal: se nada reagiu ao toque (nem o próprio elemento), dá um feedback suave
+      document.addEventListener('click', (ev) => {
+        const t = ev.target;
+        if (!t || !t.closest) return;
+        if (t.closest('[data-fala], button, a, input, textarea, select, label, [onclick], [data-sem-toque], canvas')) return;
+        if (performance.now() - _ultimoEfeito < 120) return;   // algo já reagiu a este toque
+        _toqueSuave(ev);
+      });
+
+      // Comportamento de app: nada de menu do navegador, seleção, arrastar ou zoom por gesto
+      const ehCampo = (el) => el && el.closest && el.closest('input, textarea, [contenteditable="true"]');
+      document.addEventListener('contextmenu', (e) => { if (!ehCampo(e.target)) e.preventDefault(); });
+      document.addEventListener('selectstart',  (e) => { if (!ehCampo(e.target)) e.preventDefault(); });
+      document.addEventListener('dragstart',    (e) => e.preventDefault());
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach(g =>
+        document.addEventListener(g, (e) => e.preventDefault()));
+    }
+    document.addEventListener('DOMContentLoaded', _iniciarInteracaoUniversal);
+
+    function pluralDias(n)    { return n + (n === 1 ? ' dia' : ' dias'); }
+    function pluralCabecas(n) { return n + (n === 1 ? ' cabeça acesa' : ' cabeças acesas'); }
+
+    function escAttr(s) {
+      return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+
+    /* ============================================================
+       FIREBASE - configuração e inicialização
     ============================================================ */
     const firebaseConfig = {
       apiKey: "AIzaSyABCdoTrqwRmj3wmiYGRJfTbcyoqyf5uME",
@@ -2630,12 +3633,12 @@
     }
 
     /* ============================================================
-       SEGURANÇA — Autenticação anônima + vínculo de dispositivo
+       SEGURANÇA - Autenticação anônima + vínculo de dispositivo
        Cada celular ganha uma identidade estável do Firebase Auth.
        Na primeira vez que esse celular escolhe um Guardião, gravamos
        esse vínculo em /usuarios/{chave}/device_uid. A partir daí, só
        esse celular específico pode escrever os dados daquele Guardião
-       (ver firebase-rules.json) — sem isso, a chave pública do Firebase
+       (ver firebase-rules.json) - sem isso, a chave pública do Firebase
        (já visível no código da página) deixaria qualquer pessoa do
        mundo ler/escrever tudo.
     ============================================================ */
@@ -2654,7 +3657,7 @@
         });
         auth.signInAnonymously().catch(e => {
           clearTimeout(timeout); unsub();
-          reject(new Error('Falha no login anônimo: ' + e.message + ' — Verifique se está ativado no Firebase Console.'));
+          reject(new Error('Falha no login anônimo: ' + e.message + '. Verifique se está ativado no Firebase Console.'));
         });
       });
       // Se falhar, limpa o cache para permitir nova tentativa futura
@@ -2685,7 +3688,7 @@
     }
 
     /* ============================================================
-       PUSH NOTIFICATIONS — funciona com o app fechado
+       PUSH NOTIFICATIONS - funciona com o app fechado
        O envio em si passa por um Worker externo que guarda a
        credencial secreta. O app só pede pra ele enviar, provando sua
        identidade com o token do Firebase Auth.
@@ -2714,12 +3717,12 @@
     async function ativarNotificacoesPush() {
       try {
         if (!('serviceWorker' in navigator) || !('Notification' in window)) {
-          oraMsg('⚠️ Este navegador não suporta notificações.');
+          oraMsg(falar('push_sem_suporte'));
           return;
         }
         const permissao = await Notification.requestPermission();
         if (permissao !== 'granted') {
-          oraMsg('🔔 Notificações não autorizadas. Você pode ativar depois nas Configurações do celular.');
+          oraMsg(falar('push_negada'));
           return;
         }
         await garantirAuth();
@@ -2735,20 +3738,20 @@
           });
           const btn = document.getElementById('btn-ativar-push');
           if (btn) btn.textContent = '🔔 Notificações ativadas';
-          oraMsg('🔔 Notificações ativadas! Você será avisado mesmo com o app fechado.');
+          oraMsg(falar('push_ok'));
         }
       } catch (e) {
         console.warn('Erro ao ativar push:', e.message);
-        oraMsg('⚠️ Não foi possível ativar as notificações agora.');
+        oraMsg(falar('push_falha'));
       }
     }
 
     /* ============================================================
-       GUARDIÕES — lista local fixa
+       GUARDIÕES - lista local fixa
        Edite aqui se mudar os nomes ou avatares.
     ============================================================ */
     /* ============================================================
-       SISTEMA DE AUTENTICAÇÃO — Seleção de Guardião
+       SISTEMA DE AUTENTICAÇÃO - Seleção de Guardião
        Busca guardiões dinamicamente do Firebase
     ============================================================ */
     let currentUserEmail = null;
@@ -2862,7 +3865,7 @@
         const userKey = sanitizeEmail(currentUserEmail);
         const userSnap = await db.ref('usuarios/' + userKey).get();
         if (!userSnap.exists()) {
-          oraMsg('⚠️ Guardião não encontrado no banco da Ordem.');
+          oraMsg(falar('sem_guardiao'));
           return;
         }
         const userData = userSnap.val();
@@ -2948,7 +3951,7 @@
         }
         list.innerHTML = '';
         d.historico.forEach((h, i) => {
-          const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦉', Gasto:'💸', Bonus:'🎁' };
+          const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦉', Gasto:'💸', Bonus:'🎁', Missao:'⚔️', Voucher:'📜' };
           const icone = icones[h.tipo] || '✦';
           const statusClass = h.status === 'Pendente' ? 'entry-status-pendente'
                             : h.status === 'Reprovado' ? 'entry-status-pendente' : 'entry-status-aprovado';
@@ -3004,26 +4007,21 @@
         await verificarMetaDuo(duoData.diasBatidosAprovados, streakConfig.meta_duo_semanal_dias, d.nome);
 
         // ── Oráculo contextual ──
-        let msgOra;
+        const msgOra = [];
         if (streakLeitura >= 7) {
-          msgOra = `🔥 ${streakLeitura} dias seguidos! Você é incrível, ${d.nome}!`;
+          msgOra.push(falar('ora_streak_alto', { streak: streakLeitura, nome: d.nome }));
         } else if (streakLeitura > 0) {
           const faltam = (streakLeitura < 3 ? 3 : streakLeitura < 7 ? 7 : 14) - streakLeitura;
-          msgOra = `🔥 ${streakLeitura} dia${streakLeitura>1?'s':''} de sequência! Faltam ${faltam} para o próximo marco!`;
-        } else if (duoData.diasBatidos > 0) {
-          msgOra = `🦉 ${duoData.diasBatidos} dia${duoData.diasBatidos>1?'s':''} de Duolingo esta semana! Continue assim!`;
-        } else {
-          const msgs = [
-            `Bem-vindo, ${d.nome}! Que sua jornada seja épica.`,
-            'A sabedoria é o maior tesouro, Guardião.',
-            'Leia mais. Cresça mais. A Ordem conta com você.'
-          ];
-          msgOra = msgs[Math.floor(Math.random() * msgs.length)];
+          msgOra.push(falar('ora_streak_marco', { streakTxt: pluralDias(streakLeitura), faltam, nome: d.nome }));
         }
+        if (duoData.diasBatidos > 0) {
+          msgOra.push(falar('ora_duo_semana', { diasTxt: pluralDias(duoData.diasBatidos), cabecasTxt: pluralCabecas(duoData.diasBatidos), nome: d.nome }));
+        }
+        if (!msgOra.length) msgOra.push(falar('ora_boas_vindas', { nome: d.nome }));
         if (Date.now() >= _oraHoldAte) oraMsg(msgOra);
 
       } catch(err) {
-        oraMsg('⚠️ Não consegui conectar ao servidor. Tente novamente.');
+        oraMsg(falar('erro_conexao'));
         console.error('loadData error:', err);
       }
     }
@@ -3048,7 +4046,7 @@
       document.getElementById('forge-modal').style.display = 'flex';
       forgeAcc = 0;
       atualizarForgeUI();
-      setForgeMsg('O calor da forja aumenta... Vamos criar cristais, Guardião!');
+      setForgeMsg(falar('forja_abrir'));
     }
 
     function fecharForja() {
@@ -3092,7 +4090,7 @@
       } else {
         soundError();
         vibrate([100, 50, 100]);
-        setForgeMsg('⚡ Energia insuficiente! Leia mais livros para ganhar energia, Guardião.');
+        setForgeMsg(falar('forja_sem_energia'));
 
         const pill = document.getElementById('pill-energia');
         pill.style.transition = 'none';
@@ -3112,7 +4110,7 @@
 
     function confirmarForja() {
       if (forgeAcc === 0) { fecharForja(); return; }
-      setForgeMsg('As chamas da Ordem selam a forja... Aguarde!');
+      setForgeMsg(falar('forja_selando'));
       vibrate([50, 30, 50]);
 
       (async () => {
@@ -3125,7 +4123,7 @@
           const ganhoForja2 = streakConfig.ganho_forja || 10;
           const custo = (forgeAcc / ganhoForja2) * (streakConfig.custo_forja || 30);
           if (Number(userData.saldo_energia) < custo) {
-            setForgeMsg('⚡ Energia insuficiente! Leia mais livros primeiro.'); return;
+            setForgeMsg(falar('forja_sem_energia')); return;
           }
           await userRef.update({
             saldo_energia: Number(userData.saldo_energia) - custo,
@@ -3139,9 +4137,9 @@
             detalhes: `Forja Épica de ${forgeAcc} cristais`,
             status: 'Aprovado'
           });
-          setForgeMsg(`⚒️ Forja concluída! +${forgeAcc} Cristais adquiridos!`);
+          setForgeMsg(falar('forja_ok', { n: forgeAcc }));
         } catch(err) {
-          setForgeMsg('❌ Erro de conexão. Tente novamente.'); return;
+          setForgeMsg(falar('forja_erro')); return;
         }
 
         soundForgeEpic(); screenFlash(); screenShake(14, 600);
@@ -3192,16 +4190,8 @@
     let _oraHoldAte      = 0;
 
     const REG_TEXTOS = {
-      leitura: {
-        titulo:   '📖 Registro de Leitura',
-        subtitulo:'✦ Relate sua aventura de leitura ao Oráculo ✦',
-        ora:      'Qual tomo mágico você leu hoje, Guardião? Cada página é um passo para o próximo nível!'
-      },
-      duolingo: {
-        titulo:   '🦉 Registro de Duolingo',
-        subtitulo:'✦ Conte ao Oráculo quanto você estudou ✦',
-        ora:      null   // montada na hora (depende do mínimo configurado)
-      }
+      leitura:  { titulo: '📖 Registro de Leitura',  subtitulo: '✦ Relate sua aventura de leitura ao Oráculo ✦' },
+      duolingo: { titulo: '🦉 Registro de Duolingo', subtitulo: '✦ Conte ao Oráculo quanto você estudou ✦' }
     };
 
     function _minimoRegistro(modo) {
@@ -3245,9 +4235,7 @@
       document.getElementById('reading-title').textContent    = t.titulo;
       document.getElementById('reading-subtitle').textContent = t.subtitulo;
       document.getElementById('reading-book-wrap').style.display = ehDuo ? 'none' : 'block';
-      document.getElementById('reading-oracle-text').textContent = ehDuo
-        ? `Quantos minutos de Duolingo você estudou, Guardião? A partir de ${minimo} minutos a cabeça do Oráculo acende!`
-        : t.ora;
+      oraFalarEm('reading-oracle-text', falar(ehDuo ? 'reg_duo_abrir' : 'reg_leitura_abrir', { minimo }));
       _montarPresets();
       if (!silencioso) { soundTone(660, 'sine', 0.15, 0.15, 0.005); vibrate(20); }
     }
@@ -3278,7 +4266,7 @@
     }
 
     function _erroRegistro(msg, focoId) {
-      document.getElementById('reading-oracle-text').textContent = msg;
+      oraFalarEm('reading-oracle-text', msg);
       soundError(); vibrate([80, 40, 80]);
       if (focoId) document.getElementById(focoId).focus();
     }
@@ -3291,22 +4279,18 @@
       const minimo = _minimoRegistro(_modoRegistro);
 
       if (!ehDuo && !livro) {
-        return _erroRegistro('⚠️ Diga-me o nome do livro, Guardião! Não posso registrar sem saber qual você leu!', 'reading-book');
+        return _erroRegistro(falar('reg_erro_livro'), 'reading-book');
       }
       if (!min || min < 1) {
-        return _erroRegistro(ehDuo
-          ? '⚠️ Quantos minutos de Duolingo você estudou, Guardião? Todo minuto conta!'
-          : '⚠️ Quantos minutos você leu, Guardião? Todo minuto conta para subir de nível!', 'reading-mins');
+        return _erroRegistro(falar(ehDuo ? 'reg_erro_min_duo' : 'reg_erro_min_leitura'), 'reading-mins');
       }
       if (min < minimo) {
-        return _erroRegistro(ehDuo
-          ? `⚠️ O mínimo para registrar Duolingo é ${minimo} minutos por sessão, Guardião!`
-          : `⚠️ O mínimo para registrar é ${minimo} minutos, Guardião! Cada sessão precisa valer a pena!`, 'reading-mins');
+        return _erroRegistro(falar(ehDuo ? 'reg_abaixo_duo' : 'reg_abaixo_leitura', { minimo }), 'reading-mins');
       }
 
-      document.getElementById('reading-oracle-text').textContent = ehDuo
-        ? `📜 Registrando ${min} minutos de Duolingo... Aguardando aprovação do Mestre!`
-        : `📜 Registrando ${min} minutos de "${livro}"... Aguardando aprovação do Mestre!`;
+      oraFalarEm('reading-oracle-text', ehDuo
+        ? falar('reg_envia_duo', { min })
+        : falar('reg_envia_leitura', { min, livro }));
       soundCrystalChime();
       vibrate([60, 30, 120]);
 
@@ -3330,13 +4314,13 @@
           _oraHoldAte = Date.now() + 10000;   // segura a fala do Oráculo por 10s
           const cx = window.innerWidth / 2;
           if (ehDuo) {
-            oraMsg(`🦉 ${min} min de Duolingo registrados! A cabeça do Oráculo já acendeu — mas os ⚡ só chegam quando o Mestre aprovar.`);
+            oraMsg(falar('reg_ok_duo', { min }));
             vibrate([100, 50, 200]);
             spawnFloat('+' + min + ' ⚡', '#66BB6A', cx, window.innerHeight / 3);
             setTimeout(() => spawnColorSparks(cx, window.innerHeight / 3, 22,
               ['rgba(0,255,150,', 'rgba(255,215,0,', 'rgba(100,255,200,']), 200);
           } else {
-            oraMsg(`📜 "${livro}" registrado! ${min} min aguardando aprovação do Mestre.`);
+            oraMsg(falar('reg_ok_leitura', { min, livro }));
             vibrate([100, 50, 200]);
             spawnFloat('+' + min + ' ⚡', '#FF8C00', cx, window.innerHeight / 3);
           }
@@ -3352,12 +4336,12 @@
           }
         }).catch(() => {
           liberar();
-          document.getElementById('reading-oracle-text').textContent = '❌ Erro ao registrar. Tente novamente.';
+          oraFalarEm('reading-oracle-text', falar('reg_erro_envio'));
           soundError();
         });
       }).catch(() => {
         liberar();
-        document.getElementById('reading-oracle-text').textContent = '❌ Erro ao registrar. Tente novamente.';
+        oraFalarEm('reading-oracle-text', falar('reg_erro_envio'));
         soundError();
       });
     }
@@ -3398,13 +4382,7 @@
       sub.textContent = `✦ ${titulo.toUpperCase()} · NÍVEL ${heroState.nivel} ✦`;
 
       // Fala contextual
-      bubble.textContent = '';
-      const fala = gerarFalaHeroi();
-      let i = 0;
-      const typeTimer = setInterval(() => {
-        if (i < fala.length) { bubble.textContent += fala[i++]; }
-        else clearInterval(typeTimer);
-      }, 22);
+      oraFalarEm(bubble, gerarFalaHeroi());
 
       // Abre overlay
       const overlay = document.getElementById('hero-overlay');
@@ -3423,29 +4401,18 @@
     }
 
     function gerarFalaHeroi() {
-      const nome = heroState.nome;
-      const streak = heroState.streakLeitura;
-      const nivel  = heroState.nivel;
-      const duo    = heroState.duoBatidos;
-      const meta   = heroState.metaDuo;
-
-      if (streak >= 30) return `⚡ TRINTA DIAS SEGUIDOS! A Ordem canta seu nome, ${nome}! Você é uma lenda!`;
-      if (streak >= 14) return `🔥 ${streak} dias de leitura sem parar! ${nome}, você tem a chama de um campeão!`;
-      if (streak >= 7)  return `🔥 Uma semana inteira lendo! ${nome}, a Ordem se orgulha de você!`;
-      if (streak >= 3)  return `⚔️ ${streak} dias seguidos, ${nome}! Continue e alcance novos marcos!`;
-      if (duo >= meta)  return `🦉 Meta do Duolingo concluída esta semana! ${nome}, as línguas se curvam diante de você!`;
-      if (duo > 0)      return `🦉 ${duo} dia${duo>1?'s':''} de Duolingo! ${nome}, o Oráculo sorri para você!`;
-      if (nivel >= 3)   return `⭐ Nível ${nivel}! ${nome}, sua sabedoria cresce com cada página virada!`;
-      if (heroState.energia > 100) return `⚡ ${heroState.energia} de energia! ${nome}, a Ordem sente sua força!`;
-      // Default rotativo
-      const falas = [
-        `⚔️ ${nome}! Cada livro lido forja um guardião mais forte!`,
-        `🛡️ A Ordem conta com você, ${nome}! Continue sua jornada!`,
-        `✨ Seu avatar representa sua dedicação, ${nome}. Orgulho da Ordem!`,
-        `📚 Um guardião que lê nunca é derrotado, ${nome}!`,
-        `🌟 ${nome}, os Mestres do passado soriem ao ver seu progresso!`,
-      ];
-      return falas[Math.floor(Math.random() * falas.length)];
+      const hs = heroState;
+      const streak = hs.streakLeitura, nivel = hs.nivel, duo = hs.duoBatidos, meta = hs.metaDuo;
+      const d = { diasTxt: pluralDias(duo), cabecasTxt: pluralCabecas(duo) };
+      if (streak >= 30) return falar('heroi_30', d);
+      if (streak >= 14) return falar('heroi_14', d);
+      if (streak >= 7)  return falar('heroi_7', d);
+      if (streak >= 3)  return falar('heroi_3', d);
+      if (duo >= meta)  return falar('heroi_duo_meta', d);
+      if (duo > 0)      return falar('heroi_duo', d);
+      if (nivel >= 3)   return falar('heroi_nivel', d);
+      if (hs.energia > 100) return falar('heroi_energia', d);
+      return falar('heroi_geral', d);
     }
 
     function fecharHeroOverlay() {
@@ -3464,15 +4431,7 @@
        INTERATIVIDADE DO AMBIENTE
     ============================================================ */
 
-    // — ENERGIA —
-    const MSGS_ENERGIA = [
-      ['⚡ Energia vem da leitura, Guardião! Pegue um livro!', false],
-      ['⚡ Cada minuto lido é uma faísca de poder!', false],
-      ['⚡ Guarde sua energia para as forjas maiores!', false],
-      ['⚡ A energia da leitura nunca some, só cresce!', false],
-      ['⚡ Um Guardião sem energia é um Guardião em repouso. Leia mais!', false],
-    ];
-    let msgEIdx = 0;
+    // - ENERGIA -
     function tocarEnergia(el) {
       vibrate(40);
       soundTone(330, 'sine', 0.18, 0.25, 0.005);
@@ -3487,19 +4446,10 @@
       // Floating
       spawnFloat('⚡', '#FF8C00', rect.left + rect.width/2, rect.top);
       // Mensagem
-      oraMsg(MSGS_ENERGIA[msgEIdx % MSGS_ENERGIA.length][0]);
-      msgEIdx++;
+      oraMsg(falar('energia'));
     }
 
-    // — CRISTAIS —
-    const MSGS_CRISTAIS = [
-      ['💎 Cristais são a moeda da Ordem! Forje mais na Forja Épica!', false],
-      ['💎 Os cristais brilham para os que estudam com afinco!', false],
-      ['💎 Cada cristal é um minuto de leitura transformado em poder!', false],
-      ['💎 Guarde seus cristais com sabedoria, Guardião!', false],
-      ['💎 Com cristais você conquista tempo de tela. Continue lendo!', false],
-    ];
-    let msgCIdx = 0;
+    // - CRISTAIS -
     function tocarCristais(el) {
       vibrate(40);
       soundCrystalChime();
@@ -3512,19 +4462,10 @@
       const rect = el.getBoundingClientRect();
       spawnColorSparks(rect.left + rect.width/2, rect.top + rect.height/2, 10, ['rgba(0,212,255,', 'rgba(100,220,255,', 'rgba(0,150,255,']);
       spawnFloat('💎', '#00D4FF', rect.left + rect.width/2, rect.top);
-      oraMsg(MSGS_CRISTAIS[msgCIdx % MSGS_CRISTAIS.length][0]);
-      msgCIdx++;
+      oraMsg(falar('cristais'));
     }
 
-    // — NÍVEL / NOME —
-    const MSGS_NIVEL = [
-      ['🌟 Cada livro lido eleva seu nível na Ordem dos Guardiões!', false],
-      ['🌟 O seu nível reflete sua dedicação, Guardião. Orgulho!', false],
-      ['🌟 500 minutos de leitura para subir de nível. Você consegue!', false],
-      ['🌟 Guardiões lendários começaram do nível 1 como você!', false],
-      ['🌟 Seu nome ecoa nos salões da Ordem. Continue sua jornada!', false],
-    ];
-    let msgNIdx = 0;
+    // - NÍVEL / NOME -
     function tocarNivel(el) {
       vibrate([30, 20, 60]);
       soundTone(523, 'sine', 0.5, 0.25, 0.01);
@@ -3538,19 +4479,10 @@
       const rect = el.getBoundingClientRect();
       spawnColorSparks(rect.left + rect.width/2, rect.top + rect.height/2, 12, ['rgba(255,215,0,', 'rgba(255,255,150,', 'rgba(255,180,0,']);
       spawnFloat('⭐', '#FFD700', rect.left + rect.width/2, rect.top - 10);
-      oraMsg(MSGS_NIVEL[msgNIdx % MSGS_NIVEL.length][0]);
-      msgNIdx++;
+      oraMsg(falar('nivel'));
     }
 
-    // — BARRA DE XP —
-    const MSGS_XP = [
-      ['📊 Cada minuto lido enche sua barra de XP! Continue!', false],
-      ['📊 Ao completar 500 minutos, você sobe de nível, Guardião!', false],
-      ['📊 Sua barra de poder cresce com cada página virada!', false],
-      ['📊 Você está no caminho certo para a glória, Guardião!', false],
-      ['📊 Registre suas leituras e veja a barra crescer!', false],
-    ];
-    let msgXIdx = 0;
+    // - BARRA DE XP -
     function tocarXP(el) {
       vibrate(30);
       // Tom ascendente
@@ -3565,24 +4497,25 @@
       const rect = el.getBoundingClientRect();
       const fillW = document.getElementById('xp-fill').offsetWidth;
       spawnColorSparks(rect.left + fillW, rect.top + rect.height/2, 8, ['rgba(0,212,255,', 'rgba(80,180,255,', 'rgba(0,100,255,']);
-      oraMsg(MSGS_XP[msgXIdx % MSGS_XP.length][0]);
-      msgXIdx++;
+      oraMsg(falar('xp'));
     }
 
-    // — ORÁCULO —
-    const MSGS_ORACULO = [
-      ['Ehehe! Você me tocou! Sou o Oráculo da Ordem, guardião do conhecimento!', true],
-      ['Sou feito de sabedoria ancestral e um pouquinho de magia... hehe!', true],
-      ['Cuido de todos os Guardiões com carinho. Leia muito e me deixe feliz!', true],
-      ['Psiu... entre nós: quem lê mais, sempre vence! É segredo da Ordem!', true],
-      ['Ei! Eu vi você terminar aquele livro! Que Guardião incrível!', true],
-      ['Minhas profecias nunca falham: você vai subir de nível em breve!', true],
-      ['Obrigado por cuidar de mim, Guardião. Juntos somos mais fortes!', true],
-    ];
-    let msgOIdx = 0;
+    // - ORÁCULO -
+    function escolherFalaOraculo() {
+      const hs = heroState || {};
+      const contexto = [];
+      if ((hs.streakLeitura || 0) >= 3) contexto.push('oraculo_streak');
+      if ((hs.duoBatidos || 0) > 0)     contexto.push('oraculo_duo');
+      if ((hs.nivel || 1) >= 3)         contexto.push('oraculo_nivel');
+      const sorteia = (v) => v[Math.floor(Math.random() * v.length)];
+      const chave = (contexto.length && Math.random() < 0.35)
+        ? sorteia(contexto)
+        : sorteia(['oraculo_conselho', 'oraculo_elogio', 'oraculo_historia']);
+      return falar(chave);
+    }
     function tocarOraculo(el) {
       vibrate([30, 30, 80]);
-      // Som mágico especial — acorde
+      // Som mágico especial - acorde
       [440, 554, 659, 880].forEach((f, i) => setTimeout(() => soundTone(f, 'sine', 0.5, 0.2, 0.01), i * 60));
       // Animação de empolgação
       el.classList.remove('oracle-excited');
@@ -3596,8 +4529,7 @@
       // Estrelinhas flutuando
       ['✨','⭐','🌟'].forEach((s, i) => setTimeout(() =>
         spawnFloat(s, '#FFD700', cx + (i-1)*25, cy - 10), i * 100));
-      oraMsg(MSGS_ORACULO[msgOIdx % MSGS_ORACULO.length][0]);
-      msgOIdx++;
+      oraMsg(escolherFalaOraculo());
     }
 
     // Helper: spawnColorSparks com cores customizadas
@@ -3617,12 +4549,12 @@
       }
     }
 
-    // Helper: tom rápido genérico — mantido para compatibilidade (usa o novo motor)
+    // Helper: tom rápido genérico - mantido para compatibilidade (usa o novo motor)
     // soundTone já está definido no motor de áudio acima
 
 
     /* ============================================================
-       STREAK — Cálculo e renderização
+       STREAK - Cálculo e renderização
     ============================================================ */
 
     // Configuração padrão (sobrescrita pelo Firebase config)
@@ -3678,7 +4610,7 @@
         if (dias.has(str)) {
           streak++;
         } else if (i === 0) {
-          // hoje ainda pode não ter registrado — verifica ontem
+          // hoje ainda pode não ter registrado - verifica ontem
           continue;
         } else {
           break;
@@ -3693,7 +4625,7 @@
 
       // Agrupa minutos de Duolingo por data (usa data_aferida se existir).
       // Igual à leitura: 'Pendente' já conta para acender a cabeça (a criança não fica esperando o Mestre).
-      // minPorDiaAprov guarda só o que já foi aprovado — é ele que libera a recompensa semanal.
+      // minPorDiaAprov guarda só o que já foi aprovado - é ele que libera a recompensa semanal.
       const minPorDia = {};
       const minPorDiaAprov = {};
       trans.filter(t => t.email === email && t.tipo === 'Duolingo' &&
@@ -3805,7 +4737,7 @@
       spawnColorSparks(cx, cy-80, 30, ['rgba(255,120,0,','rgba(255,200,0,','rgba(255,255,150,']);
       spawnShockwave(cx, cy-80, 'rgba(255,120,0,', 140);
       spawnFloat(`🔥 +${bonus}⚡`, '#FF8C00', cx, cy - 100);
-      setTimeout(() => oraMsg(`🔥 INCRÍVEL, ${nome}! ${dias} dias seguidos de leitura! +${bonus} ⚡ de bônus!`), 600);
+      setTimeout(() => oraMsg(falar('celebra_marco', { nome, dias, bonus })), 600);
     }
 
     // Verifica meta semanal do Duolingo
@@ -3846,7 +4778,7 @@
         spawnShockwave(cx, cy-60, 'rgba(0,255,150,', 120);
       }, delay));
       spawnFloat(`+${recompensa} 💎`, '#00D4FF', cx, cy - 100);
-      setTimeout(() => oraMsg(`🦉 ${nome}! Completou ${meta} dias de Duolingo esta semana! +${recompensa} 💎 de cristais!`), 800);
+      setTimeout(() => oraMsg(falar('celebra_duo', { nome, meta, recompensa })), 800);
       // Recarrega saldos
       setTimeout(() => loadData(), 1500);
     }
@@ -3859,16 +4791,7 @@
       el.classList.remove('streak-pulse'); void el.offsetWidth; el.classList.add('streak-pulse');
       setTimeout(() => el.classList.remove('streak-pulse'), 600);
       const streak = parseInt(document.getElementById('streak-leitura-num').textContent) || 0;
-      if (streak === 0) {
-        oraMsg('🔥 Registre uma leitura hoje para iniciar sua sequência, Guardião!');
-      } else {
-        const msgs = [
-          `🔥 ${streak} dias seguidos! Continue assim, Guardião!`,
-          `🔥 Sua chama não se apaga! ${streak} dias de sequência!`,
-          `🔥 Lendário! ${streak} dias lendo sem parar!`
-        ];
-        oraMsg(msgs[streak % msgs.length]);
-      }
+      oraMsg(streak === 0 ? falar('streak_zero') : falar('streak_n', { streak }));
       const rect = el.getBoundingClientRect();
       spawnColorSparks(rect.left + rect.width/2, rect.top + rect.height/2, 12,
         ['rgba(255,120,0,','rgba(255,200,50,','rgba(255,255,100,']);
@@ -3900,7 +4823,7 @@
         }
         lblEl.style.color = 'rgba(255,200,150,0.8)';
       }
-      // Recorde (por enquanto igual ao streak atual — futuro: guardar no Firebase)
+      // Recorde (por enquanto igual ao streak atual - futuro: guardar no Firebase)
       if (streakLeitura > 0) recEl.textContent = `🏆 Recorde: ${streakLeitura}`;
 
       // ── Duolingo ──
@@ -3911,7 +4834,7 @@
       if (duoData.diasBatidosAprovados >= meta) {
         document.getElementById('duo-reward-label').textContent = '✅ Meta semanal concluída!';
       } else if (duoData.diasBatidos >= meta) {
-        document.getElementById('duo-reward-label').textContent = '⏳ Meta completa — aguardando aprovação do Mestre';
+        document.getElementById('duo-reward-label').textContent = '⏳ Meta completa, aguardando o selo do Mestre';
       } else {
         document.getElementById('duo-reward-label').textContent = `🎯 Complete para +${recomp} 💎`;
       }
@@ -3919,7 +4842,7 @@
 
 
     /* ══════════════════════════════════════════════════════
-       CONFIGURAÇÕES — Som, Volume, Vibração
+       CONFIGURAÇÕES - Som, Volume, Vibração
     ══════════════════════════════════════════════════════ */
     let cfgSom = true;
     let cfgVibracao = true;
@@ -3982,7 +4905,7 @@
     }
 
     /* ══════════════════════════════════════════════════════
-       META SEMANAL — Render e interação
+       META SEMANAL - Render e interação
     ══════════════════════════════════════════════════════ */
     function atualizarMetaSemanal(minutos, meta) {
       const pct = Math.min(100, Math.round(minutos / meta * 100));
@@ -4008,15 +4931,14 @@
       const atual = parseInt(parts[0]) || 0;
       const meta  = parseInt(parts[1]) || 140;
       if (pct >= 100) {
-        oraMsg('🌟 Meta semanal concluída! Você é um Guardião lendário!');
+        oraMsg(falar('meta_completa'));
       } else {
-        const faltam = meta - atual;
-        oraMsg(`📖 Faltam ${faltam} minutos para bater a meta desta semana! Continue lendo!`);
+        oraMsg(falar('meta_faltam', { faltam: meta - atual }));
       }
     }
 
     /* ══════════════════════════════════════════════════════
-       RANKING — 4 modos (leitura/duolingo × semanal/geral)
+       RANKING - 4 modos (leitura/duolingo × semanal/geral)
     ══════════════════════════════════════════════════════ */
     let _rankTema   = 'leitura';  // 'leitura' | 'duolingo'
     let _rankPeriodo = 'semanal'; // 'semanal' | 'geral'
@@ -4135,6 +5057,10 @@
         const pct = maxMins > 0 ? Math.round(r.mins / maxMins * 100) : 0;
         const div = document.createElement('div');
         div.className = 'ranking-card' + (isLider ? ' lider' : '');
+        div.dataset.fala = 'rank_linha';
+        div.dataset.nomeItem = r.nome;
+        div.dataset.mins = r.mins;
+        div.dataset.unidade = label;
         div.innerHTML = `
           <span class="ranking-pos">${i+1}</span>
           <img class="ranking-avatar" src="${r.avatarUrl}"
@@ -4163,32 +5089,8 @@
     }
 
     /* ══════════════════════════════════════════════════════
-       INTERAÇÃO — Diário de Aventuras
+       INTERAÇÃO - Diário de Aventuras
     ══════════════════════════════════════════════════════ */
-    const MSGS_DIARIO = {
-      Leitura: [
-        'Cada página lida é um passo para a glória, Guardião!',
-        'Os livros são a chave para o próximo nível!',
-        'Leitura registrada na memória da Ordem!',
-      ],
-      Forja: [
-        'Cristais forjados com suor e dedicação!',
-        'A Forja Épica transforma esforço em poder!',
-      ],
-      Duolingo: [
-        'O Oráculo aprova seu estudo de idiomas!',
-        'Cada minuto no Duolingo acende uma chama!',
-      ],
-      Gasto: [
-        'Tempo de tela conquistado com mérito!',
-        'Os cristais foram bem investidos, Guardião!',
-      ],
-      Bonus: [
-        'Bônus concedido pela Ordem pelo seu esforço!',
-        'Recompensa especial pelos seus marcos!',
-      ],
-    };
-
     function tocarDiario(el, tipo, qtd, status) {
       initAudio();
       vibrate(25);
@@ -4211,13 +5113,14 @@
       spawnColorSparks(cx, cy, 8, cores);
       spawnFloat('+' + qtd, cores[0].replace('rgba(','').replace(',','').slice(0,7) + ')', cx, cy - 20);
       // Mensagem do oráculo
-      const msgs = MSGS_DIARIO[tipo] || ['Aventura registrada no Diário da Ordem!'];
-      const statusPrefix = status === 'Pendente' ? '⏳ ' : status === 'Reprovado' ? '❌ ' : '';
-      oraMsg(statusPrefix + msgs[Math.floor(Math.random() * msgs.length)]);
+      const falasDiario = [falar(FALAS['diario_' + tipo] ? 'diario_' + tipo : 'diario_outro')];
+      if (status === 'Pendente')        falasDiario.push('⏳ ' + falar('diario_pendente'));
+      else if (status === 'Reprovado')  falasDiario.push('❌ ' + falar('diario_reprovado'));
+      oraMsg(falasDiario);
     }
 
     /* ══════════════════════════════════════════════════════
-       INTERAÇÃO — Footer bloqueado
+       INTERAÇÃO - Footer bloqueado
     ══════════════════════════════════════════════════════ */
     function tocarFooter(el, mensagem, icone) {
       initAudio();
@@ -4226,16 +5129,16 @@
       // Shake no item
       el.classList.remove('menu-shake'); void el.offsetWidth; el.classList.add('menu-shake');
       setTimeout(() => el.classList.remove('menu-shake'), 450);
-      // Partículas cinzas — bloqueado
+      // Partículas cinzas - bloqueado
       const rect = el.getBoundingClientRect();
       const cx = rect.left + rect.width/2, cy = rect.top;
       spawnColorSparks(cx, cy, 8, ['rgba(150,150,150,','rgba(180,160,100,']);
       // Oráculo com mensagem
-      oraMsg('🔒 ' + mensagem);
+      oraMsg(falar(mensagem));
     }
 
     /* ══════════════════════════════════════════════════════
-       INTERAÇÃO — Cabeças do Duolingo
+       INTERAÇÃO - Cabeças do Duolingo
     ══════════════════════════════════════════════════════ */
     function tocarCabecaDuo(img, bateu, dateStr) {
       initAudio();
@@ -4250,7 +5153,7 @@
         spawnColorSparks(rect.left + rect.width/2, rect.top, 10,
           ['rgba(0,255,150,','rgba(255,215,0,','rgba(0,212,255,']);
         spawnFloat('✓', '#00FF88', rect.left + rect.width/2, rect.top - 10);
-        oraMsg('🦉 Boa! Você estudou Duolingo neste dia! Continue assim, Guardião!');
+        oraMsg(falar('cabeca_ok'));
       } else {
         soundTone(250, 'sawtooth', 0.15, 0.12, 0.005);
         img.style.transition = 'transform 0.3s';
@@ -4259,7 +5162,7 @@
         const rect = img.getBoundingClientRect();
         spawnColorSparks(rect.left + rect.width/2, rect.top, 6,
           ['rgba(150,150,150,','rgba(100,100,100,']);
-        oraMsg('🦉 Ainda não estudou neste dia... Que tal abrir o Duolingo agora, Guardião?');
+        oraMsg(falar('cabeca_vazia'));
       }
     }
 
@@ -4308,11 +5211,11 @@
 
 
     /* ============================================================
-       SINO + ORÁCULO — notificações do Mestre em tempo real
+       SINO + ORÁCULO - notificações do Mestre em tempo real
     ============================================================ */
     let listenerAtivo    = false;
     let filaNotificacoes = [];
-    // Chat — estado
+    // Chat - estado
     let msgCache          = {};   // { mestreUid: [{key, de, mestreUid, texto, timestamp}] }
     let mestresInfo       = {};   // { mestreUid: { nome, emoji } }
     let selectedMestreUid = null; // conversa aberta
@@ -4328,14 +5231,14 @@
       // /mensagens, /vouchers e /missoes deste Guardião)
       await vincularDispositivo(emailKey);
 
-      // Listener do usuário — recarrega tudo quando houver mudança
+      // Listener do usuário - recarrega tudo quando houver mudança
       // (cobre reset de dados, aprovação de leituras, alterações do Mestre)
       let primeiroDisparo = true;
       let reloadTimeout   = null;
       db.ref('usuarios/' + emailKey).on('value', snap => {
         if (primeiroDisparo) { primeiroDisparo = false; return; }
         if (!snap.exists()) return;
-        if (_suppressReload) return; // voucher/artefato em aprovação — não recarregar
+        if (_suppressReload) return; // voucher/artefato em aprovação - não recarregar
         // Debounce: evita múltiplos loadData() em sequência rápida
         clearTimeout(reloadTimeout);
         reloadTimeout = setTimeout(() => {
@@ -4343,7 +5246,7 @@
         }, 600);
       });
 
-      // Listener de transações — detecta novas aprovações/resets
+      // Listener de transações - detecta novas aprovações/resets
       let primeirasTrans = true;
       db.ref('transacoes').orderByChild('email').equalTo(currentUserEmail).on('value', snap => {
         if (primeirasTrans) { primeirasTrans = false; return; }
@@ -4359,10 +5262,10 @@
       // Listener do Baú de Artefatos
       _iniciarListenerBau();
 
-      // Notificações — drena o acúmulo em SILÊNCIO e só depois escuta as novas.
+      // Notificações - drena o acúmulo em SILÊNCIO e só depois escuta as novas.
       // (Antes: tocava o sino para cada item da pilha ao abrir o app, o que
       //  causava uma tempestade de som/vibração quando havia notificações
-      //  acumuladas — ex.: período em que o device_uid estava quebrado.)
+      //  acumuladas - ex.: período em que o device_uid estava quebrado.)
       const notifRef    = db.ref('notificacoes/' + emailKey);
       const notifVistas = new Set();
       let   sinoLote    = [];
@@ -4378,7 +5281,7 @@
 
       notifRef.once('value').then(snap => {
         // 1) Backlog: guarda na fila (para o sino mostrar quando tocado),
-        //    apaga do banco e atualiza o badge — porém SEM som/vibração.
+        //    apaga do banco e atualiza o badge - porém SEM som/vibração.
         if (snap.exists()) {
           snap.forEach(c => {
             notifVistas.add(c.key);
@@ -4412,7 +5315,7 @@
         }
       });
 
-      // Mensagens — carrega histórico e escuta novas
+      // Mensagens - carrega histórico e escuta novas
       const emailKey2 = emailKey;
       const existingMsgKeys = new Set();
 
@@ -4478,8 +5381,7 @@
         ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
       // Oráculo fala a mensagem imediatamente
       if (notif) {
-        const icones = { duolingo:'🦉', duolingo_aprovado:'🦉✅', duolingo_reprovado:'🦉❌', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌', voucher_encerrado:'⏱⏹', artefato:'⚔️✅', artefato_recusado:'⚔️❌' };
-        oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
+        oraMsg(textoNotif(notif));
         // Efeitos adicionais por tipo
         const cx = window.innerWidth/2, cy = window.innerHeight/2;
         if (notif.tipo === 'artefato') {
@@ -4514,15 +5416,11 @@
     function verNotificacoes() {
       if (!filaNotificacoes.length) {
         vibrate(20);
-        oraMsg('Nenhuma nova mensagem do Mestre, Guardião! O sino toca quando houver novidades. 🔔');
+        oraMsg(falar('sino_vazio'));
         return;
       }
-      // Mostra todas as mensagens em sequência
-      const msgs = filaNotificacoes.map(n => {
-        const ic = { duolingo:'🦉', duolingo_aprovado:'🦉✅', duolingo_reprovado:'🦉❌', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
-        return `${ic[n.tipo]||'⚔️'} ${n.mensagem}`;
-      });
-      oraMsg(msgs.join(' ✦ '));
+      // Uma mensagem por linha (até 3); acima disso o balão passa uma de cada vez
+      oraMsg(filaNotificacoes.map(textoNotif));
       filaNotificacoes = [];
       atualizarBadge();
       vibrate([30, 20, 50]);
@@ -4539,7 +5437,7 @@
     }
 
     /* ============================================================
-       CHAT — WhatsApp-style
+       CHAT - WhatsApp-style
     ============================================================ */
 
     function escapeHtmlMsg(str) {
@@ -4715,7 +5613,7 @@
           'mensagem', { emailKey, mestreUid: selectedMestreUid });
       } catch (e) {
         input.value = texto;
-        oraMsg('❌ Não foi possível enviar. Tente novamente.');
+        oraMsg(falar('erro_generico'));
       }
     }
 
@@ -4746,7 +5644,7 @@
     }
 
     /* ══════════════════════════════════════════════════════
-       VOUCHERS — Sistema de Tempo de Tela
+       VOUCHERS - Sistema de Tempo de Tela
     ══════════════════════════════════════════════════════ */
     let _voucherTimerInterval = null;
     let _voucherAtivo         = null;
@@ -4757,6 +5655,7 @@
       vibrate(50);
       soundButtonTap();
       document.getElementById('vouchers-modal').classList.add('open');
+      _oraEspelhar(falar('voucher_abrir'));
       // Mostra timer imediatamente da memória se há voucher ativo
       if (_voucherAtivo) {
         document.getElementById('voucher-ativo-section').style.display = 'block';
@@ -4837,17 +5736,17 @@
         lista.innerHTML = exibir.map(v => {
           const data = v.timestamp_solicitacao
             ? new Date(v.timestamp_solicitacao).toLocaleDateString('pt-BR')
-            : '—';
+            : 'sem data';
           let cls = 'vs-pendente', txt = '⏳ Aguardando Mestre';
           if (v.status === 'Expirado') { cls = 'vs-expirado'; txt = '✕ Expirado'; }
           if (v.status === 'Recusado') { cls = 'vs-recusado'; txt = '✗ Recusado'; }
 
-          // Botão ✕ cancelar — só em Pendente
+          // Botão ✕ cancelar - só em Pendente
           const btnCancelar = v.status === 'Pendente'
             ? `<button class="btn-cancel-item" onclick="cancelarVoucher('${v.key}')" title="Cancelar pedido">✕</button>`
             : '';
 
-          return `<div class="voucher-item">
+          return `<div class="voucher-item" data-fala="voucher_item_${v.status}">
             <div style="flex:1">
               <div class="voucher-item-cristais">${v.cristais} 💎 · ${v.cristais} min</div>
               <div class="voucher-item-sub">${data}</div>
@@ -4875,11 +5774,11 @@
       const emailKey = sanitizeEmail(currentUserEmail);
       try {
         await db.ref('vouchers/' + emailKey + '/' + vkey).remove();
-        oraMsg('📜 Pedido cancelado com sucesso, Guardião.');
+        oraMsg(falar('voucher_cancelado'));
         vibrate([40, 20, 40]);
         carregarVouchers();
       } catch(e) {
-        oraMsg('❌ Erro ao cancelar. Tente novamente.');
+        oraMsg(falar('voucher_cancela_erro'));
         soundError();
       }
     }
@@ -4935,7 +5834,7 @@
         document.getElementById('voucher-ativo-section').style.display = 'none';
 
         _alarmeFimVoucher();
-        oraMsg('⏱ SEU TEMPO DE TELA ACABOU, GUARDIÃO! Hora de voltar para os estudos! ⚔️');
+        oraMsg(falar('voucher_acabou'));
       }
     }
 
@@ -4968,7 +5867,7 @@
     async function solicitarVoucher() {
       const cristais = parseInt(document.getElementById('voucher-cristais').value);
       if (!cristais || cristais < 1) {
-        oraMsg('⚠️ Selecione ou digite a quantidade de cristais, Guardião!');
+        oraMsg(falar('voucher_sem_valor'));
         soundError(); vibrate([80, 40, 80]); return;
       }
 
@@ -4980,7 +5879,7 @@
         const snapUser = await db.ref('usuarios/' + emailKey).get();
         const saldo = snapUser.exists() ? (Number(snapUser.val().saldo_cristais) || 0) : 0;
         if (cristais > saldo) {
-          oraMsg('⚠️ Você só tem ' + saldo + ' 💎! Forge mais cristais na Forja, Guardião!');
+          oraMsg(falar('voucher_saldo', { saldo }));
           soundError(); vibrate([100, 50, 100]); return;
         }
       } catch(e) {}
@@ -4989,7 +5888,7 @@
       try {
         const snapAtivo = await db.ref('vouchers/' + emailKey).orderByChild('status').equalTo('Ativo').get();
         if (snapAtivo.exists()) {
-          oraMsg('⚠️ Já há um voucher ativo! Aguarde ele terminar antes de solicitar outro.');
+          oraMsg(falar('voucher_ja_ativo'));
           soundError(); vibrate([80, 40, 80]); return;
         }
       } catch(e) {}
@@ -5009,7 +5908,7 @@
         vibrate([60, 30, 120]);
         spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 18,
           ['rgba(0,212,255,','rgba(0,255,120,']);
-        oraMsg('📜 Pedido de ' + cristais + ' 💎 enviado ao Mestre! Aguarde a aprovação, Guardião!');
+        oraMsg(falar('voucher_enviado', { cristais }));
 
         enviarPush('_mestre', '📜 Novo pedido de voucher',
           `${currentUserNome || 'Um Guardião'} pediu ${cristais} min de tempo de tela.`,
@@ -5021,7 +5920,7 @@
 
         carregarVouchers();
       } catch(e) {
-        oraMsg('❌ Erro ao enviar pedido. Tente novamente.');
+        oraMsg(falar('voucher_erro'));
         soundError();
       } finally {
         btn.disabled = false;
@@ -5051,9 +5950,9 @@
           screenFlash();
           spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 25,
             ['rgba(0,255,120,','rgba(0,212,255,','rgba(255,215,0,']);
-          oraMsg('✅ O Mestre aprovou! ' + v.cristais + ' min de tela começando agora! ⏱');
+          oraMsg(falar('voucher_aprovado', { cristais: v.cristais }));
 
-          // Inicia timer (sem chamar carregarVouchers — atualiza UI direto)
+          // Inicia timer (sem chamar carregarVouchers - atualiza UI direto)
           if (_voucherTimerInterval) clearInterval(_voucherTimerInterval);
           _voucherTimerInterval = setInterval(_tickVoucher, 1000);
           _tickVoucher();
@@ -5072,7 +5971,7 @@
             document.getElementById('voucher-ativo-section').style.display = 'none';
           }
           if (v.status === 'Recusado') {
-            oraMsg('📜 O Mestre não aprovou este voucher. Peça outro, Guardião!');
+            oraMsg(falar('voucher_recusado'));
             soundError(); vibrate([80, 40, 80]);
           }
           carregarVouchers();
@@ -5094,7 +5993,7 @@
 
 
     /* ══════════════════════════════════════════════════════
-       BAÚ DE ARTEFATOS — Sistema de Missões
+       BAÚ DE ARTEFATOS - Sistema de Missões
     ══════════════════════════════════════════════════════ */
 
     function abrirBau() {
@@ -5102,6 +6001,7 @@
       vibrate(50);
       soundButtonTap();
       document.getElementById('bau-modal').classList.add('open');
+      _oraEspelhar(falar('bau_abrir'));
       carregarBau();
     }
 
@@ -5140,7 +6040,7 @@
         if (snapM.exists()) snapM.forEach(m => { minhasMissoes[m.key] = m.val(); });
       } catch(e) {}
 
-      // Agrupa missões por artefatoKey — pega a mais recente de cada tipo
+      // Agrupa missões por artefatoKey - pega a mais recente de cada tipo
       const ultimaMissaoPorArt = {};
       Object.values(minhasMissoes).forEach(m => {
         const ex = ultimaMissaoPorArt[m.artefatoKey];
@@ -5184,7 +6084,7 @@
             btnHTML = `<button class="btn-missao-concluir" id="btn-missao-${key}" onclick="solicitarMissao('${key}')">⚔️ Concluí esta tarefa!</button>`;
           }
 
-          // Botão ✕ cancelar — só em Pendente
+          // Botão ✕ cancelar - só em Pendente
           const mKeyCancel = missao ? Object.keys(minhasMissoes).find(k => minhasMissoes[k] === missao) : null;
           const btnCancelarMissao = (status === 'Pendente' && mKeyCancel)
             ? `<button class="btn-cancel-item" style="margin:8px auto 0;display:block" onclick="cancelarMissao('${mKeyCancel}')" title="Cancelar solicitação">✕</button>`
@@ -5192,7 +6092,7 @@
 
           const cardClass = status === 'Pendente' ? 'pendente' : status === 'Aprovado' ? 'aprovado' : status === 'Recusado' ? 'recusado' : '';
 
-          return `<div class="missao-card ${cardClass}">
+          return `<div class="missao-card ${cardClass}" data-fala="bau_missao" data-emoji="${escAttr(a.emoji || '⚔️')}" data-nome-item="${escAttr(a.nome)}" data-desc-item="${escAttr(a.descricao || '')}" data-cristais="${escAttr(a.cristais)}">
             <div class="missao-card-top">
               <span class="missao-emoji">${a.emoji || '⚔️'}</span>
               <div class="missao-info">
@@ -5248,7 +6148,7 @@
           let temPendente = false;
           snapM.forEach(m => { if (m.val().status === 'Pendente') temPendente = true; });
           if (temPendente) {
-            oraMsg('⚠️ Já tens uma solicitação pendente para esta missão, Guardião!');
+            oraMsg(falar('bau_pendente_ja'));
             soundError(); vibrate([80, 40, 80]); return;
           }
         }
@@ -5274,7 +6174,7 @@
         vibrate([60, 30, 120]);
         spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 20,
           ['rgba(252,211,77,', 'rgba(180,83,9,', 'rgba(255,255,200,']);
-        oraMsg('⚔️ Missão "' + art.nome + '" enviada ao Mestre! Aguarda a aprovação, Guardião!');
+        oraMsg(falar('bau_enviada', { nomeItem: art.nome }));
 
         enviarPush('_mestre', '⚔️ Nova missão aguardando',
           `${currentUserNome || 'Um Guardião'} concluiu "${art.nome}" e aguarda aprovação.`,
@@ -5283,7 +6183,7 @@
         // Recarrega o painel
         await carregarBau();
       } catch(e) {
-        oraMsg('❌ Erro ao enviar missão. Tente novamente.');
+        oraMsg(falar('bau_erro'));
         soundError();
         if (btn) btn.disabled = false;
       }
@@ -5300,11 +6200,11 @@
       const emailKey = sanitizeEmail(currentUserEmail);
       try {
         await db.ref('missoes/' + emailKey + '/' + mkey).remove();
-        oraMsg('⚔️ Missão cancelada. Pode enviar novamente quando concluir, Guardião!');
+        oraMsg(falar('bau_cancelada'));
         vibrate([40, 20, 40]);
         carregarBau();
       } catch(e) {
-        oraMsg('❌ Erro ao cancelar. Tente novamente.');
+        oraMsg(falar('bau_cancela_erro'));
         soundError();
       }
     }
@@ -5352,7 +6252,7 @@
       document.addEventListener('touchstart', () => initAudio(), { once: true });
       document.addEventListener('click',      () => initAudio(), { once: true });
 
-      // Autenticação anônima — começa em paralelo, não bloqueia a tela
+      // Autenticação anônima - começa em paralelo, não bloqueia a tela
       garantirAuth();
 
       // Verifica guardião salvo no localStorage
@@ -5371,7 +6271,7 @@
         }
       } catch(e) {}
 
-      // Nenhum guardião salvo — mostra tela de seleção
+      // Nenhum guardião salvo - mostra tela de seleção
       mostrarSelecao();
     };
   </script>
