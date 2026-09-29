@@ -1,6 +1,6 @@
 // ================================================================
-// sw.js — Service Worker — Minutinhos: Ordem dos Guardiões
-// v19 — adiciona push notifications em background (Firebase Cloud Messaging)
+// sw.js - Service Worker - Minutinhos: Ordem dos Guardiões
+// v19 - adiciona push notifications em background (Firebase Cloud Messaging)
 // ================================================================
 
 // --- Firebase Cloud Messaging (push com o app fechado) ---------
@@ -46,7 +46,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-const CACHE_NAME = 'minutinhos-v28';
+const CACHE_NAME = 'minutinhos-v29';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
@@ -70,7 +70,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
-  // Não ativa automaticamente — espera o app chamar skipWaiting via mensagem
+  // Não ativa automaticamente - espera o app chamar skipWaiting via mensagem
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
       Promise.allSettled(ASSETS_TO_CACHE.map(url => cache.add(url).catch(() => {})))
