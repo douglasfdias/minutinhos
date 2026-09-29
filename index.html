@@ -1228,6 +1228,18 @@
     }
     .streak-duo-days { font-size: 0.7rem; color: rgba(200,255,200,0.7); font-weight: 700; }
     .streak-duo-reward { font-size: 0.68rem; color: rgba(0,212,255,0.8); font-weight: 700; }
+    /* Linhas de bônus (sequência do Duolingo e faixas de volume) */
+    .faixa-linha { font-size: 0.64rem; font-weight: 700; color: rgba(255,225,150,0.88); margin-top: 5px; line-height: 1.3; }
+    .faixa-linha.duo { color: rgba(170,255,210,0.88); }
+    .meta-section .faixa-linha { padding: 0 2px; }
+    /* Celebração de fim de semana nas cabeças do Oráculo */
+    .duo-head.celebra { animation: duoCelebra 0.7s ease-out; }
+    @keyframes duoCelebra {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.55) rotate(-8deg); box-shadow: 0 0 18px rgba(255,215,0,0.9); }
+      100% { transform: scale(1.12); }
+    }
+    .streak-duo-heads.encerrando .duo-head { transition: opacity 0.6s ease; opacity: 0.15; }
 
     /* ============ BANNER DE ATUALIZAÇÃO ============ */
     #update-banner {
@@ -1849,6 +1861,8 @@
           <span class="streak-duo-days" id="duo-days-label" data-fala="duo_rotulo_dias">0 / 7 dias esta semana</span>
           <span class="streak-duo-reward" id="duo-reward-label" data-fala="duo_rotulo_premio">🎯 Complete para +20 💎</span>
         </div>
+        <div class="faixa-linha duo" id="duo-streak-label" data-fala="duo_rotulo_streak" style="display:none"></div>
+        <div class="faixa-linha duo" id="duo-faixa-label" data-fala="duo_rotulo_faixa" style="display:none"></div>
       </div>
     </div>
 
@@ -1863,6 +1877,7 @@
           <div class="meta-bar-fill" id="meta-bar-fill" style="width:0%"></div>
         </div>
       </div>
+      <div class="faixa-linha" id="meta-faixas" data-fala="meta_rotulo_faixa" style="display:none"></div>
     </div>
 
     <!-- Botões -->
@@ -2744,9 +2759,79 @@
         '💎 Complete a semana inteira e os cristais aparecem, como mágica!'
       ],
       celebra_marco: [
-        '🔥 INCRÍVEL, {nome}! {dias} dias seguidos de leitura! +{bonus} ⚡ de bônus!',
-        '🔥 A chama chegou a {dias} dias! A Ordem entrega a você +{bonus} ⚡ de bônus!',
-        '🔥 Que sequência, {nome}! {dias} dias de pura leitura! Aqui vão +{bonus} ⚡!'
+        '🔥 INCRÍVEL, {nome}! {dias} dias seguidos de leitura! +{bonus} {moeda} de bônus!',
+        '🔥 A chama chegou a {dias} dias! A Ordem entrega a você +{bonus} {moeda} de bônus!',
+        '🔥 Que sequência, {nome}! {dias} dias de pura leitura! Aqui vão +{bonus} {moeda}!'
+      ],
+      celebra_marco_duo: [
+        '🦉 {nome}, {dias} dias seguidos de Duolingo! O Oráculo entrega +{bonus} {moeda} de bônus!',
+        '🦉 Sua sequência de línguas chegou a {dias} dias! Aqui vão +{bonus} {moeda}, Guardião!',
+        '🦉 Que constância, {nome}! {dias} dias estudando sem faltar! +{bonus} {moeda} para você!'
+      ],
+      celebra_volume_leitura: [
+        '📖 {nome}, você chegou à faixa {faixa} de leitura, com {minutos} minutos na semana! +{bonus} {moeda}!',
+        '📖 Faixa {faixa} conquistada! Foram {minutos} minutos de leitura nesta semana, e vêm +{bonus} {moeda}!',
+        '📖 Os pergaminhos brilham: faixa {faixa}, {minutos} minutos lidos! A Ordem entrega +{bonus} {moeda}!'
+      ],
+      celebra_volume_duo: [
+        '🦉 {nome}, faixa {faixa} de Duolingo! Foram {minutos} minutos de estudo nesta semana! +{bonus} {moeda}!',
+        '🦉 Faixa {faixa} conquistada! {minutos} minutos de línguas rendem +{bonus} {moeda}!',
+        '🦉 O Oráculo aplaude: faixa {faixa}, {minutos} minutos estudados! Aqui vão +{bonus} {moeda}!'
+      ],
+      celebra_duelo: [
+        '⚔️ {nome}, você venceu o Duelo dos Guardiões da semana passada! +{valor} 💎 de prêmio!',
+        '⚔️ Campeão do Duelo! A Ordem entrega +{valor} 💎 pela semana de leitura mais poderosa!',
+        '⚔️ Ninguém leu mais que você na semana passada, {nome}! Aqui vão +{valor} 💎!'
+      ],
+      celebra_duelo_empate: [
+        '⚔️ Empate épico no Duelo dos Guardiões! Cada campeão recebe o prêmio inteiro: +{valor} 💎!',
+        '⚔️ {nome}, você empatou no topo do Duelo! O prêmio não se divide: +{valor} 💎 para você!',
+        '⚔️ Dois campeões, um prêmio para cada! O Duelo terminou empatado, e vêm +{valor} 💎!'
+      ],
+      celebra_torneio: [
+        '🦉 {nome}, você venceu o Torneio das Línguas da semana passada! +{valor} 💎 de prêmio!',
+        '🦉 Campeão do Torneio! O Oráculo entrega +{valor} 💎 pela semana de estudo mais forte!',
+        '🦉 Ninguém estudou mais que você na semana passada, {nome}! Aqui vão +{valor} 💎!'
+      ],
+      celebra_torneio_empate: [
+        '🦉 Empate épico no Torneio das Línguas! Cada campeão recebe o prêmio inteiro: +{valor} 💎!',
+        '🦉 {nome}, você empatou no topo do Torneio! O prêmio não se divide: +{valor} 💎 para você!',
+        '🦉 Dois campeões, um prêmio para cada! O Torneio terminou empatado, e vêm +{valor} 💎!'
+      ],
+      bonus_aguarda: [
+        '⏳ Você já chegou a um marco, {nome}! O bônus chega assim que o Mestre aprovar seus registros.',
+        '⏳ O corvo já está pronto com o seu bônus. Falta só o Mestre aprovar os registros!',
+        '⏳ Marco alcançado! Quando o Mestre aprovar seus estudos, o prêmio aparece por aqui.'
+      ],
+      semana_encerrada: [
+        '🦉 Semana encerrada! Você acendeu {acesas} de {meta} cabeças, {nome}! Vamos começar uma nova?',
+        '🦉 O Oráculo fechou o grimório da semana: {acesas} de {meta} cabeças acesas! Bom trabalho!',
+        '🦉 Fim de semana! {acesas} de {meta} cabeças brilharam por você. Agora elas recomeçam!'
+      ],
+      semana_encerrada_perfeita: [
+        '🦉 SEMANA PERFEITA! Todas as {meta} cabeças acesas, {nome}! Que orgulho!',
+        '🦉 Todas as {meta} cabeças brilharam! O Oráculo nunca viu tanta dedicação!',
+        '🦉 Perfeito, {nome}! {meta} de {meta} cabeças! Uma nova semana começa agora, vamos de novo?'
+      ],
+      semana_encerrada_zero: [
+        '🦉 Uma nova semana começou, {nome}! Minhas cabeças estão apagadas, vamos acendê-las?',
+        '🦉 Semana nova, chance nova! Um Duolingo hoje acende a primeira cabeça!',
+        '🦉 As cabeças recomeçaram apagadas. Estude um pouquinho e veja elas brilharem!'
+      ],
+      duo_rotulo_streak: [
+        '🔥 Aqui eu conto seus dias seguidos de Duolingo. Nos marcos, chega um bônus!',
+        '🔥 Estudar todo dia faz a sequência crescer. Vamos manter, {nome}?',
+        '🔥 A sequência só cresce se você estuda todos os dias. Cada marco tem um prêmio!'
+      ],
+      duo_rotulo_faixa: [
+        '🏅 Quanto mais minutos de Duolingo na semana, mais alta a faixa e maior o prêmio!',
+        '🏅 Você recebe o prêmio da faixa mais alta que alcançar, sem somar as outras!',
+        '🏅 A semana vai de segunda a domingo. Cada minuto ajuda a subir de faixa!'
+      ],
+      meta_rotulo_faixa: [
+        '🏅 Quanto mais minutos de leitura na semana, mais alta a faixa e maior o prêmio!',
+        '🏅 Você recebe o prêmio da faixa mais alta que alcançar, sem somar as outras!',
+        '🏅 A semana vai de segunda a domingo. Cada página ajuda a subir de faixa!'
       ],
       celebra_duo: [
         '🦉 {nome}! Você acendeu todas as {meta} cabeças desta semana! +{recompensa} 💎 de cristais!',
@@ -3969,11 +4054,10 @@
         if (cfg.min_leitura_diaria)     streakConfig.min_leitura_diaria     = Number(cfg.min_leitura_diaria);
         if (cfg.min_duolingo_diario)    streakConfig.min_duolingo_diario    = Number(cfg.min_duolingo_diario);
         if (cfg.meta_duo_semanal_dias)  streakConfig.meta_duo_semanal_dias  = Number(cfg.meta_duo_semanal_dias);
-        if (cfg.recompensa_duo_semanal) streakConfig.recompensa_duo_semanal = Number(cfg.recompensa_duo_semanal);
-        if (cfg.bonus_leitura_3d)       streakConfig.bonus_leitura_3d       = Number(cfg.bonus_leitura_3d);
-        if (cfg.bonus_leitura_7d)       streakConfig.bonus_leitura_7d       = Number(cfg.bonus_leitura_7d);
-        if (cfg.bonus_leitura_14d)      streakConfig.bonus_leitura_14d      = Number(cfg.bonus_leitura_14d);
-        if (cfg.bonus_leitura_30d)      streakConfig.bonus_leitura_30d      = Number(cfg.bonus_leitura_30d);
+        if (cfg.recompensa_duo_semanal !== undefined && cfg.recompensa_duo_semanal !== null) {
+          streakConfig.recompensa_duo_semanal = Number(cfg.recompensa_duo_semanal) || 0;   // 0 desliga a recompensa
+        }
+        bonusCfg = normalizarBonus(cfg);   // marcos, faixas e prêmios editados na aba Bônus do Painel
         if (cfg.custo_forja)            streakConfig.custo_forja             = Number(cfg.custo_forja);
         if (cfg.ganho_forja)            streakConfig.ganho_forja             = Number(cfg.ganho_forja);
         // Update forge UI text and logic with latest config
@@ -3981,14 +4065,20 @@
 
         // ── Calcular streaks ──
         const allTrans = Object.values(transMap);
-        const infoLeitura   = calcStreakLeituraInfo(allTrans, emailLower, streakConfig.min_leitura_diaria);
-        const streakLeitura = infoLeitura.streak;
+        const seqLeitura    = calcSequencia(allTrans, emailLower, 'Leitura', streakConfig.min_leitura_diaria, 'registro');
+        const streakLeitura = seqLeitura.streak;
         const duoData       = calcStreakDuo(allTrans, emailLower, streakConfig.min_duolingo_diario);
+        const segAnterior   = addDiasStr(toLocalDateStr(getInicioSemana()), -7);
+        const duoAnterior   = calcStreakDuo(allTrans, emailLower, streakConfig.min_duolingo_diario, dataDeStr(segAnterior));
+
+        // ── Semana nova? As cabeças da semana que passou ganham uma celebração antes de zerar ──
+        const fimSemana = detectarFimDeSemana(allTrans, emailLower, userKey);
 
         // ── Renderizar streaks ──
         atualizarStreakUI(streakLeitura, duoData, streakConfig, d.nome);
         heroState.streakLeitura = streakLeitura;
         heroState.duoBatidos    = duoData.diasBatidos;
+        atualizarBonusUI(allTrans, emailLower, duoData);
 
         // ── Meta semanal de leitura ──
         const metaLeitura = Number(cfg.meta_leitura_semanal) || 140;
@@ -4000,21 +4090,27 @@
           .reduce((s, t) => s + Number(t.quantidade), 0);
         atualizarMetaSemanal(minsSemana, metaLeitura);
 
-        // ── Verificar marcos e recompensas ──
-        await verificarMarcosLeitura(streakLeitura, d.nome, infoLeitura.inicio, allTrans);
-        await verificarMetaDuo(duoData.diasBatidosAprovados, streakConfig.meta_duo_semanal_dias, d.nome, allTrans);
+        // ── Celebração do fim de semana (vem antes de qualquer bônus novo) ──
+        if (fimSemana) celebrarFimDeSemana(fimSemana, duoData, streakLeitura, d.nome);
+
+        // ── Verificar marcos, faixas, cabeças e prêmios dos rankings ──
+        const bonusRes = await verificarTodosBonus({
+          allTrans, emailLower, nome: d.nome, seqLeitura, duoData, duoAnterior
+        });
 
         // ── Oráculo contextual ──
         const msgOra = [];
-        if (streakLeitura >= 7) {
+        const proxL = proxMarco('leitura', streakLeitura);
+        if (streakLeitura >= 7 || (streakLeitura > 0 && !proxL)) {
           msgOra.push(falar('ora_streak_alto', { streak: streakLeitura, nome: d.nome }));
         } else if (streakLeitura > 0) {
-          const faltam = (streakLeitura < 3 ? 3 : streakLeitura < 7 ? 7 : 14) - streakLeitura;
+          const faltam = proxL.dias - streakLeitura;
           msgOra.push(falar('ora_streak_marco', { streakTxt: pluralDias(streakLeitura), faltam, nome: d.nome }));
         }
         if (duoData.diasBatidos > 0) {
           msgOra.push(falar('ora_duo_semana', { diasTxt: pluralDias(duoData.diasBatidos), cabecasTxt: pluralCabecas(duoData.diasBatidos), nome: d.nome }));
         }
+        if (bonusRes.aguardando) msgOra.push(falar('bonus_aguarda', { nome: d.nome }));
         if (!msgOra.length) msgOra.push(falar('ora_boas_vindas', { nome: d.nome }));
         if (Date.now() >= _oraHoldAte) oraMsg(msgOra);
 
@@ -4127,16 +4223,21 @@
             saldo_energia: Number(userData.saldo_energia) - custo,
             saldo_cristais: Number(userData.saldo_cristais) + forgeAcc
           });
-          await db.ref('transacoes').push({
-            data: new Date().toISOString(),
-            email: currentUserEmail,
-            tipo: 'Forja',
-            quantidade: forgeAcc,
-            detalhes: `Forja Épica de ${forgeAcc} cristais`,
-            status: 'Aprovado',
-            email_key: sanitizeEmail(currentUserEmail),
-            _uid: auth.currentUser.uid
-          });
+          try {
+            await db.ref('transacoes').push({
+              data: new Date().toISOString(),
+              email: currentUserEmail,
+              tipo: 'Forja',
+              quantidade: forgeAcc,
+              detalhes: `Forja Épica de ${forgeAcc} cristais`,
+              status: 'Aprovado',
+              email_key: sanitizeEmail(currentUserEmail),
+              _uid: auth.currentUser.uid
+            });
+          } catch (e) {
+            // o saldo já foi atualizado: não mostra erro para a criança, só avisa no console
+            console.error('Forja feita, mas o registro não foi gravado:', e);
+          }
           setForgeMsg(falar('forja_ok', { n: forgeAcc }));
         } catch(err) {
           setForgeMsg(falar('forja_erro')); return;
@@ -4598,41 +4699,63 @@
       return toLocalDateStr(t.data_aferida || t.data_registro || t.data);
     }
 
-    // Calcula streak contínuo de leitura (por data de ESTUDO) e o dia em que a sequência começou
-    function calcStreakLeituraInfo(trans, email, minDiario) {
-      const dias = new Set(
-        trans.filter(t =>
-          t.email === email &&
-          (t.status === 'Aprovado' || t.status === 'Pendente') &&
-          t.tipo === 'Leitura' &&
-          Number(t.quantidade) >= minDiario
-        ).map(t => dataEstudo(t))
-      );
-      let streak = 0, inicio = null;
+    // ── DATAS (strings YYYY-MM-DD, sempre no fuso local) ────────
+    function dataDeStr(str) { const p = String(str).split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+    function addDiasStr(str, n) { const d = dataDeStr(str); d.setDate(d.getDate() + n); return toLocalDateStr(d); }
+    function segundaDeStr(str) {
+      const d = dataDeStr(str);
+      d.setDate(d.getDate() + (d.getDay() === 0 ? -6 : 1 - d.getDay()));
+      return toLocalDateStr(d);
+    }
+    function fmtDiaMes(str) { const p = String(str).split('-'); return p[2] + '/' + p[1]; }
+
+    // ── SEQUÊNCIA (streak) DE UMA MODALIDADE ────────────────────
+    // Conta os dias seguidos que bateram o mínimo, pela data de ESTUDO. Pendente já conta (a criança não
+    // fica esperando o Mestre), mas cada dia guarda se já está APROVADO: o bônus só é pago com dias aprovados.
+    //   modo 'registro': cada registro precisa ter o mínimo (leitura)
+    //   modo 'soma':     a soma do dia precisa ter o mínimo (Duolingo)
+    // Devolve os dias da sequência, do mais antigo ao mais novo.
+    function calcSequencia(trans, email, tipo, minDiario, modo) {
+      const ok = {}, okAprov = {}, soma = {}, somaAprov = {};
+      trans.forEach(t => {
+        if (t.email !== email || t.tipo !== tipo) return;
+        if (t.status !== 'Aprovado' && t.status !== 'Pendente') return;
+        const d = dataEstudo(t), q = Number(t.quantidade) || 0, aprov = t.status === 'Aprovado';
+        if (modo === 'registro') {
+          if (q >= minDiario) { ok[d] = true; if (aprov) okAprov[d] = true; }
+        } else {
+          soma[d] = (soma[d] || 0) + q;
+          if (aprov) somaAprov[d] = (somaAprov[d] || 0) + q;
+        }
+      });
+      if (modo !== 'registro') {
+        Object.keys(soma).forEach(d => {
+          if (soma[d] >= minDiario) ok[d] = true;
+          if ((somaAprov[d] || 0) >= minDiario) okAprov[d] = true;
+        });
+      }
+      const dias = [];
       const hoje = new Date();
       for (let i = 0; i < 365; i++) {
         const d = new Date(hoje);
         d.setDate(hoje.getDate() - i);
         const str = toLocalDateStr(d);
-        if (dias.has(str)) {
-          streak++;
-          inicio = str;
-        } else if (i === 0) {
-          // hoje ainda pode não ter registrado - verifica ontem
-          continue;
-        } else {
-          break;
-        }
+        if (ok[str]) dias.unshift({ data: str, aprovado: !!okAprov[str] });
+        else if (i === 0) continue;   // hoje ainda pode não ter registrado: olha ontem
+        else break;
       }
-      return { streak, inicio };
+      return { streak: dias.length, inicio: dias.length ? dias[0].data : null, dias };
+    }
+    function calcStreakLeituraInfo(trans, email, minDiario) {
+      return calcSequencia(trans, email, 'Leitura', minDiario, 'registro');
     }
     function calcStreakLeitura(trans, email, minDiario) {
       return calcStreakLeituraInfo(trans, email, minDiario).streak;
     }
 
     // Calcula dias de Duolingo desta semana e recorde contínuo
-    function calcStreakDuo(trans, email, minDiario) {
-      const inicioSemana = getInicioSemana();
+    function calcStreakDuo(trans, email, minDiario, inicioSemanaOpt) {
+      const inicioSemana = inicioSemanaOpt || getInicioSemana();
 
       // Agrupa minutos de Duolingo por data (usa data_aferida se existir).
       // Igual à leitura: 'Pendente' já conta para acender a cabeça (a criança não fica esperando o Mestre).
@@ -4679,11 +4802,13 @@
         }
       }
 
-      return { diasSemana, diasBatidos, diasBatidosAprovados, record };
+      const sequencia = calcSequencia(trans, email, 'Duolingo', minDiario, 'soma');
+      return { diasSemana, diasBatidos, diasBatidosAprovados, record, sequencia };
     }
 
     // Renderiza as cabeças do Oráculo
-    function renderDuoHeads(diasSemana, metaDias) {
+    function renderDuoHeads(diasSemana, metaDias, forcar) {
+      if (_celebrandoSemana && !forcar) return;   // a celebração de fim de semana está usando as cabeças
       const container = document.getElementById('duo-heads');
       container.innerHTML = '';
       const hoje = toLocalDateStr();
@@ -4701,6 +4826,62 @@
         img.addEventListener('click', () => tocarCabecaDuo(img, dia.bateu, dia.dateStr));
         container.appendChild(img);
       });
+    }
+
+    // ── CONFIGURAÇÃO DOS BÔNUS (aba Bônus do Painel: config/bonus) ─────────
+    // Estrutura: { leitura:{streak,volume}, duolingo:{streak,volume}, ranking:{duelo,torneio} }
+    //   streak: { ativo, moeda, desde, marcos:[{dias, valor, desde?}] }
+    //   volume: { ativo, moeda, desde, faixas:[{id, nome, minutos, valor}] }  (semana fixa, segunda a domingo)
+    //   ranking: { duelo:{ativo, valor, desde}, torneio:{ativo, valor, desde} }  (prêmio em cristais)
+    // 'desde' evita pagar o passado quando o Mestre ativa uma regra nova.
+    // Sem config/bonus: o streak de leitura usa os valores antigos (bonus_leitura_3d...) e o resto fica desligado.
+    const MOEDA_INFO = {
+      energia:  { campo: 'saldo_energia',  simbolo: '⚡' },
+      cristais: { campo: 'saldo_cristais', simbolo: '💎' }
+    };
+    function _lista(x) {
+      return Array.isArray(x) ? x.filter(Boolean) : (x && typeof x === 'object' ? Object.values(x) : []);
+    }
+    function normalizarBonus(cfg) {
+      cfg = cfg || {};
+      const b = cfg.bonus || {};
+      const legado = [3, 7, 14, 30].map(d => {
+        const v = cfg['bonus_leitura_' + d + 'd'];
+        return { dias: d, valor: Number(v !== undefined && v !== null ? v : streakConfig['bonus_leitura_' + d + 'd']) || 0 };
+      });
+      const moeda = m => (m === 'cristais' ? 'cristais' : 'energia');
+      const streak = (raw, ativoPadrao, marcosPadrao) => {
+        if (!raw || typeof raw !== 'object') return { ativo: ativoPadrao, moeda: 'energia', desde: '', marcos: marcosPadrao };
+        const marcos = _lista(raw.marcos)
+          .map(m => ({ dias: Math.floor(Number(m.dias)) || 0, valor: Number(m.valor) || 0, desde: m.desde || '' }))
+          .filter(m => m.dias > 0).sort((a, c) => a.dias - c.dias);
+        return { ativo: !!raw.ativo, moeda: moeda(raw.moeda), desde: raw.desde || '', marcos };
+      };
+      const volume = raw => {
+        raw = raw || {};
+        const faixas = _lista(raw.faixas).map((f, i) => ({
+          id: String(f.id || ('f' + (i + 1))).replace(/[.$#\[\]\/\s]/g, '_'),
+          nome: String(f.nome || 'Faixa'),
+          minutos: Math.floor(Number(f.minutos)) || 0,
+          valor: Number(f.valor) || 0
+        })).filter(f => f.minutos > 0).sort((a, c) => a.minutos - c.minutos);
+        return { ativo: !!raw.ativo, moeda: moeda(raw.moeda), desde: raw.desde || '', faixas };
+      };
+      const rk = raw => ({ ativo: !!(raw && raw.ativo), valor: Number(raw && raw.valor) || 0, desde: (raw && raw.desde) || '' });
+      const l = b.leitura || {}, d = b.duolingo || {}, r = b.ranking || {};
+      return {
+        leitura:  { streak: streak(l.streak, true, legado), volume: volume(l.volume) },
+        duolingo: { streak: streak(d.streak, false, []),    volume: volume(d.volume) },
+        ranking:  { duelo: rk(r.duelo), torneio: rk(r.torneio) }
+      };
+    }
+    let bonusCfg = normalizarBonus({});
+
+    // Próximo marco de streak ainda não alcançado (respeita o que o Mestre configurou)
+    function proxMarco(mod, streak) {
+      const c = bonusCfg[mod].streak;
+      if (!c.ativo) return null;
+      return c.marcos.filter(m => m.valor > 0).find(m => m.dias > streak) || null;
     }
 
     // ── BÔNUS COM CHAVE ÚNICA ───────────────────────────────────
@@ -4722,25 +4903,41 @@
       }
     }
 
-    // Bônus pagos ANTES desta versão não têm chave. Procura no histórico para não pagar de novo.
-    function bonusLegadoExiste(trans, textoDetalhe, aPartirDeDia) {
-      const limite = new Date(aPartirDeDia + 'T00:00:00').getTime();
-      return trans.some(t => t.email === currentUserEmail.toLowerCase() && t.tipo === 'Bonus' &&
-        String(t.detalhes || '').includes(textoDetalhe) &&
-        new Date(t.data).getTime() >= limite);
+    // Lê de uma vez todas as chaves já pagas desta criança. Devolve null se não conseguir ler:
+    // sem essa lista, nada é pago.
+    async function lerBonusPagos() {
+      try {
+        await garantirAuth();
+        const s = await db.ref('bonus_pagos/' + sanitizeEmail(currentUserEmail)).get();
+        return s.exists() ? s.val() : {};
+      } catch (e) {
+        console.error('lerBonusPagos falhou:', e);
+        return null;
+      }
     }
 
-    // Credita o saldo de forma atômica e registra a transação do bônus
-    async function pagarBonus(campo, valor, detalhes, chave) {
+    // Bônus pagos ANTES da chave única não têm chave. Procura no histórico para não pagar de novo.
+    // 'ate' (opcional) limita a busca a antes desse dia.
+    function bonusLegadoExiste(trans, textoDetalhe, aPartirDeDia, ate) {
+      const limite = new Date(aPartirDeDia + 'T00:00:00').getTime();
+      const fim = ate ? new Date(ate + 'T00:00:00').getTime() : Infinity;
+      return trans.some(t => t.email === currentUserEmail.toLowerCase() && t.tipo === 'Bonus' &&
+        String(t.detalhes || '').includes(textoDetalhe) &&
+        new Date(t.data).getTime() >= limite && new Date(t.data).getTime() < fim);
+    }
+
+    // Credita o saldo de forma atômica e registra a transação do bônus. moeda: 'energia' | 'cristais'
+    async function pagarBonus(moeda, valor, detalhes, chave) {
       await garantirAuth();
       const userKey = sanitizeEmail(currentUserEmail);
-      await db.ref('usuarios/' + userKey + '/' + campo).transaction(v => (Number(v) || 0) + valor);
+      await db.ref('usuarios/' + userKey + '/' + MOEDA_INFO[moeda].campo).transaction(v => (Number(v) || 0) + valor);
       try {
         await db.ref('transacoes').push({
           data: new Date().toISOString(),
           email: currentUserEmail,
           tipo: 'Bonus',
           quantidade: valor,
+          moeda: moeda,
           detalhes: detalhes,
           status: 'Aprovado',
           chave_bonus: chave,
@@ -4752,64 +4949,173 @@
       }
     }
 
-    async function verificarMarcosLeitura(streak, nome, inicioStreak, trans) {
-      if (!currentUserEmail || streak === 0 || !inicioStreak) return;
-      const marcos = [
-        { dias: 3,  bonus: streakConfig.bonus_leitura_3d  },
-        { dias: 7,  bonus: streakConfig.bonus_leitura_7d  },
-        { dias: 14, bonus: streakConfig.bonus_leitura_14d },
-        { dias: 30, bonus: streakConfig.bonus_leitura_30d },
-      ];
-      for (const marco of marcos) {
-        if (streak < marco.dias || !(marco.bonus > 0)) continue;
-        // chave = regra + dia em que a sequência começou + marco. Uma sequência nova (depois de
-        // quebrar) tem outro dia de início, então volta a poder ganhar o marco.
-        const chave = 'leitura_streak_' + inicioStreak + '_' + marco.dias + 'd';
-        const detalhes = `🔥 Streak de leitura: ${marco.dias} dias!`;
-
-        if (bonusLegadoExiste(trans, `Streak de leitura: ${marco.dias} dias`, inicioStreak)) {
-          // já foi pago antes da chave existir: só registra a chave, sem pagar
-          await reivindicarBonus(chave, { regra: 'leitura_streak', marco: marco.dias, inicio: inicioStreak, origem: 'legado' });
-          continue;
-        }
-        const ganhou = await reivindicarBonus(chave, { regra: 'leitura_streak', marco: marco.dias, inicio: inicioStreak, valor: marco.bonus, origem: 'app' });
-        if (!ganhou) continue;   // já pago (ou erro): segue para o próximo marco
-
-        await pagarBonus('saldo_energia', marco.bonus, detalhes, chave);
-        celebrarMarcoLeitura(marco.dias, marco.bonus, nome);
-        break; // um marco por vez
-      }
+    // Uma celebração por vez: se duas coisas acontecem juntas, a segunda espera a primeira terminar.
+    let _celebLivreEm = 0;
+    function agendarCelebracao(fn) {
+      const agora = Date.now();
+      const inicio = Math.max(agora, _celebLivreEm);
+      _celebLivreEm = inicio + 5500;
+      setTimeout(() => {
+        _oraHoldAte = Math.max(_oraHoldAte, Date.now() + 9000);   // o loadData não apaga a fala da festa
+        try { fn(); } catch (e) { console.error(e); }
+      }, inicio - agora);
     }
 
-    function celebrarMarcoLeitura(dias, bonus, nome) {
+    // ── STREAK (dias seguidos): leitura e Duolingo ──────────────
+    // Paga cada marco uma vez por sequência. Só paga quando os dias do marco já estão APROVADOS;
+    // se ainda há dia pendente, devolve aguardando=true e tenta de novo depois.
+    async function verificarMarcosStreak(mod, seq, nome, trans, pagos) {
+      const res = { aguardando: false, pagou: false };
+      const cfgS = bonusCfg[mod].streak;
+      if (!currentUserEmail || !cfgS.ativo || !seq || !seq.streak || !seq.inicio) return res;
+      const prefixo = mod === 'leitura' ? 'leitura' : 'duo';
+      for (const marco of cfgS.marcos) {
+        if (seq.streak < marco.dias || !(marco.valor > 0)) continue;
+        // chave = regra + dia em que a sequência começou + marco. Uma sequência nova (depois de
+        // quebrar) tem outro dia de início, então volta a poder ganhar o marco.
+        const chave = prefixo + '_streak_' + seq.inicio + '_' + marco.dias + 'd';
+        if (pagos[chave]) continue;
+        // regra ativada (ou marco criado) depois do dia em que o marco foi completado: não paga o passado
+        const desde = [cfgS.desde, marco.desde].filter(Boolean).sort().pop() || '';
+        if (desde && seq.dias[marco.dias - 1].data < desde) continue;
+        // só paga com todos os dias do marco aprovados
+        if (!seq.dias.slice(0, marco.dias).every(d => d.aprovado)) { res.aguardando = true; continue; }
+
+        const regra = mod + '_streak';
+        if (mod === 'leitura' && bonusLegadoExiste(trans, `Streak de leitura: ${marco.dias} dias`, seq.inicio)) {
+          // já foi pago antes da chave existir: só registra a chave, sem pagar
+          if (await reivindicarBonus(chave, { regra, marco: marco.dias, inicio: seq.inicio, origem: 'legado' })) pagos[chave] = true;
+          continue;
+        }
+        const ganhou = await reivindicarBonus(chave, { regra, marco: marco.dias, inicio: seq.inicio, valor: marco.valor, moeda: cfgS.moeda, origem: 'app' });
+        if (!ganhou) continue;   // já pago (ou erro): segue para o próximo marco
+        pagos[chave] = true;
+
+        const detalhes = mod === 'leitura'
+          ? `🔥 Streak de leitura: ${marco.dias} dias!`
+          : `🦉 Streak de Duolingo: ${marco.dias} dias!`;
+        await pagarBonus(cfgS.moeda, marco.valor, detalhes, chave);
+        res.pagou = true;
+        agendarCelebracao(() => celebrarMarcoStreak(mod, marco.dias, marco.valor, cfgS.moeda));
+        break; // um marco por vez
+      }
+      return res;
+    }
+
+    function celebrarMarcoStreak(mod, dias, bonus, moeda) {
+      const sim = MOEDA_INFO[moeda].simbolo;
       initAudio();
       soundLevelUp();
       screenFlash();
       vibrate([200,100,200,100,400]);
       const cx = window.innerWidth/2, cy = window.innerHeight/2;
-      spawnColorSparks(cx, cy-80, 30, ['rgba(255,120,0,','rgba(255,200,0,','rgba(255,255,150,']);
-      spawnShockwave(cx, cy-80, 'rgba(255,120,0,', 140);
-      spawnFloat(`🔥 +${bonus}⚡`, '#FF8C00', cx, cy - 100);
-      setTimeout(() => oraMsg(falar('celebra_marco', { nome, dias, bonus })), 600);
+      const cores = mod === 'leitura'
+        ? ['rgba(255,120,0,','rgba(255,200,0,','rgba(255,255,150,']
+        : ['rgba(0,255,150,','rgba(0,212,255,','rgba(255,215,0,'];
+      spawnColorSparks(cx, cy-80, 30, cores);
+      spawnShockwave(cx, cy-80, cores[0], 140);
+      spawnFloat(`${mod === 'leitura' ? '🔥' : '🦉'} +${bonus}${sim}`, mod === 'leitura' ? '#FF8C00' : '#00D4FF', cx, cy - 100);
+      setTimeout(() => oraMsg(falar(mod === 'leitura' ? 'celebra_marco' : 'celebra_marco_duo', { dias, bonus, moeda: sim })), 600);
     }
 
-    // Verifica meta semanal do Duolingo (chave = semana, começando na segunda-feira)
-    async function verificarMetaDuo(diasBatidos, meta, nome, trans) {
-      if (!currentUserEmail || !(diasBatidos >= meta)) return;
-      const recompensa = streakConfig.recompensa_duo_semanal;
-      if (!(recompensa > 0)) return;
-      const segunda = toLocalDateStr(getInicioSemana());
-      const chave = 'duo_semana_' + segunda;
+    // ── VOLUME (minutos na semana, faixas) ──────────────────────
+    // Semana fixa, segunda a domingo (igual ao ranking e às cabeças). Vale só a faixa MAIS ALTA alcançada:
+    // ao subir de faixa, o app paga apenas a diferença, então o total da semana é sempre o prêmio da faixa mais alta.
+    function calcVolume(mod, trans, emailLower) {
+      const cv = bonusCfg[mod].volume;
+      const seg = toLocalDateStr(getInicioSemana()), dom = addDiasStr(seg, 6);
+      const tipo = mod === 'leitura' ? 'Leitura' : 'Duolingo';
+      let minsAprov = 0, minsTotal = 0;
+      trans.forEach(t => {
+        if (t.email !== emailLower || t.tipo !== tipo) return;
+        if (t.status !== 'Aprovado' && t.status !== 'Pendente') return;
+        const d = dataEstudo(t);
+        if (d < seg || d > dom) return;
+        const q = Number(t.quantidade) || 0;
+        minsTotal += q;
+        if (t.status === 'Aprovado') minsAprov += q;
+      });
+      const ultima = m => { const a = cv.faixas.filter(f => m >= f.minutos); return a.length ? a[a.length - 1] : null; };
+      const ativo = cv.ativo && cv.faixas.length > 0 && (!cv.desde || seg >= segundaDeStr(cv.desde));
+      return {
+        ativo, seg, minsAprov, minsTotal,
+        atingidaAprov: ultima(minsAprov),
+        atingidaTotal: ultima(minsTotal),
+        proxima: cv.faixas.find(f => minsTotal < f.minutos) || null
+      };
+    }
 
-      if (bonusLegadoExiste(trans, 'Meta semanal Duolingo', segunda)) {
-        await reivindicarBonus(chave, { regra: 'duo_semana', semana: segunda, origem: 'legado' });
-        return;
+    async function verificarVolume(mod, trans, emailLower, nome, pagos) {
+      const res = { aguardando: false, pagou: false };
+      const v = calcVolume(mod, trans, emailLower);
+      if (!v.ativo) return res;
+      if (v.atingidaTotal && (!v.atingidaAprov || v.atingidaTotal.id !== v.atingidaAprov.id)) res.aguardando = true;
+      const faixa = v.atingidaAprov;
+      if (!faixa) return res;
+      const cv = bonusCfg[mod].volume;
+      const prefixo = (mod === 'leitura' ? 'leitura' : 'duo') + '_volume_' + v.seg + '_';
+      const chave = prefixo + faixa.id;
+      if (pagos[chave]) return res;
+      // quanto já foi pago nesta semana por faixas mais baixas
+      const jaPago = Object.keys(pagos).filter(k => k.indexOf(prefixo) === 0)
+        .reduce((soma, k) => soma + (Number(pagos[k] && pagos[k].pago) || 0), 0);
+      const pagar = Math.max(0, faixa.valor - jaPago);
+      const ganhou = await reivindicarBonus(chave, {
+        regra: mod + '_volume', semana: v.seg, faixa: faixa.nome, minutos: v.minsAprov,
+        premio: faixa.valor, pago: pagar, moeda: cv.moeda, origem: 'app'
+      });
+      if (!ganhou) return res;
+      pagos[chave] = { pago: pagar };
+      if (pagar > 0) {
+        const rotulo = mod === 'leitura' ? '📖 Volume de leitura' : '🦉 Volume de Duolingo';
+        const extra = jaPago > 0 ? ` (prêmio ${faixa.valor}, já recebidos ${jaPago})` : '';
+        await pagarBonus(cv.moeda, pagar, `${rotulo}: faixa ${faixa.nome}, ${v.minsAprov} min na semana${extra}`, chave);
+        res.pagou = true;
+        agendarCelebracao(() => celebrarVolume(mod, faixa.nome, v.minsAprov, pagar, cv.moeda));
       }
-      const ganhou = await reivindicarBonus(chave, { regra: 'duo_semana', semana: segunda, meta, valor: recompensa, origem: 'app' });
-      if (!ganhou) return;
+      return res;
+    }
 
-      await pagarBonus('saldo_cristais', recompensa, `🦉 Meta semanal Duolingo: ${meta} dias!`, chave);
-      celebrarMetaDuo(meta, recompensa, nome);
+    function celebrarVolume(mod, faixa, minutos, bonus, moeda) {
+      const sim = MOEDA_INFO[moeda].simbolo;
+      initAudio();
+      soundLevelUp();
+      screenFlash();
+      vibrate([120,60,120,60,300]);
+      const cx = window.innerWidth/2, cy = window.innerHeight/2;
+      const cores = mod === 'leitura'
+        ? ['rgba(255,200,0,','rgba(255,140,0,','rgba(255,255,170,']
+        : ['rgba(0,255,150,','rgba(0,212,255,','rgba(255,215,0,'];
+      spawnColorSparks(cx, cy-80, 28, cores);
+      spawnShockwave(cx, cy-80, cores[0], 130);
+      spawnFloat(`🏅 +${bonus}${sim}`, '#FFD700', cx, cy - 100);
+      setTimeout(() => oraMsg(falar(mod === 'leitura' ? 'celebra_volume_leitura' : 'celebra_volume_duo',
+        { faixa, minutos, bonus, moeda: sim })), 600);
+    }
+
+    // ── CABEÇAS DO ORÁCULO: meta semanal do Duolingo ────────────
+    // Chave = semana, começando na segunda-feira. Também confere a semana anterior: se o Mestre aprovou
+    // o último dia depois do domingo, a recompensa não se perde.
+    async function verificarMetaDuo(segunda, diasBatidos, meta, nome, trans, pagos, anterior) {
+      const res = { aguardando: false, pagou: false };
+      if (!currentUserEmail || !(diasBatidos >= meta)) return res;
+      const recompensa = streakConfig.recompensa_duo_semanal;
+      if (!(recompensa > 0)) return res;
+      const chave = 'duo_semana_' + segunda;
+      if (pagos[chave]) return res;
+
+      if (bonusLegadoExiste(trans, 'Meta semanal Duolingo', segunda, anterior ? addDiasStr(segunda, 7) : null)) {
+        if (await reivindicarBonus(chave, { regra: 'duo_semana', semana: segunda, origem: 'legado' })) pagos[chave] = true;
+        return res;
+      }
+      const ganhou = await reivindicarBonus(chave, { regra: 'duo_semana', semana: segunda, meta, valor: recompensa, moeda: 'cristais', origem: 'app' });
+      if (!ganhou) return res;
+      pagos[chave] = true;
+
+      await pagarBonus('cristais', recompensa, `🦉 Meta semanal Duolingo: ${meta} dias!`, chave);
+      res.pagou = true;
+      agendarCelebracao(() => celebrarMetaDuo(meta, recompensa, nome));
+      return res;
     }
 
     function celebrarMetaDuo(meta, recompensa, nome) {
@@ -4825,8 +5131,202 @@
       }, delay));
       spawnFloat(`+${recompensa} 💎`, '#00D4FF', cx, cy - 100);
       setTimeout(() => oraMsg(falar('celebra_duo', { nome, meta, recompensa })), 800);
-      // Recarrega saldos
-      setTimeout(() => loadData(), 1500);
+    }
+
+    // ── PRÊMIO DO DUELO E DO TORNEIO (cristais) ─────────────────
+    // Quem lidera a semana que acabou recebe o prêmio do Painel. Empate: cada campeão recebe o valor inteiro.
+    // Cada aparelho paga só o prêmio da própria criança, com chave única por semana.
+    // Se ainda há registro pendente daquela semana, espera o Mestre aprovar (até 3 dias depois do domingo).
+    let _premioChecadoEm = 0;
+    async function verificarPremiosRanking(trans, emailLower, nome, pagos) {
+      const res = { aguardando: false, pagou: false };
+      const rk = bonusCfg.ranking;
+      if (!rk.duelo.ativo && !rk.torneio.ativo) return res;
+      if (Date.now() - _premioChecadoEm < 5 * 60 * 1000) return res;   // não relê os usuários a toda hora
+      _premioChecadoEm = Date.now();
+
+      let usuarios;
+      try {
+        const snap = await db.ref('usuarios').get();
+        usuarios = snap.exists() ? snap.val() : {};
+      } catch (e) { console.error('premios: usuarios', e); return res; }
+      const guardioes = Object.values(usuarios).filter(u => u.email && !u.is_mestre).map(u => String(u.email).toLowerCase());
+      if (!guardioes.includes(emailLower)) return res;
+
+      const segAtual = toLocalDateStr(getInicioSemana());
+      const hojeStr = toLocalDateStr();
+      const temas = [
+        { chave: 'duelo',   tipo: 'Leitura',  cfg: rk.duelo,   rotulo: '⚔️ Duelo dos Guardiões', champ: 'vencedor' },
+        { chave: 'torneio', tipo: 'Duolingo', cfg: rk.torneio, rotulo: '🦉 Torneio das Línguas', champ: 'campeão' }
+      ];
+      for (const tema of temas) {
+        if (!tema.cfg.ativo || !(tema.cfg.valor > 0)) continue;
+        const desde = tema.cfg.desde ? segundaDeStr(tema.cfg.desde) : '';
+        for (let k = 4; k >= 1; k--) {          // confere até 4 semanas encerradas, da mais antiga para a mais nova
+          const seg = addDiasStr(segAtual, -7 * k);
+          if (desde && seg < desde) continue;
+          const chave = tema.chave + '_semana_' + seg;
+          if (pagos[chave]) continue;
+          const dom = addDiasStr(seg, 6);
+          const daSemana = trans.filter(t => t.tipo === tema.tipo && dataEstudo(t) >= seg && dataEstudo(t) <= dom &&
+                                             guardioes.includes(String(t.email).toLowerCase()));
+          if (daSemana.some(t => t.status === 'Pendente') && hojeStr <= addDiasStr(dom, 3)) continue;   // tenta de novo depois
+          const totais = guardioes.map(e => ({
+            e, m: daSemana.filter(t => t.status === 'Aprovado' && String(t.email).toLowerCase() === e)
+                          .reduce((soma, t) => soma + Number(t.quantidade || 0), 0)
+          }));
+          const max = Math.max(0, ...totais.map(x => x.m));
+          if (max <= 0) continue;                                     // ninguém estudou: sem vencedor
+          const vencedores = totais.filter(x => x.m === max).map(x => x.e);
+          if (!vencedores.includes(emailLower)) continue;
+          const empate = vencedores.length > 1;
+
+          const ganhou = await reivindicarBonus(chave, {
+            regra: tema.chave + '_semana', semana: seg, minutos: max, valor: tema.cfg.valor,
+            moeda: 'cristais', empate, origem: 'app'
+          });
+          if (!ganhou) continue;
+          pagos[chave] = true;
+          await pagarBonus('cristais', tema.cfg.valor,
+            `${tema.rotulo}: ${tema.champ} da semana de ${fmtDiaMes(seg)}${empate ? ' (empate)' : ''}`, chave);
+          res.pagou = true;
+          agendarCelebracao(() => celebrarPremioRanking(tema.chave, tema.cfg.valor, empate, nome));
+        }
+      }
+      return res;
+    }
+
+    function celebrarPremioRanking(tema, valor, empate, nome) {
+      initAudio();
+      soundForgeEpic();
+      screenFlash();
+      vibrate([80,40,80,40,250,60,400,80,700]);
+      const cx = window.innerWidth/2, cy = window.innerHeight/2;
+      const cores = ['rgba(255,215,0,','rgba(255,180,50,','rgba(255,255,170,'];
+      [0,300,600].forEach(delay => setTimeout(() => {
+        spawnColorSparks(cx, cy-60, 22, cores);
+        spawnShockwave(cx, cy-60, 'rgba(255,215,0,', 130);
+      }, delay));
+      spawnFloat(`🏆 +${valor} 💎`, '#FFD700', cx, cy - 100);
+      const chave = 'celebra_' + tema + (empate ? '_empate' : '');
+      setTimeout(() => oraMsg(falar(chave, { nome, valor })), 800);
+    }
+
+    // ── TODAS AS VERIFICAÇÕES, EM SEQUÊNCIA ─────────────────────
+    async function verificarTodosBonus(c) {
+      const res = { aguardando: false, pagou: false };
+      const pagos = await lerBonusPagos();
+      if (pagos === null) return res;   // sem a lista de chaves já pagas, não paga nada
+      const rodar = async fn => {
+        try {
+          const r = await fn();
+          if (r && r.aguardando) res.aguardando = true;
+          if (r && r.pagou) res.pagou = true;
+        } catch (e) { console.error('verificação de bônus:', e); }
+      };
+      const segAtual = toLocalDateStr(getInicioSemana());
+      const segAnt = addDiasStr(segAtual, -7);
+      const metaDias = streakConfig.meta_duo_semanal_dias;
+      await rodar(() => verificarMarcosStreak('leitura',  c.seqLeitura,          c.nome, c.allTrans, pagos));
+      await rodar(() => verificarMarcosStreak('duolingo', c.duoData.sequencia,   c.nome, c.allTrans, pagos));
+      if (c.duoAnterior) await rodar(() => verificarMetaDuo(segAnt, c.duoAnterior.diasBatidosAprovados, metaDias, c.nome, c.allTrans, pagos, true));
+      await rodar(() => verificarMetaDuo(segAtual, c.duoData.diasBatidosAprovados, metaDias, c.nome, c.allTrans, pagos, false));
+      await rodar(() => verificarVolume('leitura',  c.allTrans, c.emailLower, c.nome, pagos));
+      await rodar(() => verificarVolume('duolingo', c.allTrans, c.emailLower, c.nome, pagos));
+      await rodar(() => verificarPremiosRanking(c.allTrans, c.emailLower, c.nome, pagos));
+      if (res.pagou) setTimeout(() => loadData(), 6000);   // atualiza os saldos depois da festa
+      return res;
+    }
+
+    // ── LINHAS DE BÔNUS NA TELA (sequência e faixas) ────────────
+    function textoFaixa(v, mod) {
+      const sim = MOEDA_INFO[bonusCfg[mod].volume.moeda].simbolo;
+      if (v.atingidaTotal && (!v.atingidaAprov || v.atingidaTotal.id !== v.atingidaAprov.id)) {
+        return `🏅 Faixa ${v.atingidaTotal.nome} alcançada! ⏳ O prêmio chega quando o Mestre aprovar`;
+      }
+      if (v.atingidaAprov && v.proxima) {
+        return `🏅 Faixa ${v.atingidaAprov.nome}! Faltam ${v.proxima.minutos - v.minsTotal} min para ${v.proxima.nome} (prêmio ${v.proxima.valor} ${sim})`;
+      }
+      if (v.atingidaAprov) return `🏅 Faixa ${v.atingidaAprov.nome}, a mais alta da semana!`;
+      if (v.proxima) return `🏅 Faixa ${v.proxima.nome}: faltam ${v.proxima.minutos - v.minsTotal} min (prêmio ${v.proxima.valor} ${sim})`;
+      return '';
+    }
+    function atualizarBonusUI(trans, emailLower, duoData) {
+      const mostrar = (id, texto) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.style.display = texto ? '' : 'none';
+        if (texto) el.textContent = texto;
+      };
+      const vl = calcVolume('leitura', trans, emailLower);
+      mostrar('meta-faixas', vl.ativo ? textoFaixa(vl, 'leitura') : '');
+      const vd = calcVolume('duolingo', trans, emailLower);
+      mostrar('duo-faixa-label', vd.ativo ? textoFaixa(vd, 'duolingo') : '');
+
+      const cs = bonusCfg.duolingo.streak;
+      if (cs.ativo && cs.marcos.some(m => m.valor > 0)) {
+        const n = duoData.sequencia.streak, prox = proxMarco('duolingo', n), sim = MOEDA_INFO[cs.moeda].simbolo;
+        mostrar('duo-streak-label', n === 0
+          ? '🔥 Estude hoje para iniciar sua sequência!'
+          : prox ? `🔥 Sequência de ${pluralDias(n)}! Faltam ${prox.dias - n} para o marco de ${prox.dias} (+${prox.valor} ${sim})`
+                 : `🔥 Sequência de ${pluralDias(n)}! Você passou de todos os marcos!`);
+      } else {
+        mostrar('duo-streak-label', '');
+      }
+    }
+
+    // ── FIM DE SEMANA DAS CABEÇAS ───────────────────────────────
+    // Na primeira abertura de uma semana nova, as cabeças da semana que passou acendem uma a uma
+    // (com som e faíscas) antes de zerar. A semana "já vista" fica guardada neste aparelho.
+    let _celebrandoSemana = false;
+    function detectarFimDeSemana(trans, emailLower, userKey) {
+      const semanaAtual = toLocalDateStr(getInicioSemana());
+      const chave = 'minutinhos_semana_vista_' + userKey;
+      let vista = null;
+      try { vista = localStorage.getItem(chave); } catch (e) {}
+      try { localStorage.setItem(chave, semanaAtual); } catch (e) {}
+      if (!vista || vista >= semanaAtual) return null;   // primeira vez neste aparelho, ou ainda na mesma semana
+      const ant = calcStreakDuo(trans, emailLower, streakConfig.min_duolingo_diario, dataDeStr(addDiasStr(semanaAtual, -7)));
+      return { dias: ant.diasSemana };
+    }
+
+    function celebrarFimDeSemana(fim, duoData, streakLeitura, nome) {
+      const meta = streakConfig.meta_duo_semanal_dias || 7;
+      const acesas = fim.dias.slice(0, meta).filter(d => d.bateu).length;
+      if (acesas === 0) {
+        agendarCelebracao(() => oraMsg(falar('semana_encerrada_zero', { nome })));
+        return;
+      }
+      _celebrandoSemana = true;
+      agendarCelebracao(() => {
+        renderDuoHeads(fim.dias, meta, true);
+        const lbl = document.getElementById('duo-days-label');
+        if (lbl) lbl.textContent = `Semana encerrada: ${acesas} / ${meta}`;
+        const heads = Array.from(document.querySelectorAll('#duo-heads .duo-head.active, #duo-heads .duo-head.active-today'));
+        heads.forEach((h, i) => setTimeout(() => {
+          h.classList.remove('celebra'); void h.offsetWidth; h.classList.add('celebra');
+          soundTone(520 + i * 90, 'sine', 0.25, 0.18, 0.005);
+          vibrate(25);
+          const r = h.getBoundingClientRect();
+          spawnColorSparks(r.left + r.width / 2, r.top + r.height / 2, 8, ['rgba(255,215,0,', 'rgba(0,255,150,', 'rgba(0,212,255,']);
+        }, 500 + i * 380));
+        const fimAnim = 500 + heads.length * 380;
+        setTimeout(() => {
+          initAudio();
+          if (acesas >= meta) soundForgeEpic(); else soundLevelUp();
+          screenFlash();
+          const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+          spawnShockwave(cx, cy - 60, 'rgba(0,255,150,', 120);
+          oraMsg(falar(acesas >= meta ? 'semana_encerrada_perfeita' : 'semana_encerrada', { acesas, meta, nome }));
+        }, fimAnim + 200);
+        const cont = document.getElementById('duo-heads');
+        setTimeout(() => { if (cont) cont.classList.add('encerrando'); }, fimAnim + 2600);
+        setTimeout(() => {
+          if (cont) cont.classList.remove('encerrando');
+          _celebrandoSemana = false;
+          atualizarStreakUI(streakLeitura, duoData, streakConfig, nome);
+        }, fimAnim + 3300);
+      });
     }
 
     // Toque no streak de leitura
@@ -4860,10 +5360,10 @@
         lblEl.textContent = 'Leia hoje para iniciar sua sequência!';
         lblEl.style.color = 'rgba(255,150,100,0.7)';
       } else {
-        const proxMarco = [3,7,14,30].find(m => m > streakLeitura) || null;
-        if (proxMarco) {
-          const faltam = proxMarco - streakLeitura;
-          lblEl.textContent = `Faltam ${faltam} dia${faltam>1?'s':''} para o marco de ${proxMarco} dias!`;
+        const proximo = proxMarco('leitura', streakLeitura);
+        if (proximo) {
+          const faltam = proximo.dias - streakLeitura;
+          lblEl.textContent = `Faltam ${faltam} dia${faltam>1?'s':''} para o marco de ${proximo.dias} dias!`;
         } else {
           lblEl.textContent = `${streakLeitura} dias! Você é uma lenda, Guardião!`;
         }
@@ -4873,16 +5373,17 @@
       if (streakLeitura > 0) recEl.textContent = `🏆 Recorde: ${streakLeitura}`;
 
       // ── Duolingo ──
+      if (_celebrandoSemana) return;   // as cabeças estão em festa de fim de semana
       renderDuoHeads(duoData.diasSemana, meta);
       document.getElementById('duo-record').textContent = `🏆 Recorde: ${duoData.record} dias`;
       document.getElementById('duo-days-label').textContent = `${duoData.diasBatidos} / ${meta} dias esta semana`;
-      const recomp = config.recompensa_duo_semanal || 20;
+      const recomp = config.recompensa_duo_semanal != null ? config.recompensa_duo_semanal : 20;
       if (duoData.diasBatidosAprovados >= meta) {
         document.getElementById('duo-reward-label').textContent = '✅ Meta semanal concluída!';
       } else if (duoData.diasBatidos >= meta) {
         document.getElementById('duo-reward-label').textContent = '⏳ Meta completa, aguardando o selo do Mestre';
       } else {
-        document.getElementById('duo-reward-label').textContent = `🎯 Complete para +${recomp} 💎`;
+        document.getElementById('duo-reward-label').textContent = recomp > 0 ? `🎯 Complete para +${recomp} 💎` : '🎯 Acenda todas as cabeças!';
       }
     }
 
