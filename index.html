@@ -4134,6 +4134,7 @@
             quantidade: forgeAcc,
             detalhes: `Forja Épica de ${forgeAcc} cristais`,
             status: 'Aprovado',
+            email_key: sanitizeEmail(currentUserEmail),
             _uid: auth.currentUser.uid
           });
           setForgeMsg(falar('forja_ok', { n: forgeAcc }));
@@ -4743,6 +4744,7 @@
           detalhes: detalhes,
           status: 'Aprovado',
           chave_bonus: chave,
+          email_key: userKey,
           _uid: auth.currentUser.uid
         });
       } catch (e) {
