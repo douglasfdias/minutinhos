@@ -431,6 +431,15 @@
     .bau-tab.active {
       background:rgba(180,83,9,0.25); border-color:#FCD34D; color:#FCD34D;
     }
+    .colecao-card { background:rgba(255,255,255,0.05); border:1.5px solid rgba(125,211,252,0.3); border-radius:12px; padding:12px; margin-bottom:10px; }
+    .colecao-topo { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+    .colecao-nome { font-family:'Cinzel',serif; font-weight:800; font-size:0.85rem; color:#7DD3FC; }
+    .colecao-qtd { font-weight:900; font-size:0.8rem; color:#FCD34D; }
+    .colecao-slots { display:flex; gap:8px; margin:6px 0 8px; }
+    .colecao-slot { font-size:1.7rem; filter:grayscale(1) brightness(0.5); opacity:0.5; }
+    .colecao-slot.cheio { filter:none; opacity:1; text-shadow:0 0 10px rgba(125,211,252,0.9); }
+    .colecao-desc { font-size:0.74rem; color:rgba(230,215,180,0.85); margin-bottom:5px; }
+    .colecao-linha { font-size:0.68rem; color:rgba(200,180,140,0.6); margin-top:3px; }
     .bau-panel { display:none; }
     .bau-panel.active { display:block; }
 
@@ -1846,6 +1855,7 @@
           <div class="streak-leitura-label" id="streak-leitura-label">Leia hoje para manter sua sequência!</div>
         </div>
         <span id="streak-leitura-record" style="font-size:0.62rem;color:rgba(255,200,100,0.6);font-weight:700;text-align:right;"></span>
+        <span id="streak-leitura-escudo" data-fala="escudo_rotulo_leitura" onclick="event.stopPropagation()" style="display:none;font-size:0.7rem;font-weight:800;color:#7DD3FC;margin-left:6px;"></span>
       </div>
     </div>
 
@@ -1853,7 +1863,7 @@
     <div class="streak-duo-section">
       <div class="streak-duo-wrap">
         <div class="streak-duo-top">
-          <span class="streak-duo-title">🦉 ORÁCULO DO SABER</span>
+          <span class="streak-duo-title">🦉 ORÁCULO DO SABER <span id="duo-escudo" data-fala="escudo_rotulo_duo" style="display:none;color:#7DD3FC;margin-left:4px;"></span></span>
           <span class="streak-duo-record" id="duo-record" data-fala="duo_rotulo_record">Recorde: 0 dias</span>
         </div>
         <div class="streak-duo-heads" id="duo-heads"></div>
@@ -2052,7 +2062,7 @@
     <button class="reading-close" onclick="fecharBau()">✕</button>
     <div class="bau-scroll">
       <div class="bau-title">⚔️ Baú de Artefatos</div>
-      <div class="bau-subtitle">✦ Missões da Ordem dos Guardiões ✦</div>
+      <div class="bau-subtitle">✦ Missões e Coleção da Ordem ✦</div>
 
       <!-- Mini Oráculo -->
       <div class="modal-ora-row">
@@ -2062,6 +2072,7 @@
 
       <div class="bau-tabs">
         <button class="bau-tab active" id="btab-missoes" onclick="bauTab('missoes')">⚔️ Missões</button>
+        <button class="bau-tab" id="btab-colecao" onclick="bauTab('colecao')">🛡️ Coleção</button>
         <button class="bau-tab" id="btab-hist" onclick="bauTab('hist')">📋 Histórico</button>
       </div>
 
@@ -2069,6 +2080,13 @@
       <div class="bau-panel active" id="bpanel-missoes">
         <div id="bau-missoes-lista">
           <div class="bau-empty">Carregando missões...</div>
+        </div>
+      </div>
+
+      <!-- PAINEL: COLEÇÃO (escudos e futuros artefatos) -->
+      <div class="bau-panel" id="bpanel-colecao">
+        <div id="bau-colecao-lista">
+          <div class="bau-empty">Abrindo a coleção...</div>
         </div>
       </div>
 
@@ -3212,6 +3230,61 @@
         '⏱ Fim do tempo de tela! A Ordem chama você de volta, {nome}! ⚔️'
       ],
 
+      /* ── Coleção do Baú e escudos ── */
+      colecao_abrir: [
+        'Aqui ficam os escudos que você conquistou, {nome}! Eles guardam a sua chama.',
+        'A Coleção é o cofre dos seus tesouros mágicos. Vamos ver o que tem aí?',
+        'Escudos não se compram: se ganham lendo e estudando sem parar!',
+        'Cada escudo protege uma sequência. Guarde-os para o dia em que precisar!'
+      ],
+      colecao_leitura: [
+        '🔥 O Escudo da Chama guarda sua leitura! Você tem {saldo} de {limite}. Se faltar um dia, ele se ativa sozinho.',
+        '🔥 Perdeu um dia de leitura? O Escudo da Chama entra em ação por você! Cabem {limite} no baú.',
+        '🔥 Este escudo mantém sua sequência de pé. Guardando agora: {saldo} de {limite}!',
+        '🔥 Você não precisa fazer nada: o Escudo da Chama aparece sozinho na hora certa!'
+      ],
+      colecao_duolingo: [
+        '🦉 O Escudo do Oráculo guarda seu Duolingo! Você tem {saldo} de {limite}. Ele se ativa sozinho.',
+        '🦉 Faltou um dia de línguas? O Escudo do Oráculo segura a sua sequência! Cabem {limite} no baú.',
+        '🦉 Este escudo cuida da sua sequência de Duolingo. Guardando agora: {saldo} de {limite}!',
+        '🦉 Sem susto, Guardião: o Escudo do Oráculo entra sozinho quando um dia se perde!'
+      ],
+      escudo_rotulo_leitura: [
+        '🛡️ Você guarda {saldo} Escudo da Chama! Se um dia de leitura se perder, ele protege sua sequência.',
+        '🛡️ Este é o seu Escudo da Chama. Ele cuida da sua leitura quando você esquecer um dia!',
+        '🛡️ {saldo} de {limite} escudos guardados. Eles se ativam sozinhos, Guardião!'
+      ],
+      escudo_rotulo_duo: [
+        '🛡️ Você guarda {saldo} Escudo do Oráculo! Se um dia de Duolingo se perder, ele protege sua sequência.',
+        '🛡️ Este é o seu Escudo do Oráculo. Ele cuida das suas línguas quando você esquecer um dia!',
+        '🛡️ {saldo} de {limite} escudos guardados. Eles se ativam sozinhos, Guardião!'
+      ],
+      escudo_ganho_leitura: [
+        '🛡️ {nome}, você ganhou um Escudo da Chama! Ele vai proteger sua sequência de leitura!',
+        '🛡️ Sua constância rendeu um tesouro: Escudo da Chama para o baú! Confira na Coleção.',
+        '🛡️ A Ordem entrega a você um Escudo da Chama! Guarde-o para um dia difícil.'
+      ],
+      escudo_ganho_duo: [
+        '🛡️ {nome}, você ganhou um Escudo do Oráculo! Ele vai proteger sua sequência de Duolingo!',
+        '🛡️ Sua constância rendeu um tesouro: Escudo do Oráculo para o baú! Confira na Coleção.',
+        '🛡️ A Ordem entrega a você um Escudo do Oráculo! Guarde-o para um dia difícil.'
+      ],
+      escudo_cheio: [
+        '🛡️ Seu baú de escudos está cheio, {nome}! Cabem só {limite} de cada. Este ficou de fora desta vez.',
+        '🛡️ Você ganhou outro escudo, mas o baú já está cheio ({limite} cabem). Ele não foi guardado.',
+        '🛡️ Baú lotado! Nenhum escudo novo cabe por enquanto. Um deles vai precisar ser usado primeiro.'
+      ],
+      escudo_usado_leitura: [
+        '🛡️ Ufa, {nome}! Um dia de leitura se perdeu, mas o Escudo da Chama protegeu sua sequência!',
+        '🛡️ Não foi dessa vez! O Escudo da Chama segurou a sua sequência de leitura. Volte a ler hoje!',
+        '🛡️ Seu escudo brilhou e salvou a chama! Sua sequência continua de pé, {nome}.'
+      ],
+      escudo_usado_duo: [
+        '🛡️ Ufa, {nome}! Um dia de Duolingo se perdeu, mas o Escudo do Oráculo protegeu sua sequência!',
+        '🛡️ Não foi dessa vez! O Escudo do Oráculo segurou a sua sequência de línguas. Estude hoje!',
+        '🛡️ Seu escudo brilhou e salvou a sequência! Ela continua de pé, {nome}.'
+      ],
+
       /* ── Baú de Artefatos (missões) ── */
       bau_abrir: [
         'Complete missões e ganhe cristais, {nome}!',
@@ -4065,6 +4138,14 @@
 
         // ── Calcular streaks ──
         const allTrans = Object.values(transMap);
+        _transCache = allTrans;
+
+        // ── Escudos do Baú: protegem a sequência antes de ela ser calculada ──
+        _inv = await lerInventario();
+        let escudosUsados = { Leitura: 0, Duolingo: 0 };
+        if (_inv) escudosUsados = await aplicarProtetores(_inv, allTrans, emailLower);
+        else _protegidos = { Leitura: new Set(), Duolingo: new Set() };
+
         const seqLeitura    = calcSequencia(allTrans, emailLower, 'Leitura', streakConfig.min_leitura_diaria, 'registro');
         const streakLeitura = seqLeitura.streak;
         const duoData       = calcStreakDuo(allTrans, emailLower, streakConfig.min_duolingo_diario);
@@ -4097,6 +4178,19 @@
         const bonusRes = await verificarTodosBonus({
           allTrans, emailLower, nome: d.nome, seqLeitura, duoData, duoAnterior
         });
+
+        // ── Escudos: ganhos por marco, usos de agora e contador na tela ──
+        if (_inv) {
+          for (const tipo of ['Leitura', 'Duolingo']) {
+            if (escudosUsados[tipo] > 0) agendarCelebracao(() => celebrarEscudo('uso', tipo, escudosUsados[tipo]));
+          }
+          const gL = await verificarBoostersMarcos('leitura',  seqLeitura,         allTrans, emailLower, _inv);
+          const gD = await verificarBoostersMarcos('duolingo', duoData.sequencia,  allTrans, emailLower, _inv);
+          if (gL.ganhou) agendarCelebracao(() => celebrarEscudo('ganho', 'Leitura', gL.ganhou));
+          if (gD.ganhou) agendarCelebracao(() => celebrarEscudo('ganho', 'Duolingo', gD.ganhou));
+          if (gL.cheio || gD.cheio) agendarCelebracao(() => celebrarEscudo('cheio', gL.cheio ? 'Leitura' : 'Duolingo', gL.cheio + gD.cheio));
+        }
+        atualizarEscudosUI(allTrans, emailLower);
 
         // ── Oráculo contextual ──
         const msgOra = [];
@@ -4715,7 +4809,10 @@
     //   modo 'registro': cada registro precisa ter o mínimo (leitura)
     //   modo 'soma':     a soma do dia precisa ter o mínimo (Duolingo)
     // Devolve os dias da sequência, do mais antigo ao mais novo.
-    function calcSequencia(trans, email, tipo, minDiario, modo) {
+    // Dias protegidos por escudo (Baú de Artefatos), por modalidade. Preenchido em loadData.
+    let _protegidos = { Leitura: new Set(), Duolingo: new Set() };
+
+    function mapaDiasOk(trans, email, tipo, minDiario, modo) {
       const ok = {}, okAprov = {}, soma = {}, somaAprov = {};
       trans.forEach(t => {
         if (t.email !== email || t.tipo !== tipo) return;
@@ -4734,6 +4831,11 @@
           if ((somaAprov[d] || 0) >= minDiario) okAprov[d] = true;
         });
       }
+      return { ok, okAprov };
+    }
+    function calcSequencia(trans, email, tipo, minDiario, modo) {
+      const { ok, okAprov } = mapaDiasOk(trans, email, tipo, minDiario, modo);
+      const prot = _protegidos[tipo] || new Set();
       const dias = [];
       const hoje = new Date();
       for (let i = 0; i < 365; i++) {
@@ -4741,7 +4843,8 @@
         d.setDate(hoje.getDate() - i);
         const str = toLocalDateStr(d);
         if (ok[str]) dias.unshift({ data: str, aprovado: !!okAprov[str] });
-        else if (i === 0) continue;   // hoje ainda pode não ter registrado: olha ontem
+        else if (i === 0) continue;         // hoje ainda pode não ter registrado: olha ontem
+        else if (prot.has(str)) continue;   // dia protegido por escudo: a sequência atravessa, sem somar dia
         else break;
       }
       return { streak: dias.length, inicio: dias.length ? dias[0].data : null, dias };
@@ -4847,13 +4950,13 @@
       const b = cfg.bonus || {};
       const legado = [3, 7, 14, 30].map(d => {
         const v = cfg['bonus_leitura_' + d + 'd'];
-        return { dias: d, valor: Number(v !== undefined && v !== null ? v : streakConfig['bonus_leitura_' + d + 'd']) || 0 };
+        return { dias: d, valor: Number(v !== undefined && v !== null ? v : streakConfig['bonus_leitura_' + d + 'd']) || 0, boosters: 0 };
       });
       const moeda = m => (m === 'cristais' ? 'cristais' : 'energia');
       const streak = (raw, ativoPadrao, marcosPadrao) => {
         if (!raw || typeof raw !== 'object') return { ativo: ativoPadrao, moeda: 'energia', desde: '', marcos: marcosPadrao };
         const marcos = _lista(raw.marcos)
-          .map(m => ({ dias: Math.floor(Number(m.dias)) || 0, valor: Number(m.valor) || 0, desde: m.desde || '' }))
+          .map(m => ({ dias: Math.floor(Number(m.dias)) || 0, valor: Number(m.valor) || 0, desde: m.desde || '', boosters: Math.max(0, Math.floor(Number(m.boosters)) || 0) }))
           .filter(m => m.dias > 0).sort((a, c) => a.dias - c.dias);
         return { ativo: !!raw.ativo, moeda: moeda(raw.moeda), desde: raw.desde || '', marcos };
       };
@@ -4872,7 +4975,8 @@
       return {
         leitura:  { streak: streak(l.streak, true, legado), volume: volume(l.volume) },
         duolingo: { streak: streak(d.streak, false, []),    volume: volume(d.volume) },
-        ranking:  { duelo: rk(r.duelo), torneio: rk(r.torneio) }
+        ranking:  { duelo: rk(r.duelo), torneio: rk(r.torneio) },
+        inventario: { limite: Math.min(5, Math.max(1, Math.floor(Number(b.inventario && b.inventario.limite)) || 2)) }
       };
     }
     let bonusCfg = normalizarBonus({});
@@ -5236,6 +5340,199 @@
       await rodar(() => verificarPremiosRanking(c.allTrans, c.emailLower, c.nome, pagos));
       if (res.pagou) setTimeout(() => loadData(), 6000);   // atualiza os saldos depois da festa
       return res;
+    }
+
+    // ── INVENTÁRIO (BAÚ DE ARTEFATOS): ESCUDOS QUE PROTEGEM A SEQUÊNCIA ───────
+    // /inventario/{emailKey}/ganhos/{id} e /usos/{item}_{dia}. Só livros de registro, nunca um contador:
+    // saldo = ganhos (sem os descartados) menos usos. Cada registro é criado uma única vez (transaction).
+    // O escudo só é usado sozinho, no primeiro dia perdido, e só se cobrir TODOS os dias perdidos.
+    const ITEM_PROTETOR = { Leitura: 'protetor_leitura', Duolingo: 'protetor_duolingo' };
+    const BOOSTER_MIN_SEQ = 3;      // a sequência precisa ter ao menos 3 dias estudados para ser protegida
+    let _inv = null;                // { ganhos, usos } ou null (não conseguiu ler)
+    let _transCache = [];
+
+    async function lerInventario() {
+      try {
+        await garantirAuth();
+        const sn = await db.ref('inventario/' + sanitizeEmail(currentUserEmail)).get();
+        const v = sn.exists() ? sn.val() : {};
+        return { ganhos: v.ganhos || {}, usos: v.usos || {} };
+      } catch (e) {
+        console.error('lerInventario falhou:', e);
+        return null;
+      }
+    }
+
+    // devolve 'ok' (criou), 'existe' (já havia) ou 'erro'
+    async function criarRegistroInv(no, id, dados) {
+      try {
+        const ref = db.ref('inventario/' + sanitizeEmail(currentUserEmail) + '/' + no + '/' + id);
+        const res = await ref.transaction(cur => cur === null
+          ? Object.assign({ criado_em: new Date().toISOString() }, dados)
+          : undefined);
+        return res.committed === true ? 'ok' : 'existe';
+      } catch (e) {
+        console.error('criarRegistroInv falhou (' + id + '):', e);
+        return 'erro';
+      }
+    }
+
+    // okDias: dias em que a criança estudou de verdade. Um uso num dia que depois virou dia de estudo
+    // (crédito aprovado com data de estudo retroativa) deixa de contar: o escudo volta sozinho ao saldo.
+    function saldoProtetor(inv, tipo, okDias) {
+      const item = ITEM_PROTETOR[tipo];
+      const g = Object.values(inv.ganhos).filter(x => x && x.item === item && !x.descartado).length;
+      const u = Object.values(inv.usos).filter(x => x && x.item === item && !(okDias && okDias[x.dia])).length;
+      return Math.max(0, g - u);
+    }
+
+    function configTipo(tipo) {
+      return tipo === 'Leitura'
+        ? { min: streakConfig.min_leitura_diaria, modo: 'registro' }
+        : { min: streakConfig.min_duolingo_diario, modo: 'soma' };
+    }
+
+    // Roda ANTES de calcular as sequências. Devolve quantos dias cada escudo protegeu agora.
+    async function aplicarProtetores(inv, trans, emailLower) {
+      const usados = { Leitura: 0, Duolingo: 0 };
+      for (const tipo of ['Leitura', 'Duolingo']) {
+        const item = ITEM_PROTETOR[tipo], cfg = configTipo(tipo);
+        const { ok } = mapaDiasOk(trans, emailLower, tipo, cfg.min, cfg.modo);
+        const prot = new Set(Object.values(inv.usos).filter(u => u && u.item === item).map(u => u.dia));
+        _protegidos[tipo] = prot;
+
+        // dias já encerrados, sem estudo, logo antes de hoje
+        const hoje = toLocalDateStr();
+        const lacuna = [];
+        let achou = null;
+        for (let i = 1; i <= 60; i++) {
+          const dia = addDiasStr(hoje, -i);
+          if (ok[dia] || prot.has(dia)) { achou = dia; break; }
+          lacuna.push(dia);
+        }
+        if (!achou || !lacuna.length) continue;
+
+        // só protege uma sequência que já existe de verdade
+        let reais = 0;
+        for (let i = 0; i < 365; i++) {
+          const dia = addDiasStr(achou, -i);
+          if (ok[dia]) reais++; else if (!prot.has(dia)) break;
+        }
+        if (reais < BOOSTER_MIN_SEQ) continue;
+
+        // tudo ou nada: se o saldo não cobre todos os dias perdidos, a sequência quebra e nada é gasto
+        if (lacuna.length > saldoProtetor(inv, tipo, ok)) continue;
+
+        for (const dia of lacuna.slice().reverse()) {          // do mais antigo ao mais novo
+          const id = item + '_' + dia;
+          const r = await criarRegistroInv('usos', id, { item, dia, origem: 'app' });
+          if (r === 'erro') break;
+          if (r === 'ok') { inv.usos[id] = { item, dia, origem: 'app' }; usados[tipo]++; }
+          prot.add(dia);
+        }
+      }
+      return usados;
+    }
+
+    // Escudos ganhos ao bater um marco de streak (campo "boosters" do marco, configurado no Painel).
+    // Cada escudo tem id fixo (sequência + marco + número), então nunca é dado duas vezes.
+    // Baú cheio: o escudo é registrado como descartado e não entra no saldo.
+    async function verificarBoostersMarcos(mod, seq, trans, emailLower, inv) {
+      const res = { ganhou: 0, cheio: 0 };
+      const cfgS = bonusCfg[mod].streak;
+      if (!currentUserEmail || !cfgS.ativo || !seq || !seq.streak || !seq.inicio) return res;
+      const tipo = mod === 'leitura' ? 'Leitura' : 'Duolingo';
+      const item = ITEM_PROTETOR[tipo], prefixo = mod === 'leitura' ? 'leitura' : 'duo';
+      const cfg = configTipo(tipo);
+      const { ok } = mapaDiasOk(trans, emailLower, tipo, cfg.min, cfg.modo);
+      for (const marco of cfgS.marcos) {
+        if (!(marco.boosters > 0) || seq.streak < marco.dias) continue;
+        const desde = [cfgS.desde, marco.desde].filter(Boolean).sort().pop() || '';
+        if (desde && seq.dias[marco.dias - 1].data < desde) continue;
+        if (!seq.dias.slice(0, marco.dias).every(d => d.aprovado)) continue;   // só com dias aprovados
+        for (let n = 1; n <= marco.boosters; n++) {
+          const id = prefixo + '_streak_' + seq.inicio + '_' + marco.dias + 'd_b' + n;
+          if (inv.ganhos[id]) continue;
+          const cheio = saldoProtetor(inv, tipo, ok) >= bonusCfg.inventario.limite;
+          const dados = { item, origem: 'marco', marco: marco.dias, inicio: seq.inicio };
+          if (cheio) dados.descartado = true;
+          const r = await criarRegistroInv('ganhos', id, dados);
+          if (r === 'erro') return res;
+          if (r === 'ok') { inv.ganhos[id] = dados; if (cheio) res.cheio++; else res.ganhou++; }
+        }
+      }
+      return res;
+    }
+
+    function celebrarEscudo(tipoEvento, tipo, n) {
+      initAudio();
+      vibrate([60, 40, 60, 40, 200]);
+      screenFlash();
+      soundTone(392, 'triangle', 0.2, 0.16, 0.005);
+      setTimeout(() => soundTone(523, 'triangle', 0.2, 0.16, 0.005), 120);
+      setTimeout(() => soundTone(784, 'sine', 0.35, 0.16, 0.005), 260);
+      const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+      spawnColorSparks(cx, cy - 60, 20, ['rgba(80,200,255,', 'rgba(200,240,255,', 'rgba(255,215,0,']);
+      spawnShockwave(cx, cy - 60, 'rgba(80,200,255,', 120);
+      const sufixo = tipo === 'Leitura' ? 'leitura' : 'duo';
+      let chave;
+      if (tipoEvento === 'ganho') { spawnFloat('+' + n + ' 🛡️', '#7DD3FC', cx, cy - 100); chave = 'escudo_ganho_' + sufixo; }
+      else if (tipoEvento === 'cheio') { chave = 'escudo_cheio'; }
+      else { spawnFloat('🛡️ Protegido!', '#7DD3FC', cx, cy - 100); chave = 'escudo_usado_' + sufixo; }
+      setTimeout(() => oraMsg(falar(chave, { qtd: n, diasTxt: pluralDias(n), limite: bonusCfg.inventario.limite })), 800);
+    }
+
+    // Escudos guardados, ao lado da sequência de leitura e do Oráculo
+    function atualizarEscudosUI(trans, emailLower) {
+      const mostrar = (id, tipo) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const cfg = configTipo(tipo);
+        const saldo = _inv ? saldoProtetor(_inv, tipo, mapaDiasOk(trans, emailLower, tipo, cfg.min, cfg.modo).ok) : 0;
+        el.style.display = saldo > 0 ? '' : 'none';
+        el.textContent = '🛡️×' + saldo;
+        el.dataset.saldo = saldo;
+        el.dataset.limite = bonusCfg.inventario.limite;
+      };
+      mostrar('streak-leitura-escudo', 'Leitura');
+      mostrar('duo-escudo', 'Duolingo');
+    }
+
+    // ── ABA COLEÇÃO DO BAÚ ──────────────────────────────────────
+    const COLECAO_INFO = {
+      Leitura:  { mod: 'leitura',  emoji: '🔥', nome: 'Escudo da Chama',   desc: 'Protege sua sequência de leitura quando você perde um dia. Ele se ativa sozinho.' },
+      Duolingo: { mod: 'duolingo', emoji: '🦉', nome: 'Escudo do Oráculo', desc: 'Protege sua sequência de Duolingo quando você perde um dia. Ele se ativa sozinho.' }
+    };
+    function textoComoGanhar(mod) {
+      const c = bonusCfg[mod].streak;
+      const marcos = c.ativo ? c.marcos.filter(m => m.boosters > 0) : [];
+      if (!marcos.length) return 'O Mestre ainda não liberou este escudo.';
+      return 'Como ganhar: ' + marcos.map(m => `${m.boosters === 1 ? '1 escudo' : m.boosters + ' escudos'} aos ${m.dias} dias seguidos`).join(', ') + '.';
+    }
+    async function renderColecao() {
+      const box = document.getElementById('bau-colecao-lista');
+      if (!box || !currentUserEmail) return;
+      const inv = await lerInventario();
+      if (!inv) { box.innerHTML = '<div class="bau-empty">Não consegui abrir a coleção agora.<br>Tente de novo daqui a pouco.</div>'; return; }
+      _inv = inv;
+      const emailLower = currentUserEmail.toLowerCase();
+      const limite = bonusCfg.inventario.limite;
+      box.innerHTML = ['Leitura', 'Duolingo'].map(tipo => {
+        const info = COLECAO_INFO[tipo], cfg = configTipo(tipo);
+        const { ok } = mapaDiasOk(_transCache, emailLower, tipo, cfg.min, cfg.modo);
+        const saldo = Math.min(saldoProtetor(inv, tipo, ok), 99);
+        const item = ITEM_PROTETOR[tipo];
+        const usos = Object.values(inv.usos).filter(u => u && u.item === item && !ok[u.dia]).map(u => u.dia).sort();
+        const slots = Array.from({ length: Math.max(limite, saldo) }, (_, i) => `<span class="colecao-slot ${i < saldo ? 'cheio' : ''}">🛡️</span>`).join('');
+        const ultimo = usos.length ? `<div class="colecao-linha">Último uso: ${fmtDiaMes(usos[usos.length - 1])}</div>` : '';
+        return `<div class="colecao-card" data-fala="colecao_${info.mod}" data-saldo="${saldo}" data-limite="${limite}">
+          <div class="colecao-topo"><span class="colecao-nome">${info.emoji} ${info.nome}</span><span class="colecao-qtd">${saldo} / ${limite}</span></div>
+          <div class="colecao-slots">${slots}</div>
+          <div class="colecao-desc">${info.desc}</div>
+          <div class="colecao-linha">${textoComoGanhar(info.mod)}</div>
+          ${ultimo}
+        </div>`;
+      }).join('') + '<div class="bau-empty" style="padding-top:4px">Mais artefatos chegam em breve.</div>';
     }
 
     // ── LINHAS DE BÔNUS NA TELA (sequência e faixas) ────────────
@@ -6559,10 +6856,11 @@
     }
 
     function bauTab(tab) {
-      ['missoes','hist'].forEach(t => {
+      ['missoes','colecao','hist'].forEach(t => {
         document.getElementById('bpanel-' + t).classList.toggle('active', t === tab);
         document.getElementById('btab-' + t).classList.toggle('active', t === tab);
       });
+      if (tab === 'colecao') { renderColecao(); _oraEspelhar(falar('colecao_abrir')); }
     }
 
     async function carregarBau() {
