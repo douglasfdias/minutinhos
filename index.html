@@ -249,6 +249,22 @@
       transition: transform 0.1s;
     }
     .btn-send-reading:active { transform: translateY(3px); box-shadow: 0 2px 0 #0D47A1; }
+    .btn-send-reading:disabled { opacity: 0.6; pointer-events: none; }
+
+    /* Abas Leitura | Duolingo dentro do modal de registro */
+    .reg-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .reg-tab {
+      flex: 1; height: 40px; border-radius: 11px; cursor: pointer;
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.82rem;
+      color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.06);
+      border: 2px solid rgba(200,180,140,0.35); transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .reg-tab.active { color: white; border-color: var(--gold); background: rgba(255,215,0,0.16); }
+    #reading-modal.duo-mode .btn-send-reading {
+      background: linear-gradient(160deg, #2E7D32, #43A047, #66BB6A);
+      box-shadow: 0 5px 0 #1B5E20, 0 0 20px rgba(102,187,106,0.25);
+    }
+    #reading-modal.duo-mode .btn-send-reading:active { box-shadow: 0 2px 0 #1B5E20; }
 
 
 
@@ -741,6 +757,15 @@
     .btn-forge:active { box-shadow: 0 2px 0 #8B1A00, 0 0 10px rgba(255,112,67,0.2); }
 
     .btn-label { font-size: 0.85rem; font-family: 'Cinzel', serif; font-weight: 700; }
+
+    /* Fase 1 — três botões de ação (Leitura · Duolingo · Forja): ícone sobre o rótulo */
+    .action-grid.tres .btn-epic { flex-direction: column; gap: 1px; height: 58px; min-width: 0; padding: 0 4px; }
+    .action-grid.tres .btn-label { font-size: 0.72rem; white-space: nowrap; letter-spacing: 0.02em; }
+    .btn-duo {
+      background: linear-gradient(160deg, #2E7D32, #43A047, #66BB6A);
+      box-shadow: 0 6px 0 #1B5E20, 0 0 20px rgba(102,187,106,0.3);
+    }
+    .btn-duo:active { box-shadow: 0 2px 0 #1B5E20, 0 0 10px rgba(102,187,106,0.2); }
 
     /* ============ ORÁCULO ============ */
     .oracle-section {
@@ -1822,14 +1847,18 @@
     </div>
 
     <!-- Botões -->
-    <div class="action-grid">
-      <button class="btn-epic btn-read" onclick="fLeitura(event)">
-        <span style="font-size:1.4rem;">📖</span>
-        <span class="btn-label">Registrar Leitura</span>
+    <div class="action-grid tres">
+      <button class="btn-epic btn-read" onclick="fLeitura(event)" aria-label="Registrar Leitura">
+        <span style="font-size:1.35rem;">📖</span>
+        <span class="btn-label">Leitura</span>
       </button>
-      <button class="btn-epic btn-forge" onclick="abrirForja(event)">
-        <span style="font-size:1.4rem;">⚒️</span>
-        <span class="btn-label">Forja de Cristais</span>
+      <button class="btn-epic btn-duo" onclick="fDuolingo(event)" aria-label="Registrar Duolingo">
+        <span style="font-size:1.35rem;">🦉</span>
+        <span class="btn-label">Duolingo</span>
+      </button>
+      <button class="btn-epic btn-forge" onclick="abrirForja(event)" aria-label="Forja de Cristais">
+        <span style="font-size:1.35rem;">⚒️</span>
+        <span class="btn-label">Forja</span>
       </button>
     </div>
 
@@ -2074,8 +2103,12 @@
   <div id="reading-modal">
     <button class="reading-close" onclick="fecharLeitura()">✕</button>
     <div class="reading-scroll">
-      <div class="reading-title">📖 Registro de Leitura</div>
-      <div class="reading-subtitle">✦ Relate sua aventura de leitura ao Oráculo ✦</div>
+      <div class="reg-tabs">
+        <button class="reg-tab active" id="reg-tab-leitura" onclick="setModoRegistro('leitura')">📖 Leitura</button>
+        <button class="reg-tab" id="reg-tab-duolingo" onclick="setModoRegistro('duolingo')">🦉 Duolingo</button>
+      </div>
+      <div class="reading-title" id="reading-title">📖 Registro de Leitura</div>
+      <div class="reading-subtitle" id="reading-subtitle">✦ Relate sua aventura de leitura ao Oráculo ✦</div>
 
       <div class="reading-oracle-row">
         <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="reading-oracle-img">
@@ -2084,22 +2117,18 @@
         </div>
       </div>
 
-      <label class="reading-field-label">📚 Nome do Livro</label>
-      <input type="text" id="reading-book" class="reading-input" placeholder="Ex: Harry Potter, Narnia...">
+      <div id="reading-book-wrap">
+        <label class="reading-field-label">📚 Nome do Livro</label>
+        <input type="text" id="reading-book" class="reading-input" placeholder="Ex: Harry Potter, Narnia...">
+      </div>
 
       <label class="reading-field-label">⚡ Minutos de Estudo</label>
       <div class="reading-mins-row">
         <input type="number" id="reading-mins" class="reading-input" placeholder="0" min="1" max="999">
       </div>
-      <div class="min-preset-row">
-        <div class="min-preset" onclick="setMin(15)">15 min</div>
-        <div class="min-preset" onclick="setMin(20)">20 min</div>
-        <div class="min-preset" onclick="setMin(30)">30 min</div>
-        <div class="min-preset" onclick="setMin(45)">45 min</div>
-        <div class="min-preset" onclick="setMin(60)">1 hora</div>
-      </div>
+      <div class="min-preset-row" id="reading-presets"></div>
 
-      <button class="btn-send-reading" onclick="enviarLeitura()">
+      <button class="btn-send-reading" id="btn-send-registro" onclick="enviarRegistro()">
         <span>📜</span> Enviar para o Oráculo
       </button>
     </div>
@@ -2645,41 +2674,6 @@
       }
     }
 
-    // Confere se este aparelho é o dono do vínculo (device_uid).
-    // Retorna false e mostra um aviso se o Guardião estiver em outro aparelho.
-    async function verificarDispositivo(emailKey) {
-      try {
-        const user = await garantirAuth();
-        const snap = await db.ref('usuarios/' + emailKey + '/device_uid').get();
-        if (!snap.exists() || snap.val() === user.uid) return true;
-        mostrarAvisoOutroAparelho();
-        return false;
-      } catch (e) {
-        return true; // se não der pra checar, segue o fluxo normal
-      }
-    }
-
-    function mostrarAvisoOutroAparelho() {
-      let ov = document.getElementById('device-block-overlay');
-      if (!ov) {
-        ov = document.createElement('div');
-        ov.id = 'device-block-overlay';
-        ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,10,20,0.92);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;';
-        ov.innerHTML = `
-          <div style="max-width:340px;background:#1c1c2e;border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:24px;color:#fff;">
-            <div style="font-size:2.4rem;margin-bottom:8px;">📵</div>
-            <div style="font-weight:800;font-size:1.05rem;margin-bottom:10px;">Este Guardião está conectado em outro aparelho</div>
-            <div style="font-size:0.85rem;opacity:0.85;line-height:1.5;margin-bottom:18px;">
-              Para usar aqui, peça ao Mestre para liberar o acesso. Depois toque em "Tentar novamente".
-            </div>
-            <button onclick="location.reload()" style="background:#f39c12;color:#1c1c2e;border:none;border-radius:10px;padding:10px 18px;font-weight:800;font-size:0.85rem;margin:4px;">🔄 Tentar novamente</button>
-            <button onclick="document.getElementById('device-block-overlay').style.display='none'; trocarGuardiao();" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:10px 18px;font-weight:700;font-size:0.85rem;margin:4px;">⬅️ Outro Guardião</button>
-          </div>`;
-        document.body.appendChild(ov);
-      }
-      ov.style.display = 'flex';
-    }
-
     // Garante que auth E device_uid estão prontos antes de qualquer escrita.
     // Chamado antes de cada pedido (leitura, voucher, missão, forja).
     async function garantirPronto() {
@@ -3006,7 +3000,7 @@
 
         // ── Verificar marcos e recompensas ──
         await verificarMarcosLeitura(streakLeitura, d.nome);
-        await verificarMetaDuo(duoData.diasBatidos, streakConfig.meta_duo_semanal_dias, d.nome);
+        await verificarMetaDuo(duoData.diasBatidosAprovados, streakConfig.meta_duo_semanal_dias, d.nome);
 
         // ── Oráculo contextual ──
         let msgOra;
@@ -3025,7 +3019,7 @@
           ];
           msgOra = msgs[Math.floor(Math.random() * msgs.length)];
         }
-        oraMsg(msgOra);
+        if (Date.now() >= _oraHoldAte) oraMsg(msgOra);
 
       } catch(err) {
         oraMsg('⚠️ Não consegui conectar ao servidor. Tente novamente.');
@@ -3189,18 +3183,87 @@
     /* ============================================================
        MODAL DE LEITURA PERSONALIZADO
     ============================================================ */
-    function fLeitura(event) {
+    /* ── Estado do modal de registro (Leitura | Duolingo) ── */
+    let _modoRegistro    = 'leitura';
+    let _enviandoRegistro = false;
+    // Enquanto _oraHoldAte estiver no futuro, o loadData() não sobrescreve a fala do Oráculo
+    // (garante que o aviso "falta a aprovação do Mestre" não suma logo após o envio).
+    let _oraHoldAte      = 0;
+
+    const REG_TEXTOS = {
+      leitura: {
+        titulo:   '📖 Registro de Leitura',
+        subtitulo:'✦ Relate sua aventura de leitura ao Oráculo ✦',
+        ora:      'Qual tomo mágico você leu hoje, Guardião? Cada página é um passo para o próximo nível!'
+      },
+      duolingo: {
+        titulo:   '🦉 Registro de Duolingo',
+        subtitulo:'✦ Conte ao Oráculo quanto você estudou ✦',
+        ora:      null   // montada na hora (depende do mínimo configurado)
+      }
+    };
+
+    function _minimoRegistro(modo) {
+      return modo === 'duolingo'
+        ? (streakConfig.min_duolingo_diario || 7)
+        : (streakConfig.min_leitura_diaria  || 15);
+    }
+
+    function _montarPresets() {
+      const modo   = _modoRegistro;
+      const minimo = _minimoRegistro(modo);
+      const base   = modo === 'duolingo' ? [10, 15, 20, 30] : [20, 30, 45, 60];
+      const vals   = [...new Set([minimo, ...base.filter(v => v > minimo)])].sort((a, b) => a - b);
+      const row    = document.getElementById('reading-presets');
+      row.innerHTML = '';
+      vals.forEach(v => {
+        const el = document.createElement('div');
+        el.className = 'min-preset';
+        el.dataset.val = v;
+        el.textContent = (v === 60) ? '1 hora' : v + ' min';
+        el.onclick = () => setMin(v);
+        row.appendChild(el);
+      });
+      _marcarPresetSelecionado(parseInt(document.getElementById('reading-mins').value));
+    }
+
+    function _marcarPresetSelecionado(val) {
+      document.querySelectorAll('#reading-presets .min-preset').forEach(p => {
+        p.classList.toggle('selected', Number(p.dataset.val) === val);
+      });
+    }
+
+    function setModoRegistro(modo, silencioso) {
+      _modoRegistro = modo;
+      const ehDuo = modo === 'duolingo';
+      const t = REG_TEXTOS[modo];
+      const minimo = _minimoRegistro(modo);
+      document.getElementById('reg-tab-leitura').classList.toggle('active', !ehDuo);
+      document.getElementById('reg-tab-duolingo').classList.toggle('active', ehDuo);
+      document.getElementById('reading-modal').classList.toggle('duo-mode', ehDuo);
+      document.getElementById('reading-title').textContent    = t.titulo;
+      document.getElementById('reading-subtitle').textContent = t.subtitulo;
+      document.getElementById('reading-book-wrap').style.display = ehDuo ? 'none' : 'block';
+      document.getElementById('reading-oracle-text').textContent = ehDuo
+        ? `Quantos minutos de Duolingo você estudou, Guardião? A partir de ${minimo} minutos a cabeça do Oráculo acende!`
+        : t.ora;
+      _montarPresets();
+      if (!silencioso) { soundTone(660, 'sine', 0.15, 0.15, 0.005); vibrate(20); }
+    }
+
+    function abrirRegistro(modo, event) {
       soundButtonTap();
       if (event) addRipple(event.currentTarget, event);
       vibrate(40);
       document.getElementById('reading-book').value = '';
       document.getElementById('reading-mins').value = '';
-      document.querySelectorAll('.min-preset').forEach(p => p.classList.remove('selected'));
-      document.getElementById('reading-oracle-text').textContent =
-        'Qual tomo mágico você leu hoje, Guardião? Cada página é um passo para o próximo nível!';
+      setModoRegistro(modo, true);
       document.getElementById('reading-modal').style.display = 'flex';
-      setTimeout(() => document.getElementById('reading-book').focus(), 100);
+      setTimeout(() => document.getElementById(modo === 'duolingo' ? 'reading-mins' : 'reading-book').focus(), 100);
     }
+
+    function fLeitura(event)  { abrirRegistro('leitura',  event); }
+    function fDuolingo(event) { abrirRegistro('duolingo', event); }
 
     function fecharLeitura() {
       document.getElementById('reading-modal').style.display = 'none';
@@ -3208,63 +3271,93 @@
 
     function setMin(val) {
       document.getElementById('reading-mins').value = val;
-      document.querySelectorAll('.min-preset').forEach(p => {
-        p.classList.toggle('selected', parseInt(p.textContent) === val || p.textContent === '1 hora' && val === 60);
-      });
+      _marcarPresetSelecionado(val);
       soundTone(660, 'sine', 0.15, 0.15, 0.005);
       vibrate(20);
     }
 
-    function enviarLeitura() {
-      const livro = document.getElementById('reading-book').value.trim();
-      const min   = parseInt(document.getElementById('reading-mins').value);
+    function _erroRegistro(msg, focoId) {
+      document.getElementById('reading-oracle-text').textContent = msg;
+      soundError(); vibrate([80, 40, 80]);
+      if (focoId) document.getElementById(focoId).focus();
+    }
 
-      if (!livro) {
-        document.getElementById('reading-oracle-text').textContent = '⚠️ Diga-me o nome do livro, Guardião! Não posso registrar sem saber qual você leu!';
-        soundError(); vibrate([80, 40, 80]);
-        document.getElementById('reading-book').focus();
-        return;
+    function enviarRegistro() {
+      if (_enviandoRegistro) return;
+      const ehDuo  = _modoRegistro === 'duolingo';
+      const livro  = document.getElementById('reading-book').value.trim();
+      const min    = parseInt(document.getElementById('reading-mins').value);
+      const minimo = _minimoRegistro(_modoRegistro);
+
+      if (!ehDuo && !livro) {
+        return _erroRegistro('⚠️ Diga-me o nome do livro, Guardião! Não posso registrar sem saber qual você leu!', 'reading-book');
       }
       if (!min || min < 1) {
-        document.getElementById('reading-oracle-text').textContent = '⚠️ Quantos minutos você leu, Guardião? Todo minuto conta para subir de nível!';
-        soundError(); vibrate([80, 40, 80]);
-        document.getElementById('reading-mins').focus();
-        return;
+        return _erroRegistro(ehDuo
+          ? '⚠️ Quantos minutos de Duolingo você estudou, Guardião? Todo minuto conta!'
+          : '⚠️ Quantos minutos você leu, Guardião? Todo minuto conta para subir de nível!', 'reading-mins');
       }
-      const minLeitura = streakConfig.min_leitura_diaria || 15;
-      if (min < minLeitura) {
-        document.getElementById('reading-oracle-text').textContent = `⚠️ O mínimo para registrar é ${minLeitura} minutos, Guardião! Cada sessão precisa valer a pena!`;
-        soundError(); vibrate([80, 40, 80]);
-        document.getElementById('reading-mins').focus();
-        return;
+      if (min < minimo) {
+        return _erroRegistro(ehDuo
+          ? `⚠️ O mínimo para registrar Duolingo é ${minimo} minutos por sessão, Guardião!`
+          : `⚠️ O mínimo para registrar é ${minimo} minutos, Guardião! Cada sessão precisa valer a pena!`, 'reading-mins');
       }
 
-      document.getElementById('reading-oracle-text').textContent = `📜 Registrando ${min} minutos de "${livro}"... Aguardando aprovação do Mestre!`;
+      document.getElementById('reading-oracle-text').textContent = ehDuo
+        ? `📜 Registrando ${min} minutos de Duolingo... Aguardando aprovação do Mestre!`
+        : `📜 Registrando ${min} minutos de "${livro}"... Aguardando aprovação do Mestre!`;
       soundCrystalChime();
       vibrate([60, 30, 120]);
+
+      _enviandoRegistro = true;
+      const btn = document.getElementById('btn-send-registro');
+      if (btn) btn.disabled = true;
+      const liberar = () => { _enviandoRegistro = false; if (btn) btn.disabled = false; };
 
       garantirAuth().then(user => {
         db.ref('transacoes').push({
           data: new Date().toISOString(),
           email: currentUserEmail,
-          tipo: 'Leitura',
+          tipo: ehDuo ? 'Duolingo' : 'Leitura',
           quantidade: min,
-          detalhes: livro,
+          detalhes: ehDuo ? 'Duolingo' : livro,
           status: 'Pendente',
           _uid: user.uid
         }).then(() => {
+          liberar();
           fecharLeitura();
-          oraMsg(`📜 "${livro}" registrado! ${min} min aguardando aprovação do Mestre.`);
-          vibrate([100, 50, 200]);
-          spawnFloat('+' + min + ' ⚡', '#FF8C00', window.innerWidth / 2, window.innerHeight / 3);
+          _oraHoldAte = Date.now() + 10000;   // segura a fala do Oráculo por 10s
+          const cx = window.innerWidth / 2;
+          if (ehDuo) {
+            oraMsg(`🦉 ${min} min de Duolingo registrados! A cabeça do Oráculo já acendeu — mas os ⚡ só chegam quando o Mestre aprovar.`);
+            vibrate([100, 50, 200]);
+            spawnFloat('+' + min + ' ⚡', '#66BB6A', cx, window.innerHeight / 3);
+            setTimeout(() => spawnColorSparks(cx, window.innerHeight / 3, 22,
+              ['rgba(0,255,150,', 'rgba(255,215,0,', 'rgba(100,255,200,']), 200);
+          } else {
+            oraMsg(`📜 "${livro}" registrado! ${min} min aguardando aprovação do Mestre.`);
+            vibrate([100, 50, 200]);
+            spawnFloat('+' + min + ' ⚡', '#FF8C00', cx, window.innerHeight / 3);
+          }
           loadData();
-          enviarPush('_mestre', '📖 Nova leitura aguardando',
-            `${currentUserNome || 'Um Guardião'} registrou ${min} min de "${livro}" e aguarda aprovação.`,
-            'solicitacao_leitura', { emailKey: sanitizeEmail(currentUserEmail) });
+          if (ehDuo) {
+            enviarPush('_mestre', '🦉 Novo Duolingo aguardando',
+              `${currentUserNome || 'Um Guardião'} registrou ${min} min de Duolingo e aguarda aprovação.`,
+              'solicitacao_duolingo', { emailKey: sanitizeEmail(currentUserEmail) });
+          } else {
+            enviarPush('_mestre', '📖 Nova leitura aguardando',
+              `${currentUserNome || 'Um Guardião'} registrou ${min} min de "${livro}" e aguarda aprovação.`,
+              'solicitacao_leitura', { emailKey: sanitizeEmail(currentUserEmail) });
+          }
         }).catch(() => {
+          liberar();
           document.getElementById('reading-oracle-text').textContent = '❌ Erro ao registrar. Tente novamente.';
           soundError();
         });
+      }).catch(() => {
+        liberar();
+        document.getElementById('reading-oracle-text').textContent = '❌ Erro ao registrar. Tente novamente.';
+        soundError();
       });
     }
 
@@ -3534,7 +3627,7 @@
     // Configuração padrão (sobrescrita pelo Firebase config)
     let streakConfig = {
       min_leitura_diaria:     15,
-      min_duolingo_diario:    15,
+      min_duolingo_diario:    7,
       meta_duo_semanal_dias:  7,
       recompensa_duo_semanal: 20,
       bonus_leitura_3d:  20,
@@ -3573,7 +3666,7 @@
           (t.status === 'Aprovado' || t.status === 'Pendente') &&
           t.tipo === 'Leitura' &&
           Number(t.quantidade) >= minDiario
-        ).map(t => toLocalDateStr(t.data_registro || t.data))
+        ).map(t => toLocalDateStr(t.data_aferida || t.data_registro || t.data))
       );
       let streak = 0;
       const hoje = new Date();
@@ -3597,12 +3690,19 @@
     function calcStreakDuo(trans, email, minDiario) {
       const inicioSemana = getInicioSemana();
 
-      // Agrupa minutos de Duolingo por data (usa data_aferida se existir)
+      // Agrupa minutos de Duolingo por data (usa data_aferida se existir).
+      // Igual à leitura: 'Pendente' já conta para acender a cabeça (a criança não fica esperando o Mestre).
+      // minPorDiaAprov guarda só o que já foi aprovado — é ele que libera a recompensa semanal.
       const minPorDia = {};
-      trans.filter(t => t.email === email && t.tipo === 'Duolingo' && t.status === 'Aprovado')
+      const minPorDiaAprov = {};
+      trans.filter(t => t.email === email && t.tipo === 'Duolingo' &&
+                        (t.status === 'Aprovado' || t.status === 'Pendente'))
         .forEach(t => {
           const dateStr = toLocalDateStr(t.data_aferida || t.data);
           minPorDia[dateStr] = (minPorDia[dateStr] || 0) + Number(t.quantidade);
+          if (t.status === 'Aprovado') {
+            minPorDiaAprov[dateStr] = (minPorDiaAprov[dateStr] || 0) + Number(t.quantidade);
+          }
         });
 
       // Dias desta semana que bateram o mínimo
@@ -3611,9 +3711,14 @@
         const d = new Date(inicioSemana);
         d.setDate(inicioSemana.getDate() + i);
         const str = toLocalDateStr(d);
-        diasSemana.push({ dateStr: str, bateu: (minPorDia[str] || 0) >= minDiario });
+        diasSemana.push({
+          dateStr: str,
+          bateu: (minPorDia[str] || 0) >= minDiario,
+          bateuAprovado: (minPorDiaAprov[str] || 0) >= minDiario
+        });
       }
       const diasBatidos = diasSemana.filter(d => d.bateu).length;
+      const diasBatidosAprovados = diasSemana.filter(d => d.bateuAprovado).length;
 
       // Recorde contínuo
       const diasComMeta = new Set(Object.keys(minPorDia).filter(k => minPorDia[k] >= minDiario));
@@ -3630,7 +3735,7 @@
         }
       }
 
-      return { diasSemana, diasBatidos, record };
+      return { diasSemana, diasBatidos, diasBatidosAprovados, record };
     }
 
     // Renderiza as cabeças do Oráculo
@@ -3802,8 +3907,10 @@
       document.getElementById('duo-record').textContent = `🏆 Recorde: ${duoData.record} dias`;
       document.getElementById('duo-days-label').textContent = `${duoData.diasBatidos} / ${meta} dias esta semana`;
       const recomp = config.recompensa_duo_semanal || 20;
-      if (duoData.diasBatidos >= meta) {
+      if (duoData.diasBatidosAprovados >= meta) {
         document.getElementById('duo-reward-label').textContent = '✅ Meta semanal concluída!';
+      } else if (duoData.diasBatidos >= meta) {
+        document.getElementById('duo-reward-label').textContent = '⏳ Meta completa — aguardando aprovação do Mestre';
       } else {
         document.getElementById('duo-reward-label').textContent = `🎯 Complete para +${recomp} 💎`;
       }
@@ -4220,9 +4327,6 @@
       // /mensagens, /vouchers e /missoes deste Guardião)
       await vincularDispositivo(emailKey);
 
-      // Guardião em outro aparelho: avisa e não abre os listeners restritos.
-      if (!(await verificarDispositivo(emailKey))) { listenerAtivo = false; return; }
-
       // Listener do usuário — recarrega tudo quando houver mudança
       // (cobre reset de dados, aprovação de leituras, alterações do Mestre)
       let primeiroDisparo = true;
@@ -4373,7 +4477,7 @@
         ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(255,255,150,']);
       // Oráculo fala a mensagem imediatamente
       if (notif) {
-        const icones = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌', voucher_encerrado:'⏱⏹', artefato:'⚔️✅', artefato_recusado:'⚔️❌' };
+        const icones = { duolingo:'🦉', duolingo_aprovado:'🦉✅', duolingo_reprovado:'🦉❌', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌', voucher_encerrado:'⏱⏹', artefato:'⚔️✅', artefato_recusado:'⚔️❌' };
         oraMsg(`${icones[notif.tipo]||'⚔️'} ${notif.mensagem}`);
         // Efeitos adicionais por tipo
         const cx = window.innerWidth/2, cy = window.innerHeight/2;
@@ -4388,7 +4492,7 @@
           const badgeBau = document.getElementById('badge-footer-bau');
           if (badgeBau) badgeBau.style.display = 'none';
         }
-        if (notif.tipo === 'duolingo') {
+        if (notif.tipo === 'duolingo' || notif.tipo === 'duolingo_aprovado') {
           soundCrystalChime();
           setTimeout(() => {
             spawnColorSparks(cx, cy - 80, 20, ['rgba(255,215,0,','rgba(0,212,255,','rgba(255,180,50,']);
@@ -4397,7 +4501,7 @@
         } else if (notif.tipo === 'leitura_aprovada') {
           setTimeout(() => { soundLevelUp(); screenFlash(); }, 400);
           setTimeout(() => spawnColorSparks(cx, cy-80, 24, ['rgba(0,255,120,','rgba(255,215,0,']), 500);
-        } else if (notif.tipo === 'leitura_reprovada') {
+        } else if (notif.tipo === 'leitura_reprovada' || notif.tipo === 'duolingo_reprovado') {
           setTimeout(() => soundError(), 300);
         } else if (notif.tipo === 'gasto') {
           [1047,784,523].forEach((f,i) => setTimeout(()=>soundTone(f,'sine',0.3,0.2,0.01), i*120+300));
@@ -4414,7 +4518,7 @@
       }
       // Mostra todas as mensagens em sequência
       const msgs = filaNotificacoes.map(n => {
-        const ic = { duolingo:'🦉', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
+        const ic = { duolingo:'🦉', duolingo_aprovado:'🦉✅', duolingo_reprovado:'🦉❌', gasto:'💎', leitura_aprovada:'📖✅', leitura_reprovada:'📖❌' };
         return `${ic[n.tipo]||'⚔️'} ${n.mensagem}`;
       });
       oraMsg(msgs.join(' ✦ '));
