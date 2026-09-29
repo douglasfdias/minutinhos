@@ -3954,7 +3954,7 @@
           const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦉', Gasto:'💸', Bonus:'🎁', Missao:'⚔️', Voucher:'📜' };
           const icone = icones[h.tipo] || '✦';
           const statusClass = h.status === 'Pendente' ? 'entry-status-pendente'
-                            : h.status === 'Reprovado' ? 'entry-status-pendente' : 'entry-status-aprovado';
+                            : (h.status === 'Reprovado' || h.status === 'Estornado') ? 'entry-status-pendente' : 'entry-status-aprovado';
           const div = document.createElement('div');
           div.className = 'diary-entry';
           div.style.animationDelay = (i * 0.05) + 's';
@@ -3981,7 +3981,8 @@
 
         // ── Calcular streaks ──
         const allTrans = Object.values(transMap);
-        const streakLeitura = calcStreakLeitura(allTrans, emailLower, streakConfig.min_leitura_diaria);
+        const infoLeitura   = calcStreakLeituraInfo(allTrans, emailLower, streakConfig.min_leitura_diaria);
+        const streakLeitura = infoLeitura.streak;
         const duoData       = calcStreakDuo(allTrans, emailLower, streakConfig.min_duolingo_diario);
 
         // ── Renderizar streaks ──
@@ -3992,19 +3993,16 @@
         // ── Meta semanal de leitura ──
         const metaLeitura = Number(cfg.meta_leitura_semanal) || 140;
         const hoje2 = new Date();
-        const iSem  = new Date(hoje2);
-        const dow2  = hoje2.getDay();
-        iSem.setDate(hoje2.getDate() - dow2 + (dow2 === 0 ? -6 : 1));
-        iSem.setHours(0,0,0,0);
+        const iSemStr = toLocalDateStr(getInicioSemana());
         const minsSemana = allTrans
           .filter(t => t.email === emailLower && t.status === 'Aprovado' &&
-                       t.tipo === 'Leitura' && new Date(t.data_registro || t.data) >= iSem)
+                       t.tipo === 'Leitura' && dataEstudo(t) >= iSemStr)
           .reduce((s, t) => s + Number(t.quantidade), 0);
         atualizarMetaSemanal(minsSemana, metaLeitura);
 
         // ── Verificar marcos e recompensas ──
-        await verificarMarcosLeitura(streakLeitura, d.nome);
-        await verificarMetaDuo(duoData.diasBatidosAprovados, streakConfig.meta_duo_semanal_dias, d.nome);
+        await verificarMarcosLeitura(streakLeitura, d.nome, infoLeitura.inicio, allTrans);
+        await verificarMetaDuo(duoData.diasBatidosAprovados, streakConfig.meta_duo_semanal_dias, d.nome, allTrans);
 
         // ── Oráculo contextual ──
         const msgOra = [];
@@ -4591,17 +4589,24 @@
       return seg;
     }
 
-    // Calcula streak contínuo de leitura (por data de REGISTRO)
-    function calcStreakLeitura(trans, email, minDiario) {
+    // ── DATA DE ESTUDO ──────────────────────────────────────────
+    // Regra única do app: o dia em que a criança estudou (data_aferida) vale mais que
+    // o dia em que ela registrou. Ranking, cabeças, metas, streaks e bônus usam esta função.
+    function dataEstudo(t) {
+      return toLocalDateStr(t.data_aferida || t.data_registro || t.data);
+    }
+
+    // Calcula streak contínuo de leitura (por data de ESTUDO) e o dia em que a sequência começou
+    function calcStreakLeituraInfo(trans, email, minDiario) {
       const dias = new Set(
         trans.filter(t =>
           t.email === email &&
           (t.status === 'Aprovado' || t.status === 'Pendente') &&
           t.tipo === 'Leitura' &&
           Number(t.quantidade) >= minDiario
-        ).map(t => toLocalDateStr(t.data_aferida || t.data_registro || t.data))
+        ).map(t => dataEstudo(t))
       );
-      let streak = 0;
+      let streak = 0, inicio = null;
       const hoje = new Date();
       for (let i = 0; i < 365; i++) {
         const d = new Date(hoje);
@@ -4609,6 +4614,7 @@
         const str = toLocalDateStr(d);
         if (dias.has(str)) {
           streak++;
+          inicio = str;
         } else if (i === 0) {
           // hoje ainda pode não ter registrado - verifica ontem
           continue;
@@ -4616,7 +4622,10 @@
           break;
         }
       }
-      return streak;
+      return { streak, inicio };
+    }
+    function calcStreakLeitura(trans, email, minDiario) {
+      return calcStreakLeituraInfo(trans, email, minDiario).streak;
     }
 
     // Calcula dias de Duolingo desta semana e recorde contínuo
@@ -4631,7 +4640,7 @@
       trans.filter(t => t.email === email && t.tipo === 'Duolingo' &&
                         (t.status === 'Aprovado' || t.status === 'Pendente'))
         .forEach(t => {
-          const dateStr = toLocalDateStr(t.data_aferida || t.data);
+          const dateStr = dataEstudo(t);
           minPorDia[dateStr] = (minPorDia[dateStr] || 0) + Number(t.quantidade);
           if (t.status === 'Aprovado') {
             minPorDiaAprov[dateStr] = (minPorDiaAprov[dateStr] || 0) + Number(t.quantidade);
@@ -4692,11 +4701,54 @@
       });
     }
 
-    // Marcos já recebidos (evita dar recompensa dupla)
-    let marcosLeituraRecebidos = new Set();
+    // ── BÔNUS COM CHAVE ÚNICA ───────────────────────────────────
+    // Cada bônus tem uma chave (pessoa + regra + período) gravada em /bonus_pagos/{emailKey}/{chave}.
+    // A gravação usa transaction: só UM aparelho consegue criar a chave. Se ela já existe
+    // (app reaberto, outro aparelho, recarregamento), o bônus NÃO é pago de novo.
+    // Se der erro (ex.: regra do Firebase ainda não publicada), o app NÃO paga: prefere-se
+    // atrasar um bônus a pagar em dobro.
+    async function reivindicarBonus(chave, dados) {
+      try {
+        const ref = db.ref('bonus_pagos/' + sanitizeEmail(currentUserEmail) + '/' + chave);
+        const res = await ref.transaction(cur => cur === null
+          ? Object.assign({ criado_em: new Date().toISOString() }, dados)
+          : undefined);
+        return res.committed === true;
+      } catch (e) {
+        console.error('reivindicarBonus falhou (' + chave + '):', e);
+        return false;
+      }
+    }
 
-    async function verificarMarcosLeitura(streak, nome) {
-      if (!currentUserEmail || streak === 0) return;
+    // Bônus pagos ANTES desta versão não têm chave. Procura no histórico para não pagar de novo.
+    function bonusLegadoExiste(trans, textoDetalhe, aPartirDeDia) {
+      const limite = new Date(aPartirDeDia + 'T00:00:00').getTime();
+      return trans.some(t => t.email === currentUserEmail.toLowerCase() && t.tipo === 'Bonus' &&
+        String(t.detalhes || '').includes(textoDetalhe) &&
+        new Date(t.data).getTime() >= limite);
+    }
+
+    // Credita o saldo de forma atômica e registra a transação do bônus
+    async function pagarBonus(campo, valor, detalhes, chave) {
+      const userKey = sanitizeEmail(currentUserEmail);
+      await db.ref('usuarios/' + userKey + '/' + campo).transaction(v => (Number(v) || 0) + valor);
+      try {
+        await db.ref('transacoes').push({
+          data: new Date().toISOString(),
+          email: currentUserEmail,
+          tipo: 'Bonus',
+          quantidade: valor,
+          detalhes: detalhes,
+          status: 'Aprovado',
+          chave_bonus: chave
+        });
+      } catch (e) {
+        console.error('Bônus pago, mas a transação não foi gravada:', e);
+      }
+    }
+
+    async function verificarMarcosLeitura(streak, nome, inicioStreak, trans) {
+      if (!currentUserEmail || streak === 0 || !inicioStreak) return;
       const marcos = [
         { dias: 3,  bonus: streakConfig.bonus_leitura_3d  },
         { dias: 7,  bonus: streakConfig.bonus_leitura_7d  },
@@ -4704,27 +4756,23 @@
         { dias: 30, bonus: streakConfig.bonus_leitura_30d },
       ];
       for (const marco of marcos) {
-        if (streak >= marco.dias && !marcosLeituraRecebidos.has(marco.dias)) {
-          marcosLeituraRecebidos.add(marco.dias);
-          // Credita energia
-          const userKey = sanitizeEmail(currentUserEmail);
-          const snap    = await db.ref('usuarios/' + userKey).get();
-          const u       = snap.val();
-          await db.ref('usuarios/' + userKey).update({
-            saldo_energia: Number(u.saldo_energia) + marco.bonus
-          });
-          await db.ref('transacoes').push({
-            data: new Date().toISOString(),
-            email: currentUserEmail,
-            tipo: 'Bonus',
-            quantidade: marco.bonus,
-            detalhes: `🔥 Streak de leitura: ${marco.dias} dias!`,
-            status: 'Aprovado'
-          });
-          // Celebração
-          celebrarMarcoLeitura(marco.dias, marco.bonus, nome);
-          break; // um marco por vez
+        if (streak < marco.dias || !(marco.bonus > 0)) continue;
+        // chave = regra + dia em que a sequência começou + marco. Uma sequência nova (depois de
+        // quebrar) tem outro dia de início, então volta a poder ganhar o marco.
+        const chave = 'leitura_streak_' + inicioStreak + '_' + marco.dias + 'd';
+        const detalhes = `🔥 Streak de leitura: ${marco.dias} dias!`;
+
+        if (bonusLegadoExiste(trans, `Streak de leitura: ${marco.dias} dias`, inicioStreak)) {
+          // já foi pago antes da chave existir: só registra a chave, sem pagar
+          await reivindicarBonus(chave, { regra: 'leitura_streak', marco: marco.dias, inicio: inicioStreak, origem: 'legado' });
+          continue;
         }
+        const ganhou = await reivindicarBonus(chave, { regra: 'leitura_streak', marco: marco.dias, inicio: inicioStreak, valor: marco.bonus, origem: 'app' });
+        if (!ganhou) continue;   // já pago (ou erro): segue para o próximo marco
+
+        await pagarBonus('saldo_energia', marco.bonus, detalhes, chave);
+        celebrarMarcoLeitura(marco.dias, marco.bonus, nome);
+        break; // um marco por vez
       }
     }
 
@@ -4740,30 +4788,23 @@
       setTimeout(() => oraMsg(falar('celebra_marco', { nome, dias, bonus })), 600);
     }
 
-    // Verifica meta semanal do Duolingo
-    let metaDuoSemanaRecebida = false;
+    // Verifica meta semanal do Duolingo (chave = semana, começando na segunda-feira)
+    async function verificarMetaDuo(diasBatidos, meta, nome, trans) {
+      if (!currentUserEmail || !(diasBatidos >= meta)) return;
+      const recompensa = streakConfig.recompensa_duo_semanal;
+      if (!(recompensa > 0)) return;
+      const segunda = toLocalDateStr(getInicioSemana());
+      const chave = 'duo_semana_' + segunda;
 
-    async function verificarMetaDuo(diasBatidos, meta, nome) {
-      if (!currentUserEmail) return;
-      if (diasBatidos >= meta && !metaDuoSemanaRecebida) {
-        metaDuoSemanaRecebida = true;
-        const recompensa = streakConfig.recompensa_duo_semanal;
-        const userKey    = sanitizeEmail(currentUserEmail);
-        const snap       = await db.ref('usuarios/' + userKey).get();
-        const u          = snap.val();
-        await db.ref('usuarios/' + userKey).update({
-          saldo_cristais: Number(u.saldo_cristais) + recompensa
-        });
-        await db.ref('transacoes').push({
-          data: new Date().toISOString(),
-          email: currentUserEmail,
-          tipo: 'Bonus',
-          quantidade: recompensa,
-          detalhes: `🦉 Meta semanal Duolingo: ${meta} dias!`,
-          status: 'Aprovado'
-        });
-        celebrarMetaDuo(meta, recompensa, nome);
+      if (bonusLegadoExiste(trans, 'Meta semanal Duolingo', segunda)) {
+        await reivindicarBonus(chave, { regra: 'duo_semana', semana: segunda, origem: 'legado' });
+        return;
       }
+      const ganhou = await reivindicarBonus(chave, { regra: 'duo_semana', semana: segunda, meta, valor: recompensa, origem: 'app' });
+      if (!ganhou) return;
+
+      await pagarBonus('saldo_cristais', recompensa, `🦉 Meta semanal Duolingo: ${meta} dias!`, chave);
+      celebrarMetaDuo(meta, recompensa, nome);
     }
 
     function celebrarMetaDuo(meta, recompensa, nome) {
@@ -5007,6 +5048,7 @@
       const seg  = new Date(hoje);
       seg.setDate(hoje.getDate() - dow + (dow === 0 ? -6 : 1));
       seg.setHours(0,0,0,0);
+      const segStr = toLocalDateStr(seg);
       const dom = new Date(seg); dom.setDate(seg.getDate() + 6);
       const fmt = d => d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
 
@@ -5026,8 +5068,7 @@
           .filter(t => {
             if (t.email !== u.email || t.status !== 'Aprovado' || t.tipo !== tipoFiltro) return false;
             if (_rankPeriodo === 'semanal') {
-              const d = new Date(t.data_aferida || t.data_registro || t.data);
-              return d >= seg;
+              return dataEstudo(t) >= segStr;
             }
             return true;
           })
