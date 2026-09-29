@@ -4133,7 +4133,8 @@
             tipo: 'Forja',
             quantidade: forgeAcc,
             detalhes: `Forja Épica de ${forgeAcc} cristais`,
-            status: 'Aprovado'
+            status: 'Aprovado',
+            _uid: auth.currentUser.uid
           });
           setForgeMsg(falar('forja_ok', { n: forgeAcc }));
         } catch(err) {
@@ -4730,6 +4731,7 @@
 
     // Credita o saldo de forma atômica e registra a transação do bônus
     async function pagarBonus(campo, valor, detalhes, chave) {
+      await garantirAuth();
       const userKey = sanitizeEmail(currentUserEmail);
       await db.ref('usuarios/' + userKey + '/' + campo).transaction(v => (Number(v) || 0) + valor);
       try {
@@ -4740,7 +4742,8 @@
           quantidade: valor,
           detalhes: detalhes,
           status: 'Aprovado',
-          chave_bonus: chave
+          chave_bonus: chave,
+          _uid: auth.currentUser.uid
         });
       } catch (e) {
         console.error('Bônus pago, mas a transação não foi gravada:', e);
