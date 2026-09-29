@@ -2649,7 +2649,8 @@
         }, 8000);
 
         const unsub = auth.onAuthStateChanged(user => {
-          if (user) { clearTimeout(timeout); unsub(); resolve(user); }
+          // ignora sessão de Mestre restaurada; espera a anônima assumir
+          if (user && user.isAnonymous) { clearTimeout(timeout); unsub(); resolve(user); }
         });
         auth.signInAnonymously().catch(e => {
           clearTimeout(timeout); unsub();
