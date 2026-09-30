@@ -1622,15 +1622,35 @@
       color: rgba(255,220,150,0.65); letter-spacing: 0.1em; margin-top: 3px;
     }
 
-    /* XP por modalidade (Fase 5) */
-    .hero-xp-row { display: flex; gap: 8px; justify-content: center; margin: 2px 0 12px; }
-    .hero-xp-chip {
-      font-family: 'Cinzel', serif; font-size: 0.78rem; font-weight: 700;
-      color: #fff3cf; padding: 5px 12px; border-radius: 999px;
-      background: rgba(20,30,70,0.72); border: 1.5px solid rgba(255,215,0,0.55);
-      box-shadow: 0 0 10px rgba(255,215,0,0.25); cursor: pointer;
+    /* XP e nível por modalidade (Fase 5) */
+    .hero-mods { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 8px; margin: 2px 0 12px; }
+    .hero-mod {
+      background: rgba(20,30,75,0.82); border: 1.5px solid rgba(255,215,0,0.6);
+      border-radius: 14px; padding: 9px 12px 10px; cursor: pointer;
+      box-shadow: 0 0 12px rgba(255,215,0,0.18), inset 0 0 14px rgba(0,0,0,0.35);
     }
-    .hero-xp-chip b { color: var(--gold); }
+    .hm-top { display: flex; align-items: center; gap: 10px; }
+    .hm-ic {
+      width: 38px; height: 38px; border-radius: 50%; flex: none;
+      background: radial-gradient(circle at 35% 30%, #22307a, #0d1436);
+      border: 1.5px solid rgba(255,215,0,0.75);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hm-ic img { width: 26px; height: 26px; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
+    .hm-nm { flex: 1; font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 700; color: #fff3cf; letter-spacing: 0.04em; }
+    .hm-pill {
+      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 900; color: #3b2800;
+      padding: 3px 11px; border-radius: 999px; letter-spacing: 0.04em;
+      background: linear-gradient(180deg, #ffe27a, #d9a82b); box-shadow: 0 0 8px rgba(255,215,0,0.45);
+    }
+    .hm-track { height: 10px; border-radius: 6px; margin: 8px 0 5px; overflow: hidden; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); }
+    .hm-fill { height: 100%; width: 0%; border-radius: 6px; transition: width 0.7s ease; }
+    .hm-fill.l { background: linear-gradient(90deg, #d9a82b, #ffe27a); }
+    .hm-fill.d { background: linear-gradient(90deg, #1e88e5, #4fd1ff); }
+    .hm-xt { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 800; color: rgba(255,240,205,0.78); }
+    /* Ícones de imagem no lugar dos emojis (Leitura, Duolingo, Forja) */
+    .ico { display: inline-block; width: 1.3em; height: 1.3em; object-fit: contain; vertical-align: -0.28em; margin-right: 0.2em; pointer-events: none; -webkit-user-drag: none; }
+    .btn-ico { width: 32px; height: 32px; object-fit: contain; display: block; pointer-events: none; -webkit-user-drag: none; }
 
     /* Balão de fala */
     .hero-overlay-bubble {
@@ -1737,8 +1757,8 @@
 
       <!-- Nível 1: Leitura / Duolingo -->
       <div class="rank-nav-1">
-        <button class="rank-tab-1 active" id="rn1-leitura" onclick="rankNav1('leitura')">📖 Leitura</button>
-        <button class="rank-tab-1" id="rn1-duolingo" onclick="rankNav1('duolingo')">🦉 Duolingo</button>
+        <button class="rank-tab-1 active" id="rn1-leitura" onclick="rankNav1('leitura')"><img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">Leitura</button>
+        <button class="rank-tab-1" id="rn1-duolingo" onclick="rankNav1('duolingo')"><img class="ico" src="https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png" alt="">Duolingo</button>
       </div>
       <!-- Nível 2: Semanal / Geral -->
       <div class="rank-nav-2">
@@ -1791,9 +1811,17 @@
         <div class="hero-overlay-name" id="hero-overlay-name">Guardião</div>
         <div class="hero-overlay-sub" id="hero-overlay-sub">✦ GUARDIÃO DA ORDEM ✦</div>
       </div>
-      <div class="hero-xp-row">
-        <div class="hero-xp-chip" data-fala="xp_leitura">📖 <b id="hero-xp-l">0</b> XP</div>
-        <div class="hero-xp-chip" id="hero-xp-duo-chip" data-fala="xp_duolingo" style="display:none">🦉 <b id="hero-xp-d">0</b> XP</div>
+      <div class="hero-mods">
+        <div class="hero-mod" data-fala="xp_leitura">
+          <div class="hm-top"><div class="hm-ic"><img src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt=""></div><div class="hm-nm">Leitura</div><div class="hm-pill" id="hm-nv-l">Nível 1</div></div>
+          <div class="hm-track"><div class="hm-fill l" id="hm-fill-l"></div></div>
+          <div class="hm-xt"><span id="hm-xp-l">0 / 250 XP</span><span id="hm-falta-l">faltam 250</span></div>
+        </div>
+        <div class="hero-mod" data-fala="xp_duolingo">
+          <div class="hm-top"><div class="hm-ic"><img src="https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png" alt=""></div><div class="hm-nm">Duolingo</div><div class="hm-pill" id="hm-nv-d">Nível 1</div></div>
+          <div class="hm-track"><div class="hm-fill d" id="hm-fill-d"></div></div>
+          <div class="hm-xt"><span id="hm-xp-d">0 / 250 XP</span><span id="hm-falta-d">faltam 250</span></div>
+        </div>
       </div>
       <div class="hero-overlay-bubble" id="hero-overlay-bubble" data-fala="heroi_toque"></div>
       <div class="hero-overlay-close">✦ toque para fechar ✦</div>
@@ -1877,7 +1905,7 @@
     <div class="streak-duo-section">
       <div class="streak-duo-wrap">
         <div class="streak-duo-top">
-          <span class="streak-duo-title">🦉 ORÁCULO DO SABER <span id="duo-escudo" data-fala="escudo_rotulo_duo" style="display:none;color:#7DD3FC;margin-left:4px;"></span></span>
+          <span class="streak-duo-title"><img class="ico" src="https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png" alt="">ORÁCULO DO SABER <span id="duo-escudo" data-fala="escudo_rotulo_duo" style="display:none;color:#7DD3FC;margin-left:4px;"></span></span>
           <span class="streak-duo-record" id="duo-record" data-fala="duo_rotulo_record">Recorde: 0 dias</span>
         </div>
         <div class="streak-duo-heads" id="duo-heads"></div>
@@ -1894,7 +1922,7 @@
     <div class="meta-section">
       <div class="meta-wrap" id="meta-wrap" onclick="tocarMeta()">
         <div class="meta-top">
-          <span class="meta-label">📖 META SEMANAL DE LEITURA</span>
+          <span class="meta-label"><img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">META SEMANAL DE LEITURA</span>
           <span class="meta-nums" id="meta-nums">0 / 140 min</span>
         </div>
         <div class="meta-bar-bg">
@@ -1907,15 +1935,15 @@
     <!-- Botões -->
     <div class="action-grid tres">
       <button class="btn-epic btn-read" onclick="fLeitura(event)" aria-label="Registrar Leitura">
-        <span style="font-size:1.35rem;">📖</span>
+        <img class="btn-ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">
         <span class="btn-label">Leitura</span>
       </button>
       <button class="btn-epic btn-duo" onclick="fDuolingo(event)" aria-label="Registrar Duolingo">
-        <span style="font-size:1.35rem;">🦉</span>
+        <img class="btn-ico" src="https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png" alt="">
         <span class="btn-label">Duolingo</span>
       </button>
       <button class="btn-epic btn-forge" onclick="abrirForja(event)" aria-label="Forja de Cristais">
-        <span style="font-size:1.35rem;">⚒️</span>
+        <img class="btn-ico" src="https://i.ibb.co/cScPzrpW/imagem-forja-188x188.png" alt="">
         <span class="btn-label">Forja</span>
       </button>
     </div>
@@ -2170,10 +2198,10 @@
     <button class="reading-close" onclick="fecharLeitura()">✕</button>
     <div class="reading-scroll">
       <div class="reg-tabs">
-        <button class="reg-tab active" id="reg-tab-leitura" onclick="setModoRegistro('leitura')">📖 Leitura</button>
-        <button class="reg-tab" id="reg-tab-duolingo" onclick="setModoRegistro('duolingo')">🦉 Duolingo</button>
+        <button class="reg-tab active" id="reg-tab-leitura" onclick="setModoRegistro('leitura')"><img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">Leitura</button>
+        <button class="reg-tab" id="reg-tab-duolingo" onclick="setModoRegistro('duolingo')"><img class="ico" src="https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png" alt="">Duolingo</button>
       </div>
-      <div class="reading-title" id="reading-title">📖 Registro de Leitura</div>
+      <div class="reading-title" id="reading-title"><img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">Registro de Leitura</div>
       <div class="reading-subtitle" id="reading-subtitle">✦ Relate sua aventura de leitura ao Oráculo ✦</div>
 
       <div class="reading-oracle-row">
@@ -2670,34 +2698,34 @@
         '📊 Já sinto o poder subindo aí dentro. Falta pouco para a próxima conquista!'
       ],
       xp_leitura: [
-        '📖 São {xpLeitura} XP vindos dos livros, {nome}! Cada minuto lido vale 1 XP no grimório.',
-        '📖 Seus livros já renderam {xpLeitura} XP, {nome}! Que biblioteca poderosa!',
-        '📖 O grimório marca {xpLeitura} XP de leitura. Cada página virada conta, Guardião!',
-        '📖 {xpLeitura} XP de leitura! Os pergaminhos da Ordem brilham por sua causa!',
-        '📖 Ler é a magia mais antiga da Ordem, {nome}. Você já juntou {xpLeitura} XP com ela!'
+        '📖 Você é nível {nivelLeitura} em Leitura, {nome}! São {xpLeitura} XP vindos dos livros.',
+        '📖 Nível {nivelLeitura} de Leitura! Faltam {faltamLeitura} XP para o próximo, Guardião.',
+        '📖 Cada minuto lido vale 1 XP no grimório. Já são {xpLeitura} XP de leitura!',
+        '📖 Os pergaminhos da Ordem brilham: nível {nivelLeitura} em Leitura! Continue virando páginas!',
+        '📖 Ler é a magia mais antiga da Ordem, {nome}. Faltam {faltamLeitura} XP para o nível {proxLeitura}!'
       ],
       xp_duolingo: [
-        '🦉 São {xpDuo} XP vindos das línguas, {nome}! Cada minuto de Duolingo vale 1 XP.',
-        '🦉 O Oráculo anotou {xpDuo} XP de Duolingo no seu selo, {nome}! Que língua afiada!',
-        '🦉 {xpDuo} XP de línguas! Os corvos mensageiros já espalharam a notícia, Guardião!',
-        '🦉 Falar outras línguas é magia rara, {nome}. Você já juntou {xpDuo} XP com ela!',
-        '🦉 Suas lições no Duolingo somam {xpDuo} XP. A Ordem tem orgulho de você!'
+        '🦉 Você é nível {nivelDuo} em Duolingo, {nome}! São {xpDuo} XP vindos das línguas.',
+        '🦉 Nível {nivelDuo} de Duolingo! Faltam {faltamDuo} XP para o próximo, Guardião.',
+        '🦉 Cada minuto de Duolingo vale 1 XP. Já são {xpDuo} XP de línguas!',
+        '🦉 Os corvos mensageiros já espalharam a notícia: nível {nivelDuo} em Duolingo, {nome}!',
+        '🦉 Falar outras línguas é magia rara, {nome}. Faltam {faltamDuo} XP para o nível {proxDuo}!'
       ],
       xp_ambos: [
         '📊 Leitura e Duolingo enchem a mesma barra, {nome}! Faltam {faltam} XP para o próximo nível.',
         '📊 Livros e línguas: os dois dão XP! Faltam {faltam} XP para você subir, {nome}.',
-        '📊 Toque no seu avatar para ver quanto XP veio de cada magia, {nome}!',
+        '📊 Toque no seu avatar e veja o nível de Leitura e o de Duolingo, {nome}!',
         '📊 Cada minuto de estudo, lendo ou no Duolingo, vale 1 XP. Faltam {faltam} para o próximo nível!'
       ],
-      xp_duo_novo: [
-        '🦉 Novidade da Ordem, {nome}! Agora o Duolingo também vale XP. Cada minuto conta para o seu nível!',
-        '🦉 O conselho da Ordem decidiu: as lições de Duolingo agora enchem a barra de XP, {nome}!',
-        '🦉 Corvo mensageiro chegando! Recado: seus minutos de Duolingo agora valem XP, {nome}!'
+      nivel_leitura_up: [
+        '📖 Subiu de nível em Leitura! Agora você é nível {nivelMod}, {nome}!',
+        '📖 Os pergaminhos da Ordem brilharam: Leitura nível {nivelMod}! Que leitor poderoso!',
+        '📖 Nível {nivelMod} em Leitura! Os livros do reino têm um novo mestre, {nome}!'
       ],
-      xp_duo_novo_nivel: [
-        '🦉 Novidade da Ordem, {nome}! O Duolingo agora vale XP, e com ele você chegou ao nível {nivel}!',
-        '🦉 Corvo mensageiro com boas notícias! Seus minutos de Duolingo viraram XP e você é nível {nivel}, {nome}!',
-        '🦉 O Duolingo agora conta para o nível, {nome}. Seus estudos antigos valeram: nível {nivel}!'
+      nivel_duo_up: [
+        '🦉 Subiu de nível em Duolingo! Agora você é nível {nivelMod}, {nome}!',
+        '🦉 As línguas antigas reverenciam você: Duolingo nível {nivelMod}!',
+        '🦉 Nível {nivelMod} em Duolingo! O Oráculo está de asas abertas, {nome}!'
       ],
       oraculo_conselho: [
         'Ehehe! Você me tocou! Sou o Oráculo da Ordem, guardião do conhecimento!',
@@ -2736,8 +2764,8 @@
         'A Ordem inteira comenta seus {streak} dias de chama acesa. Não deixe apagar!'
       ],
       oraculo_duo: [
-        'Você acendeu {duo} das minhas cabeças esta semana! Que orgulho, {nome}!',
-        'Minhas cabeças brilham por causa do seu estudo de línguas. Continue!',
+        'Você já tem {ofensivaTxt} esta semana! Que orgulho, {nome}!',
+        'Sua ofensiva mostra o quanto você estuda línguas. Continue!',
         'O Duolingo e eu somos bons amigos, e você é nosso Guardião favorito!',
         'Já pensou em falar com pessoas do mundo inteiro? Você está no caminho!'
       ],
@@ -2794,29 +2822,29 @@
         '📖 Falta pouco: {faltam} minutos de aventura para completar a semana!'
       ],
       cabeca_ok: [
-        '🦉 Boa! Você estudou Duolingo neste dia! Uma das minhas cabeças brilha por você!',
-        '🦉 Esta cabeça está acesa graças ao seu esforço, {nome}!',
+        '🦉 Boa! Você estudou Duolingo neste dia! A ofensiva da semana ganhou mais um dia!',
+        '🦉 Este dia entrou na sua ofensiva graças ao seu esforço, {nome}!',
         '🦉 Dia conquistado! As línguas antigas sorriem para você!',
-        '🦉 Que estudo bonito neste dia! Continue acendendo minhas cabeças!'
+        '🦉 Que estudo bonito neste dia! Continue a sua ofensiva!'
       ],
       cabeca_vazia: [
-        '🦉 Este dia ainda está apagado. Que tal abrir o Duolingo agora, {nome}?',
-        '🦉 Minha cabeça está esperando o seu estudo. Um pouquinho já acende ela!',
-        '🦉 Nada por aqui ainda. Estudar sete minutos já acende esta cabeça!',
-        '🦉 Esta cabeça está tristinha. Vamos deixá-la feliz com um estudo?'
+        '🦉 Este dia ainda está sem ofensiva. Que tal abrir o Duolingo agora, {nome}?',
+        '🦉 Este dia está esperando o seu estudo. Um pouquinho já entra na ofensiva!',
+        '🦉 Nada por aqui ainda. Estudar {minimo} minutos já conta como dia de ofensiva!',
+        '🦉 A carinha deste dia está tristinha. Vamos deixá-la feliz com um estudo?'
       ],
       duo_rotulo_record: [
-        '🏆 Este é o seu recorde de dias seguidos no Duolingo. Será que você consegue superar?',
-        '🏆 Aqui fica guardada sua maior sequência de estudo de línguas. Que tal bater ela?',
+        '🏆 Este é o seu recorde de ofensiva no Duolingo. Será que você consegue superar?',
+        '🏆 Aqui fica guardada a sua maior ofensiva de Duolingo. Que tal bater ela?',
         '🏆 Recorde é o seu melhor momento na Ordem. Sempre dá para superar!'
       ],
       duo_rotulo_dias: [
-        '🦉 Aqui eu conto quantas das minhas cabeças você acendeu nesta semana!',
-        '🦉 Cada dia de estudo acende uma cabeça minha. Vamos acender todas?',
-        '🦉 A semana começa na segunda-feira. Quantas cabeças você acende até domingo?'
+        '🦉 Aqui eu conto os dias de ofensiva que você fez nesta semana!',
+        '🦉 Cada dia de estudo entra na sua ofensiva da semana. Vamos completar todos?',
+        '🦉 A semana começa na segunda-feira. Quantos dias de ofensiva você faz até domingo?'
       ],
       duo_rotulo_premio: [
-        '💎 Acendendo todas as minhas cabeças na semana, você ganha um prêmio em cristais!',
+        '💎 Completando a ofensiva da semana inteira, você ganha um prêmio em cristais!',
         '💎 O prêmio semanal só chega quando o Mestre aprova seus estudos. Paciência, Guardião!',
         '💎 Complete a semana inteira e os cristais aparecem, como mágica!'
       ],
@@ -2827,8 +2855,8 @@
       ],
       celebra_marco_duo: [
         '🦉 {nome}, {dias} dias seguidos de Duolingo! O Oráculo entrega +{bonus} {moeda} de bônus!',
-        '🦉 Sua sequência de línguas chegou a {dias} dias! Aqui vão +{bonus} {moeda}, Guardião!',
-        '🦉 Que constância, {nome}! {dias} dias estudando sem faltar! +{bonus} {moeda} para você!'
+        '🦉 Sua ofensiva chegou a {dias} dias! Aqui vão +{bonus} {moeda}, Guardião!',
+        '🦉 Que constância, {nome}! {dias} dias de ofensiva sem faltar! +{bonus} {moeda} para você!'
       ],
       celebra_volume_leitura: [
         '📖 {nome}, você chegou à faixa {faixa} de leitura, com {minutos} minutos na semana! +{bonus} {moeda}!',
@@ -2866,24 +2894,24 @@
         '⏳ Marco alcançado! Quando o Mestre aprovar seus estudos, o prêmio aparece por aqui.'
       ],
       semana_encerrada: [
-        '🦉 Semana encerrada! Você acendeu {acesas} de {meta} cabeças, {nome}! Vamos começar uma nova?',
-        '🦉 O Oráculo fechou o grimório da semana: {acesas} de {meta} cabeças acesas! Bom trabalho!',
-        '🦉 Fim de semana! {acesas} de {meta} cabeças brilharam por você. Agora elas recomeçam!'
+        '🦉 Semana encerrada! Você fez {acesas} de {meta} dias de ofensiva, {nome}! Vamos começar uma nova?',
+        '🦉 O Oráculo fechou o grimório da semana: {acesas} de {meta} dias de ofensiva! Bom trabalho!',
+        '🦉 Fim de semana! Foram {acesas} de {meta} dias de ofensiva. Agora ela recomeça!'
       ],
       semana_encerrada_perfeita: [
-        '🦉 SEMANA PERFEITA! Todas as {meta} cabeças acesas, {nome}! Que orgulho!',
-        '🦉 Todas as {meta} cabeças brilharam! O Oráculo nunca viu tanta dedicação!',
-        '🦉 Perfeito, {nome}! {meta} de {meta} cabeças! Uma nova semana começa agora, vamos de novo?'
+        '🦉 SEMANA PERFEITA! Ofensiva completa, {meta} de {meta} dias, {nome}! Que orgulho!',
+        '🦉 Ofensiva completa, todos os {meta} dias! O Oráculo nunca viu tanta dedicação!',
+        '🦉 Perfeito, {nome}! {meta} de {meta} dias de ofensiva! Uma nova semana começa agora, vamos de novo?'
       ],
       semana_encerrada_zero: [
-        '🦉 Uma nova semana começou, {nome}! Minhas cabeças estão apagadas, vamos acendê-las?',
-        '🦉 Semana nova, chance nova! Um Duolingo hoje acende a primeira cabeça!',
-        '🦉 As cabeças recomeçaram apagadas. Estude um pouquinho e veja elas brilharem!'
+        '🦉 Uma nova semana começou, {nome}! Sua ofensiva recomeça do zero, vamos construí-la?',
+        '🦉 Semana nova, chance nova! Um Duolingo hoje começa a sua ofensiva!',
+        '🦉 A ofensiva da semana recomeçou. Estude um pouquinho e veja ela crescer!'
       ],
       duo_rotulo_streak: [
-        '🔥 Aqui eu conto seus dias seguidos de Duolingo. Nos marcos, chega um bônus!',
-        '🔥 Estudar todo dia faz a sequência crescer. Vamos manter, {nome}?',
-        '🔥 A sequência só cresce se você estuda todos os dias. Cada marco tem um prêmio!'
+        '🔥 Aqui eu conto a sua ofensiva, os dias seguidos de Duolingo. Nos marcos, chega um bônus!',
+        '🔥 Estudar todo dia faz a ofensiva crescer. Vamos manter, {nome}?',
+        '🔥 A ofensiva só cresce se você estuda todos os dias. Cada marco tem um prêmio!'
       ],
       duo_rotulo_faixa: [
         '🏅 Quanto mais minutos de Duolingo na semana, mais alta a faixa e maior o prêmio!',
@@ -2896,9 +2924,9 @@
         '🏅 A semana vai de segunda a domingo. Cada página ajuda a subir de faixa!'
       ],
       celebra_duo: [
-        '🦉 {nome}! Você acendeu todas as {meta} cabeças desta semana! +{recompensa} 💎 de cristais!',
+        '🦉 {nome}! Você completou a ofensiva da semana, os {meta} dias! +{recompensa} 💎 de cristais!',
         '🦉 Semana perfeita de Duolingo, {nome}! O Oráculo entrega +{recompensa} 💎!',
-        '🦉 Todas as {meta} cabeças brilham! Você ganhou +{recompensa} 💎, Guardião!'
+        '🦉 Ofensiva completa, todos os {meta} dias! Você ganhou +{recompensa} 💎, Guardião!'
       ],
 
       /* ── Boas-vindas contextuais (ao abrir o app) ── */
@@ -2920,7 +2948,7 @@
       ],
       ora_duo_semana: [
         '🦉 {diasTxt} de Duolingo esta semana! Continue assim!',
-        '🦉 Já são {cabecasTxt} nesta semana, {nome}!'
+        '🦉 Já são {ofensivaTxt} nesta semana, {nome}!'
       ],
 
       /* ── Diário de Aventuras ── */
@@ -2937,7 +2965,7 @@
       ],
       diario_Duolingo: [
         'O Oráculo aprova seu estudo de línguas!',
-        'Cada minuto de Duolingo acende uma chama nas minhas cabeças!',
+        'Cada minuto de Duolingo fortalece a sua ofensiva!',
         'Esta aventura de idiomas foi gravada na Torre das Línguas!',
         'Uma língua nova é uma porta nova. Você abriu mais uma!'
       ],
@@ -3008,11 +3036,11 @@
       ],
       heroi_duo_meta: [
         '🦉 Meta do Duolingo concluída esta semana! {nome}, as línguas se curvam diante de você!',
-        '🦉 Todas as cabeças acesas! {nome}, você domina as línguas da Ordem!'
+        '🦉 Ofensiva da semana completa! {nome}, você domina as línguas da Ordem!'
       ],
       heroi_duo: [
         '🦉 {diasTxt} de Duolingo! {nome}, o Oráculo sorri para você!',
-        '🦉 O Oráculo acendeu {cabecasTxt} por você, {nome}! Continue!'
+        '🦉 O Oráculo anotou {ofensivaTxt} por você, {nome}! Continue!'
       ],
       heroi_nivel: [
         '⭐ Nível {nivel}! {nome}, sua sabedoria cresce a cada página virada!',
@@ -3039,10 +3067,10 @@
         'Que história você desvendou hoje, {nome}? Estou ansioso para saber!'
       ],
       reg_duo_abrir: [
-        'Quantos minutos você dedicou à língua dos antigos, {nome}? A partir de {minimo}, uma das minhas cabeças acende!',
+        'Quantos minutos você dedicou à língua dos antigos, {nome}? A partir de {minimo}, o dia entra na sua ofensiva!',
         'Conte ao Oráculo: quanto tempo você treinou suas palavras mágicas hoje?',
         'Cada lição de Duolingo é um feitiço novo. Quantos minutos você lançou hoje?',
-        'Com {minimo} minutos ou mais, eu acendo uma cabeça por você. Quanto foi hoje?'
+        'Com {minimo} minutos ou mais, eu conto o dia na sua ofensiva. Quanto foi hoje?'
       ],
       reg_leitura_toque: [
         'Escolha seu livro e me diga os minutos. Eu cuido do resto!',
@@ -3053,7 +3081,7 @@
       ],
       reg_duo_toque: [
         'Pode registrar mais de uma sessão no mesmo dia. Eu anoto todas!',
-        'Assim que você enviar, a cabeça do Oráculo acende. A energia chega quando o Mestre aprovar!',
+        'Assim que você enviar, o dia já entra na sua ofensiva. A energia chega quando o Mestre aprovar!',
         'Cada sessão precisa ter pelo menos {minimo} minutos para valer.',
         'Estudar línguas é como colecionar chaves mágicas. Cada lição abre uma porta!',
         'Hehe, esta coruja aqui adora quando você vem registrar seu Duolingo!'
@@ -3071,7 +3099,7 @@
       reg_erro_min_duo: [
         '⚠️ Quantos minutos de Duolingo você estudou, {nome}? Todo minuto conta!',
         '⚠️ Faltou o tempo de estudo! Digite os minutos ou escolha um atalho!',
-        '⚠️ Sem os minutos, minhas cabeças não sabem se acendem. Quanto foi?'
+        '⚠️ Sem os minutos, não sei se o dia entra na ofensiva. Quanto foi?'
       ],
       reg_abaixo_leitura: [
         '⚠️ O mínimo por leitura é {minimo} minutos, {nome}! Cada sessão precisa valer a pena!',
@@ -3080,7 +3108,7 @@
       ],
       reg_abaixo_duo: [
         '⚠️ O mínimo por sessão de Duolingo é {minimo} minutos, {nome}!',
-        '⚠️ Minhas cabeças só acendem com {minimo} minutos ou mais por sessão!',
+        '⚠️ Para entrar na ofensiva, a sessão precisa de {minimo} minutos ou mais!',
         '⚠️ Estude mais um pouquinho: cada sessão precisa de pelo menos {minimo} minutos!'
       ],
       reg_envia_leitura: [
@@ -3099,9 +3127,9 @@
         '📜 Pronto, {nome}! {min} minutos de "{livro}" seguem para o Mestre.'
       ],
       reg_ok_duo: [
-        '🦉 {min} minutos de Duolingo registrados! Minha cabeça já acendeu, mas os ⚡ só chegam quando o Mestre aprovar.',
-        '🦉 Estudo anotado! Acendi uma cabeça por você agora, e a energia vem quando o Mestre aprovar.',
-        '🦉 Lição registrada, {nome}! A cabeça já brilha, e o Mestre libera os ⚡ depois de conferir.'
+        '🦉 {min} minutos de Duolingo registrados! O dia já entrou na ofensiva, mas os ⚡ só chegam quando o Mestre aprovar.',
+        '🦉 Estudo anotado! Sua ofensiva ganhou um dia agora, e a energia vem quando o Mestre aprovar.',
+        '🦉 Lição registrada, {nome}! A ofensiva já cresceu, e o Mestre libera os ⚡ depois de conferir.'
       ],
       reg_erro_envio: [
         '❌ O corvo mensageiro se perdeu no caminho. Tente enviar de novo, Guardião!',
@@ -3289,8 +3317,8 @@
       ],
       colecao_duolingo: [
         '🦉 O Escudo do Oráculo guarda seu Duolingo! Você tem {saldo} de {limite}. Ele se ativa sozinho.',
-        '🦉 Faltou um dia de línguas? O Escudo do Oráculo segura a sua sequência! Cabem {limite} no baú.',
-        '🦉 Este escudo cuida da sua sequência de Duolingo. Guardando agora: {saldo} de {limite}!',
+        '🦉 Faltou um dia de línguas? O Escudo do Oráculo segura a sua ofensiva! Cabem {limite} no baú.',
+        '🦉 Este escudo cuida da sua ofensiva de Duolingo. Guardando agora: {saldo} de {limite}!',
         '🦉 Sem susto, Guardião: o Escudo do Oráculo entra sozinho quando um dia se perde!'
       ],
       escudo_rotulo_leitura: [
@@ -3299,7 +3327,7 @@
         '🛡️ {saldo} de {limite} escudos guardados. Eles se ativam sozinhos, Guardião!'
       ],
       escudo_rotulo_duo: [
-        '🛡️ Você guarda {saldo} Escudo do Oráculo! Se um dia de Duolingo se perder, ele protege sua sequência.',
+        '🛡️ Você guarda {saldo} Escudo do Oráculo! Se um dia de Duolingo se perder, ele protege sua ofensiva.',
         '🛡️ Este é o seu Escudo do Oráculo. Ele cuida das suas línguas quando você esquecer um dia!',
         '🛡️ {saldo} de {limite} escudos guardados. Eles se ativam sozinhos, Guardião!'
       ],
@@ -3309,7 +3337,7 @@
         '🛡️ A Ordem entrega a você um Escudo da Chama! Guarde-o para um dia difícil.'
       ],
       escudo_ganho_duo: [
-        '🛡️ {nome}, você ganhou um Escudo do Oráculo! Ele vai proteger sua sequência de Duolingo!',
+        '🛡️ {nome}, você ganhou um Escudo do Oráculo! Ele vai proteger sua ofensiva de Duolingo!',
         '🛡️ Sua constância rendeu um tesouro: Escudo do Oráculo para o baú! Confira na Coleção.',
         '🛡️ A Ordem entrega a você um Escudo do Oráculo! Guarde-o para um dia difícil.'
       ],
@@ -3324,9 +3352,9 @@
         '🛡️ Seu escudo brilhou e salvou a chama! Sua sequência continua de pé, {nome}.'
       ],
       escudo_usado_duo: [
-        '🛡️ Ufa, {nome}! Um dia de Duolingo se perdeu, mas o Escudo do Oráculo protegeu sua sequência!',
-        '🛡️ Não foi dessa vez! O Escudo do Oráculo segurou a sua sequência de línguas. Estude hoje!',
-        '🛡️ Seu escudo brilhou e salvou a sequência! Ela continua de pé, {nome}.'
+        '🛡️ Ufa, {nome}! Um dia de Duolingo se perdeu, mas o Escudo do Oráculo protegeu sua ofensiva!',
+        '🛡️ Não foi dessa vez! O Escudo do Oráculo segurou a sua ofensiva de línguas. Estude hoje!',
+        '🛡️ Seu escudo brilhou e salvou a ofensiva! Ela continua de pé, {nome}.'
       ],
 
       /* ── Baú de Artefatos (missões) ── */
@@ -3495,7 +3523,14 @@
         xpLeitura: hs.xpLeitura || 0,
         xpDuo:     hs.xpDuo || 0,
         xpTotal:   hs.xpTotal || 0,
-        faltam:    500 - ((hs.xpTotal || 0) % 500)
+        faltam:    500 - ((hs.xpTotal || 0) % 500),
+        nivelLeitura: hs.nivelLeitura || 1,
+        nivelDuo:     hs.nivelDuo || 1,
+        proxLeitura:  (hs.nivelLeitura || 1) + 1,
+        proxDuo:      (hs.nivelDuo || 1) + 1,
+        faltamLeitura: (hs.passoMod || 250) - ((hs.xpLeitura || 0) % (hs.passoMod || 250)),
+        faltamDuo:     (hs.passoMod || 250) - ((hs.xpDuo || 0) % (hs.passoMod || 250)),
+        ofensivaTxt: pluralOfensiva(hs.duoBatidos || 0)
       };
       const d = Object.assign(base, dados || {});
       return lista[i].replace(/\{(\w+)\}/g, (m, k) => (d[k] != null ? d[k] : m));
@@ -3810,7 +3845,7 @@
     document.addEventListener('DOMContentLoaded', _iniciarInteracaoUniversal);
 
     function pluralDias(n)    { return n + (n === 1 ? ' dia' : ' dias'); }
-    function pluralCabecas(n) { return n + (n === 1 ? ' cabeça acesa' : ' cabeças acesas'); }
+    function pluralOfensiva(n) { return n + (n === 1 ? ' dia de ofensiva' : ' dias de ofensiva'); }
 
     function escAttr(s) {
       return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -4049,7 +4084,7 @@
     let currentEnergy  = 0;
     let currentLevel   = 1;
     let heroState      = {
-      nome: '', nivel: 1, xpTotal: 0, xpLeitura: 0, xpDuo: 0, xpDuoAtivo: false, energia: 0, cristais: 0,
+      nome: '', nivel: 1, xpTotal: 0, xpLeitura: 0, xpDuo: 0, nivelLeitura: 1, nivelDuo: 1, passoMod: 250, energia: 0, cristais: 0,
       avatarUrl: '', streakLeitura: 0, duoBatidos: 0, metaDuo: 7
     };
 
@@ -4082,18 +4117,19 @@
         const trans = Object.values(transMap);
         const emailLower = currentUserEmail.toLowerCase();
 
-        // XP separado por modalidade (Fase 5). O Duolingo só entra no nível depois que o Mestre
-        // confirma a virada no Simulador (config/xp_duolingo_ativo). Até lá, o nível é só de leitura.
-        let xpDuoAtivo = false;
+        // XP separado por modalidade (Fase 5): 1 minuto aprovado = 1 XP. O nível geral usa o total
+        // (500 XP por nível); cada modalidade tem o próprio nível (passo em config/xp_passo_modalidade, padrão 250).
+        let passoMod = 250;
         try {
-          const ativoSnap = await db.ref('config/xp_duolingo_ativo').get();
-          xpDuoAtivo = ativoSnap.exists() && ativoSnap.val() === true;
-        } catch (e) { xpDuoAtivo = false; }
+          const passoSnap = await db.ref('config/xp_passo_modalidade').get();
+          const pv = Number(passoSnap.val());
+          if (passoSnap.exists() && pv >= 50) passoMod = Math.floor(pv);
+        } catch (e) { passoMod = 250; }
         const aprovadas = trans.filter(t => t.email === emailLower && t.status === 'Aprovado');
         const somaXP = (tipo) => aprovadas.filter(t => t.tipo === tipo).reduce((sum, t) => sum + (Number(t.quantidade) || 0), 0);
         const xpLeitura = somaXP('Leitura');
         const xpDuo     = somaXP('Duolingo');
-        const xpTotal   = xpLeitura + (xpDuoAtivo ? xpDuo : 0);
+        const xpTotal   = xpLeitura + xpDuo;
 
         const myTrans = trans
           .filter(t => t.email === emailLower)
@@ -4111,7 +4147,9 @@
             total:   xpTotal,
             leitura: xpLeitura,
             duo:     xpDuo,
-            duoAtivo: xpDuoAtivo,
+            passo:   passoMod,
+            nivelLeitura: Math.floor(xpLeitura / passoMod) + 1,
+            nivelDuo:     Math.floor(xpDuo / passoMod) + 1,
             nivel:   Math.floor(xpTotal / 500) + 1,
             atual:   xpTotal % 500,
             proximo: 500
@@ -4155,7 +4193,8 @@
         document.getElementById('hero-img').src = d.avatarUrl;
         heroState = {
           nome: d.nome, nivel: d.xp.nivel, xpTotal: d.xp.total,
-          xpLeitura: d.xp.leitura, xpDuo: d.xp.duo, xpDuoAtivo: d.xp.duoAtivo,
+          xpLeitura: d.xp.leitura, xpDuo: d.xp.duo, passoMod: d.xp.passo,
+          nivelLeitura: d.xp.nivelLeitura, nivelDuo: d.xp.nivelDuo,
           energia: d.energia, cristais: d.cristais,
           avatarUrl: d.avatarUrl,
           streakLeitura: 0, duoBatidos: 0,
@@ -4263,12 +4302,12 @@
           msgOra.push(falar('ora_streak_marco', { streakTxt: pluralDias(streakLeitura), faltam, nome: d.nome }));
         }
         if (duoData.diasBatidos > 0) {
-          msgOra.push(falar('ora_duo_semana', { diasTxt: pluralDias(duoData.diasBatidos), cabecasTxt: pluralCabecas(duoData.diasBatidos), nome: d.nome }));
+          msgOra.push(falar('ora_duo_semana', { diasTxt: pluralDias(duoData.diasBatidos), ofensivaTxt: pluralOfensiva(duoData.diasBatidos), nome: d.nome }));
         }
         if (bonusRes.aguardando) msgOra.push(falar('bonus_aguarda', { nome: d.nome }));
         if (!msgOra.length) msgOra.push(falar('ora_boas_vindas', { nome: d.nome }));
         if (Date.now() >= _oraHoldAte) oraMsg(msgOra);
-        anunciarXpDuolingo(d, userKey, xpLeitura);
+        verificarNivelModalidade(d);
 
       } catch(err) {
         oraMsg(falar('erro_conexao'));
@@ -4447,8 +4486,8 @@
     let _oraHoldAte      = 0;
 
     const REG_TEXTOS = {
-      leitura:  { titulo: '📖 Registro de Leitura',  subtitulo: '✦ Relate sua aventura de leitura ao Oráculo ✦' },
-      duolingo: { titulo: '🦉 Registro de Duolingo', subtitulo: '✦ Conte ao Oráculo quanto você estudou ✦' }
+      leitura:  { titulo: '<img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">Registro de Leitura',  subtitulo: '✦ Relate sua aventura de leitura ao Oráculo ✦' },
+      duolingo: { titulo: '<img class="ico" src="https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png" alt="">Registro de Duolingo', subtitulo: '✦ Conte ao Oráculo quanto você estudou ✦' }
     };
 
     function _minimoRegistro(modo) {
@@ -4489,7 +4528,7 @@
       document.getElementById('reg-tab-leitura').classList.toggle('active', !ehDuo);
       document.getElementById('reg-tab-duolingo').classList.toggle('active', ehDuo);
       document.getElementById('reading-modal').classList.toggle('duo-mode', ehDuo);
-      document.getElementById('reading-title').textContent    = t.titulo;
+      document.getElementById('reading-title').innerHTML = t.titulo;
       document.getElementById('reading-subtitle').textContent = t.subtitulo;
       document.getElementById('reading-book-wrap').style.display = ehDuo ? 'none' : 'block';
       oraFalarEm('reading-oracle-text', falar(ehDuo ? 'reg_duo_abrir' : 'reg_leitura_abrir', { minimo }));
@@ -4637,9 +4676,14 @@
                        'Campeão','Herói da Ordem','Lenda Viva','Guardião Imortal','Mestre Supremo'];
       const titulo = titulos[Math.min(heroState.nivel - 1, titulos.length - 1)];
       sub.textContent = `✦ ${titulo.toUpperCase()} · NÍVEL ${heroState.nivel} ✦`;
-      document.getElementById('hero-xp-l').textContent = Math.floor(heroState.xpLeitura || 0);
-      document.getElementById('hero-xp-d').textContent = Math.floor(heroState.xpDuo || 0);
-      document.getElementById('hero-xp-duo-chip').style.display = heroState.xpDuoAtivo ? '' : 'none';
+      const passo = heroState.passoMod || 250;
+      [['l', heroState.xpLeitura, heroState.nivelLeitura], ['d', heroState.xpDuo, heroState.nivelDuo]].forEach(([k, xp, nv]) => {
+        const dentro = Math.floor(xp || 0) % passo;
+        document.getElementById('hm-nv-' + k).textContent = 'Nível ' + (nv || 1);
+        document.getElementById('hm-xp-' + k).textContent = dentro + ' / ' + passo + ' XP';
+        document.getElementById('hm-falta-' + k).textContent = 'faltam ' + (passo - dentro);
+        document.getElementById('hm-fill-' + k).style.width = (dentro / passo * 100) + '%';
+      });
 
       // Fala contextual
       oraFalarEm(bubble, gerarFalaHeroi());
@@ -4663,7 +4707,7 @@
     function gerarFalaHeroi() {
       const hs = heroState;
       const streak = hs.streakLeitura, nivel = hs.nivel, duo = hs.duoBatidos, meta = hs.metaDuo;
-      const d = { diasTxt: pluralDias(duo), cabecasTxt: pluralCabecas(duo) };
+      const d = { diasTxt: pluralDias(duo), ofensivaTxt: pluralOfensiva(duo) };
       if (streak >= 30) return falar('heroi_30', d);
       if (streak >= 14) return falar('heroi_14', d);
       if (streak >= 7)  return falar('heroi_7', d);
@@ -4757,7 +4801,7 @@
       const rect = el.getBoundingClientRect();
       const fillW = document.getElementById('xp-fill').offsetWidth;
       spawnColorSparks(rect.left + fillW, rect.top + rect.height/2, 8, ['rgba(0,212,255,', 'rgba(80,180,255,', 'rgba(0,100,255,']);
-      oraMsg(falar(heroState.xpDuoAtivo && Math.random() < 0.5 ? 'xp_ambos' : 'xp'));
+      oraMsg(falar(Math.random() < 0.5 ? 'xp_ambos' : 'xp'));
     }
 
     // - ORÁCULO -
@@ -4983,7 +5027,7 @@
       diasSemana.slice(0, metaDias).forEach((dia, i) => {
         const img = document.createElement('img');
         if (dia.bateu) {
-          img.src = 'https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png';
+          img.src = 'https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png';
           img.className = 'duo-head ' + (dia.dateStr === hoje ? 'active-today' : 'active');
         } else {
           img.src = 'https://i.ibb.co/dJswj4h4/duolingo-oraculo-head-sad-1.png';
@@ -5566,7 +5610,7 @@
     // ── ABA COLEÇÃO DO BAÚ ──────────────────────────────────────
     const COLECAO_INFO = {
       Leitura:  { mod: 'leitura',  emoji: '🔥', nome: 'Escudo da Chama',   desc: 'Protege sua sequência de leitura quando você perde um dia. Ele se ativa sozinho.' },
-      Duolingo: { mod: 'duolingo', emoji: '🦉', nome: 'Escudo do Oráculo', desc: 'Protege sua sequência de Duolingo quando você perde um dia. Ele se ativa sozinho.' }
+      Duolingo: { mod: 'duolingo', emoji: '🦉', nome: 'Escudo do Oráculo', desc: 'Protege sua ofensiva de Duolingo quando você perde um dia. Ele se ativa sozinho.' }
     };
     function textoComoGanhar(mod) {
       const c = bonusCfg[mod].streak;
@@ -5629,33 +5673,35 @@
       if (cs.ativo && cs.marcos.some(m => m.valor > 0)) {
         const n = duoData.sequencia.streak, prox = proxMarco('duolingo', n), sim = MOEDA_INFO[cs.moeda].simbolo;
         mostrar('duo-streak-label', n === 0
-          ? '🔥 Estude hoje para iniciar sua sequência!'
-          : prox ? `🔥 Sequência de ${pluralDias(n)}! Faltam ${prox.dias - n} para o marco de ${prox.dias} (+${prox.valor} ${sim})`
-                 : `🔥 Sequência de ${pluralDias(n)}! Você passou de todos os marcos!`);
+          ? '🔥 Estude hoje para iniciar sua ofensiva!'
+          : prox ? `🔥 Ofensiva de ${pluralDias(n)}! Faltam ${prox.dias - n} para o marco de ${prox.dias} (+${prox.valor} ${sim})`
+                 : `🔥 Ofensiva de ${pluralDias(n)}! Você passou de todos os marcos!`);
       } else {
         mostrar('duo-streak-label', '');
       }
     }
 
-    // ── AVISO ÚNICO: o Duolingo passou a valer XP ────────────────
-    // Aparece uma vez por aparelho. Se o nível subiu por causa disso, o Oráculo conta.
-    function anunciarXpDuolingo(d, userKey, xpLeitura) {
-      if (!d.xp.duoAtivo) return;
-      const chave = 'minutinhos_xp_duo_visto_' + userKey;
-      let visto = null;
-      try { visto = localStorage.getItem(chave); } catch (e) {}
-      if (visto) return;
-      try { localStorage.setItem(chave, '1'); } catch (e) {}
-      const nivelAntes = Math.floor(xpLeitura / 500) + 1;
-      const subiu = d.xp.nivel > nivelAntes;
-      setTimeout(() => {
-        _oraHoldAte = Math.max(_oraHoldAte, Date.now() + 9000);
-        oraMsg(falar(subiu ? 'xp_duo_novo_nivel' : 'xp_duo_novo', { nome: d.nome, nivel: d.xp.nivel, xpDuo: d.xp.duo }));
-        vibrate([40, 30, 60]);
-        soundTone(523, 'sine', 0.3, 0.2, 0.01);
-        setTimeout(() => soundTone(784, 'sine', 0.3, 0.2, 0.01), 140);
-        spawnColorSparks(window.innerWidth / 2, window.innerHeight / 3, 24, ['rgba(0,212,255,', 'rgba(255,215,0,', 'rgba(255,255,150,']);
-      }, 2200);
+    // ── SUBIDA DE NÍVEL POR MODALIDADE ────────────────────────────
+    // Celebração leve (som, faíscas e fala do Oráculo). A tela grande de "level up" é só do nível geral.
+    // Na primeira leitura de cada Guardião só grava a base, então nada é celebrado ao abrir o app.
+    let _nivelModAnt = null;
+    function verificarNivelModalidade(d) {
+      const atual = { email: currentUserEmail, leitura: d.xp.nivelLeitura, duo: d.xp.nivelDuo };
+      const ant = _nivelModAnt;
+      _nivelModAnt = atual;
+      if (!ant || ant.email !== atual.email) return;
+      ['leitura', 'duo'].forEach((m, i) => {
+        if (atual[m] <= ant[m]) return;
+        setTimeout(() => {
+          _oraHoldAte = Math.max(_oraHoldAte, Date.now() + 7000);
+          oraMsg(falar(m === 'leitura' ? 'nivel_leitura_up' : 'nivel_duo_up', { nome: d.nome, nivelMod: atual[m] }));
+          vibrate([40, 30, 60]);
+          soundTone(523, 'sine', 0.3, 0.2, 0.01);
+          setTimeout(() => soundTone(784, 'sine', 0.3, 0.2, 0.01), 140);
+          const cores = m === 'leitura' ? ['rgba(255,215,0,', 'rgba(255,255,150,', 'rgba(255,180,50,'] : ['rgba(0,212,255,', 'rgba(120,220,255,', 'rgba(255,255,150,'];
+          spawnColorSparks(window.innerWidth / 2, window.innerHeight / 3, 24, cores);
+        }, 1500 + i * 3200);
+      });
     }
 
     // ── FIM DE SEMANA DAS CABEÇAS ───────────────────────────────
@@ -5766,7 +5812,7 @@
       } else if (duoData.diasBatidos >= meta) {
         document.getElementById('duo-reward-label').textContent = '⏳ Meta completa, aguardando o selo do Mestre';
       } else {
-        document.getElementById('duo-reward-label').textContent = recomp > 0 ? `🎯 Complete para +${recomp} 💎` : '🎯 Acenda todas as cabeças!';
+        document.getElementById('duo-reward-label').textContent = recomp > 0 ? `🎯 Complete para +${recomp} 💎` : '🎯 Complete a ofensiva da semana!';
       }
     }
 
@@ -6092,7 +6138,7 @@
         const rect = img.getBoundingClientRect();
         spawnColorSparks(rect.left + rect.width/2, rect.top, 6,
           ['rgba(150,150,150,','rgba(100,100,100,']);
-        oraMsg(falar('cabeca_vazia'));
+        oraMsg(falar('cabeca_vazia', { minimo: streakConfig.min_duolingo_diario || 7 }));
       }
     }
 
