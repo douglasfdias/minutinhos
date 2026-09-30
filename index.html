@@ -1567,7 +1567,8 @@
     .hero-overlay-inner {
       width: 100%; max-width: 380px;
       display: flex; flex-direction: column; align-items: center;
-      padding: 0 20px 40px;
+      max-height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      padding: calc(env(safe-area-inset-top, 0px) + 58px) 20px calc(env(safe-area-inset-bottom, 0px) + 18px);
       transform: translateY(60px); opacity: 0;
       transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1), opacity 0.35s ease;
     }
@@ -1576,8 +1577,9 @@
     }
 
     /* Aura ao redor do avatar */
+    .hero-overlay-inner::-webkit-scrollbar { display: none; }
     .hero-overlay-aura {
-      position: relative; margin-bottom: 12px;
+      position: relative; margin-bottom: 6px; flex: none;
     }
     .hero-overlay-aura::before {
       content: ''; position: absolute;
@@ -1592,7 +1594,7 @@
       50%    { opacity:1;   transform:translateX(-50%) scaleX(1.2); }
     }
     .hero-overlay-img {
-      height: 280px; max-width: 85vw; object-fit: contain;
+      height: 220px; height: clamp(140px, 25dvh, 250px); max-width: 85vw; object-fit: contain;
       filter: drop-shadow(0 0 30px rgba(255,215,0,0.5));
       animation: hero-overlay-float 3s ease-in-out infinite,
                  hero-breathe 4s ease-in-out infinite;
@@ -1610,10 +1612,10 @@
 
     /* Badge de título */
     .hero-overlay-title-wrap {
-      text-align: center; margin-bottom: 10px;
+      text-align: center; margin-bottom: 8px; flex: none;
     }
     .hero-overlay-name {
-      font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 900;
+      font-family: 'Cinzel', serif; font-size: 1.35rem; font-weight: 900;
       color: var(--gold); letter-spacing: 0.06em;
       text-shadow: 0 0 20px rgba(255,215,0,0.6);
     }
@@ -1622,32 +1624,36 @@
       color: rgba(255,220,150,0.65); letter-spacing: 0.1em; margin-top: 3px;
     }
 
-    /* XP e nível por modalidade (Fase 5) */
-    .hero-mods { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 8px; margin: 2px 0 12px; }
+    /* XP e nível por modalidade (Fase 5), versão compacta */
+    .hero-mods { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 6px; margin: 0 0 10px; flex: none; }
     .hero-mod {
       background: rgba(20,30,75,0.82); border: 1.5px solid rgba(255,215,0,0.6);
-      border-radius: 14px; padding: 9px 12px 10px; cursor: pointer;
-      box-shadow: 0 0 12px rgba(255,215,0,0.18), inset 0 0 14px rgba(0,0,0,0.35);
+      border-radius: 12px; padding: 7px 11px 8px; cursor: pointer;
+      box-shadow: 0 0 10px rgba(255,215,0,0.16), inset 0 0 12px rgba(0,0,0,0.35);
     }
-    .hm-top { display: flex; align-items: center; gap: 10px; }
+    .hm-top { display: flex; align-items: center; gap: 9px; }
     .hm-ic {
-      width: 38px; height: 38px; border-radius: 50%; flex: none;
+      width: 30px; height: 30px; border-radius: 50%; flex: none;
       background: radial-gradient(circle at 35% 30%, #22307a, #0d1436);
       border: 1.5px solid rgba(255,215,0,0.75);
       display: flex; align-items: center; justify-content: center;
     }
-    .hm-ic img { width: 26px; height: 26px; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
-    .hm-nm { flex: 1; font-family: 'Cinzel', serif; font-size: 0.86rem; font-weight: 700; color: #fff3cf; letter-spacing: 0.04em; }
+    .hm-ic img { width: 21px; height: 21px; object-fit: contain; pointer-events: none; -webkit-user-drag: none; }
+    .hm-nm { flex: 1; font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 700; color: #fff3cf; letter-spacing: 0.04em; }
     .hm-pill {
-      font-family: 'Cinzel', serif; font-size: 0.72rem; font-weight: 900; color: #3b2800;
-      padding: 3px 11px; border-radius: 999px; letter-spacing: 0.04em;
-      background: linear-gradient(180deg, #ffe27a, #d9a82b); box-shadow: 0 0 8px rgba(255,215,0,0.45);
+      font-family: 'Cinzel', serif; font-size: 0.66rem; font-weight: 900; color: #3b2800;
+      padding: 2px 10px; border-radius: 999px; letter-spacing: 0.04em;
+      background: linear-gradient(180deg, #ffe27a, #d9a82b); box-shadow: 0 0 8px rgba(255,215,0,0.4);
     }
-    .hm-track { height: 10px; border-radius: 6px; margin: 8px 0 5px; overflow: hidden; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); }
-    .hm-fill { height: 100%; width: 0%; border-radius: 6px; transition: width 0.7s ease; }
+    .hm-track { position: relative; height: 14px; border-radius: 7px; margin-top: 6px; overflow: hidden; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+    .hm-fill { height: 100%; width: 0%; border-radius: 7px; transition: width 0.7s ease; }
     .hm-fill.l { background: linear-gradient(90deg, #d9a82b, #ffe27a); }
     .hm-fill.d { background: linear-gradient(90deg, #1e88e5, #4fd1ff); }
-    .hm-xt { display: flex; justify-content: space-between; font-size: 0.7rem; font-weight: 800; color: rgba(255,240,205,0.78); }
+    .hm-bt {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 900; letter-spacing: 0.03em; color: #fff;
+      text-shadow: 0 0 3px #000, 0 1px 2px #000; pointer-events: none;
+    }
     /* Ícones de imagem no lugar dos emojis (Leitura, Duolingo, Forja) */
     .ico { display: inline-block; width: 1.3em; height: 1.3em; object-fit: contain; vertical-align: -0.28em; margin-right: 0.2em; pointer-events: none; -webkit-user-drag: none; }
     .btn-ico { width: 32px; height: 32px; object-fit: contain; display: block; pointer-events: none; -webkit-user-drag: none; }
@@ -1655,11 +1661,11 @@
     /* Balão de fala */
     .hero-overlay-bubble {
       background: linear-gradient(135deg, rgba(253,245,230,0.95), rgba(240,220,180,0.9));
-      color: #4e342e; padding: 12px 16px; border-radius: 14px;
-      font-size: 0.88rem; font-weight: 800; text-align: center;
+      color: #4e342e; padding: 9px 14px; border-radius: 14px;
+      font-size: 0.84rem; font-weight: 800; text-align: center;
       border: 2px solid #C8A96E; box-shadow: 0 4px 0 #A0825A;
-      width: 100%; max-width: 300px; min-height: 48px;
-      position: relative; margin-bottom: 16px;
+      width: 100%; max-width: 300px; min-height: 40px; flex: none;
+      position: relative; margin-bottom: 12px;
       animation: bubble-appear 0.4s ease-out 0.3s both;
     }
     @keyframes bubble-appear {
@@ -1678,9 +1684,17 @@
     }
 
     .hero-overlay-close {
-      font-size: 0.72rem; color: rgba(255,255,255,0.35); font-weight: 700;
-      letter-spacing: 0.1em; cursor: pointer; -webkit-user-select: none;
-      animation: fade-in-hint 1.2s ease 1s both;
+      flex: none; min-height: 40px; padding: 8px 28px; border-radius: 999px; cursor: pointer;
+      font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em;
+      color: #ffe9a8; background: rgba(20,30,75,0.85); border: 1.5px solid rgba(255,215,0,0.55);
+      -webkit-user-select: none; animation: fade-in-hint 1.2s ease 0.6s both;
+    }
+    .hero-overlay-x {
+      position: absolute; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 14px;
+      width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+      font-size: 1.15rem; font-weight: 700; line-height: 1; color: #ffe9a8;
+      background: rgba(20,30,75,0.9); border: 1.5px solid rgba(255,215,0,0.6);
+      display: flex; align-items: center; justify-content: center;
     }
     @keyframes fade-in-hint { from{opacity:0} to{opacity:1} }
   </style>
@@ -1803,6 +1817,7 @@
 
   <!-- ══ HERO OVERLAY ══ -->
   <div id="hero-overlay" onclick="fecharHeroOverlay()">
+    <button type="button" class="hero-overlay-x" data-sem-toque aria-label="Fechar" onclick="event.stopPropagation(); fecharHeroOverlay()">✕</button>
     <div class="hero-overlay-inner" onclick="event.stopPropagation()">
       <div class="hero-overlay-aura">
         <img id="hero-overlay-img" class="hero-overlay-img" src="" data-fala="heroi_toque">
@@ -1814,17 +1829,15 @@
       <div class="hero-mods">
         <div class="hero-mod" data-fala="xp_leitura">
           <div class="hm-top"><div class="hm-ic"><img src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt=""></div><div class="hm-nm">Leitura</div><div class="hm-pill" id="hm-nv-l">Nível 1</div></div>
-          <div class="hm-track"><div class="hm-fill l" id="hm-fill-l"></div></div>
-          <div class="hm-xt"><span id="hm-xp-l">0 / 250 XP</span><span id="hm-falta-l">faltam 250</span></div>
+          <div class="hm-track"><div class="hm-fill l" id="hm-fill-l"></div><span class="hm-bt" id="hm-xp-l">0 / 250 XP</span></div>
         </div>
         <div class="hero-mod" data-fala="xp_duolingo">
           <div class="hm-top"><div class="hm-ic"><img src="https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png" alt=""></div><div class="hm-nm">Duolingo</div><div class="hm-pill" id="hm-nv-d">Nível 1</div></div>
-          <div class="hm-track"><div class="hm-fill d" id="hm-fill-d"></div></div>
-          <div class="hm-xt"><span id="hm-xp-d">0 / 250 XP</span><span id="hm-falta-d">faltam 250</span></div>
+          <div class="hm-track"><div class="hm-fill d" id="hm-fill-d"></div><span class="hm-bt" id="hm-xp-d">0 / 250 XP</span></div>
         </div>
       </div>
       <div class="hero-overlay-bubble" id="hero-overlay-bubble" data-fala="heroi_toque"></div>
-      <div class="hero-overlay-close">✦ toque para fechar ✦</div>
+      <button type="button" class="hero-overlay-close" data-sem-toque onclick="fecharHeroOverlay()">✦ Fechar ✦</button>
     </div>
   </div>
 
@@ -2335,9 +2348,14 @@
       _nota(900, 'sine', 0.07, 0.1, 0.003, 0.02, 0.2, 0.03);
     }
 
+    let _ultimoGolpeForja = -1;
     function soundForgeHit() {
       if (!audioCtx) return;
       const t = audioCtx.currentTime;
+      // Golpes em sequência rápida usam uma versão mais leve (2 harmônicos, sem reverb nem ruído):
+      // o primeiro golpe soa igual, e o processamento não se acumula.
+      const rapido = _ultimoGolpeForja >= 0 && (t - _ultimoGolpeForja) < 0.22;
+      _ultimoGolpeForja = t;
 
       // Thud grave - impacto físico
       const thud = audioCtx.createOscillator();
@@ -2351,12 +2369,14 @@
       thud.start(t); thud.stop(t + 0.22);
 
       // Clang metálico - harmônicos com reverb
+      const parciais = rapido ? [0, 2] : [0, 1, 2, 3];
       [820, 1240, 1680, 2480].forEach((f, i) => {
+        if (parciais.indexOf(i) < 0) return;
         const osc = audioCtx.createOscillator();
         const g = audioCtx.createGain();
         const vols = [0.28, 0.18, 0.1, 0.05];
-        const durs = [0.5, 0.38, 0.28, 0.18];
-        osc.connect(g); g.connect(reverbNode); g.connect(masterGain);
+        const durs = rapido ? [0.3, 0.2, 0.16, 0.1] : [0.5, 0.38, 0.28, 0.18];
+        osc.connect(g); if (!rapido) g.connect(reverbNode); g.connect(masterGain);
         osc.type = 'sine';
         osc.frequency.value = f + (Math.random() * 30 - 15);
         g.gain.setValueAtTime(vols[i], t);
@@ -2364,6 +2384,7 @@
         osc.start(t); osc.stop(t + durs[i] + 0.05);
       });
 
+      if (rapido) return;
       // Woosh de faísca - ruído high-pass
       const noise = _criarRuido(0.14);
       const nf = audioCtx.createBiquadFilter();
@@ -2519,6 +2540,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (Math.random() < 0.15) spawnParticle();
       particles = particles.filter(p => p.life > 0);
+      if (particles.length > 500) particles = particles.slice(-500);   // teto de partículas na tela
       particles.forEach(p => {
         p.life -= p.decay;
 
@@ -2577,22 +2599,27 @@
       });
     }
 
-    /* Screen shake */
+    /* Screen shake: um único laço. Toques rápidos reaproveitam o mesmo tremor
+       (antes cada toque criava um timer novo, e vários mexiam no app ao mesmo tempo). */
+    const _shake = { el: null, ini: 0, dur: 0, forca: 0, raf: 0 };
+    function _shakeLoop() {
+      const t = performance.now() - _shake.ini;
+      if (t >= _shake.dur) { _shake.el.style.transform = ''; _shake.raf = 0; return; }
+      const decay = 1 - t / _shake.dur;
+      const x = (Math.random() - 0.5) * _shake.forca * decay;
+      const y = (Math.random() - 0.5) * _shake.forca * 0.5 * decay;
+      _shake.el.style.transform = `translate(${x}px,${y}px)`;
+      _shake.raf = requestAnimationFrame(_shakeLoop);
+    }
     function screenShake(intensity, durationMs) {
-      const container = document.querySelector('.app-container');
-      let elapsed = 0;
-      const tick = setInterval(() => {
-        elapsed += 16;
-        if (elapsed >= durationMs) {
-          container.style.transform = '';
-          clearInterval(tick);
-          return;
-        }
-        const decay = 1 - elapsed / durationMs;
-        const x = (Math.random() - 0.5) * intensity * decay;
-        const y = (Math.random() - 0.5) * intensity * 0.5 * decay;
-        container.style.transform = `translate(${x}px,${y}px)`;
-      }, 16);
+      if (!_shake.el) _shake.el = document.querySelector('.app-container');
+      if (!_shake.el) return;
+      const agora = performance.now();
+      const restante = _shake.raf ? _shake.forca * Math.max(0, 1 - (agora - _shake.ini) / _shake.dur) : 0;
+      _shake.forca = Math.max(intensity, restante);
+      _shake.dur = durationMs;
+      _shake.ini = agora;
+      if (!_shake.raf) _shake.raf = requestAnimationFrame(_shakeLoop);
     }
 
     /* Embers sobindo na forja (modal aberto) */
@@ -2614,6 +2641,8 @@
        FLOATING NUMBERS
     ============================================================ */
     function spawnFloat(text, color, x, y) {
+      const ativos = document.querySelectorAll('.float-number');
+      if (ativos.length >= 8) ativos[0].remove();   // limite: toques rápidos não empilham dezenas de números
       const el = document.createElement('div');
       el.className = 'float-number';
       el.style.cssText = `left:${x - 20}px; top:${y - 20}px; color:${color};`;
@@ -4371,7 +4400,7 @@
         void fd.offsetWidth;
         fd.classList.add('crystal-pop');
 
-        spawnFloat('+10 💎', '#00D4FF', hx, hy - 30);
+        spawnFloat('+' + ganhoForja + ' 💎', '#00D4FF', hx, hy - 30);
         soundForgeHit();
         screenShake(7, 300);
         vibrate(60);
@@ -4681,7 +4710,6 @@
         const dentro = Math.floor(xp || 0) % passo;
         document.getElementById('hm-nv-' + k).textContent = 'Nível ' + (nv || 1);
         document.getElementById('hm-xp-' + k).textContent = dentro + ' / ' + passo + ' XP';
-        document.getElementById('hm-falta-' + k).textContent = 'faltam ' + (passo - dentro);
         document.getElementById('hm-fill-' + k).style.width = (dentro / passo * 100) + '%';
       });
 
@@ -4720,6 +4748,8 @@
     }
 
     function fecharHeroOverlay() {
+      const ov0 = document.getElementById('hero-overlay');
+      if (!ov0.classList.contains('open')) return;
       initAudio();
       vibrate(30);
       soundTone(440, 'sine', 0.15, 0.12, 0.005);
