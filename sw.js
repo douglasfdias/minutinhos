@@ -46,7 +46,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-const CACHE_NAME = 'minutinhos-v33';
+const CACHE_NAME = 'minutinhos-v34';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
@@ -62,6 +62,10 @@ const ASSETS_TO_CACHE = [
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js',
   'https://i.ibb.co/d4ntxNFN/background-user-UI-Minutinhos-3.webp',
   'https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png',
+  'https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png',
+  'https://i.ibb.co/cScPzrpW/imagem-forja-188x188.png',
+  'https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png',
+  'https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png',
   'https://i.ibb.co/N2QFSxDx/icone-energia-2.png',
   'https://i.ibb.co/Zzkm8F01/icone-cristal.png',
   'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
