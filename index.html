@@ -1622,6 +1622,16 @@
       color: rgba(255,220,150,0.65); letter-spacing: 0.1em; margin-top: 3px;
     }
 
+    /* XP por modalidade (Fase 5) */
+    .hero-xp-row { display: flex; gap: 8px; justify-content: center; margin: 2px 0 12px; }
+    .hero-xp-chip {
+      font-family: 'Cinzel', serif; font-size: 0.78rem; font-weight: 700;
+      color: #fff3cf; padding: 5px 12px; border-radius: 999px;
+      background: rgba(20,30,70,0.72); border: 1.5px solid rgba(255,215,0,0.55);
+      box-shadow: 0 0 10px rgba(255,215,0,0.25); cursor: pointer;
+    }
+    .hero-xp-chip b { color: var(--gold); }
+
     /* Balão de fala */
     .hero-overlay-bubble {
       background: linear-gradient(135deg, rgba(253,245,230,0.95), rgba(240,220,180,0.9));
@@ -1781,6 +1791,10 @@
         <div class="hero-overlay-name" id="hero-overlay-name">Guardião</div>
         <div class="hero-overlay-sub" id="hero-overlay-sub">✦ GUARDIÃO DA ORDEM ✦</div>
       </div>
+      <div class="hero-xp-row">
+        <div class="hero-xp-chip" data-fala="xp_leitura">📖 <b id="hero-xp-l">0</b> XP</div>
+        <div class="hero-xp-chip" id="hero-xp-duo-chip" data-fala="xp_duolingo" style="display:none">🦉 <b id="hero-xp-d">0</b> XP</div>
+      </div>
       <div class="hero-overlay-bubble" id="hero-overlay-bubble" data-fala="heroi_toque"></div>
       <div class="hero-overlay-close">✦ toque para fechar ✦</div>
     </div>
@@ -1838,7 +1852,7 @@
       <div class="xp-wrap">
         <div class="xp-bar-container" onclick="tocarXP(this)">
           <div id="xp-fill" class="xp-bar-fill"></div>
-          <div id="xp-text" class="xp-text">0 / 500 min</div>
+          <div id="xp-text" class="xp-text">0 / 500 XP</div>
         </div>
       </div>
       <div class="hero-avatar-wrap" onclick="tocarHeroi(this)">
@@ -2641,7 +2655,7 @@
       nivel: [
         '🌟 Cada livro lido eleva seu nível na Ordem dos Guardiões!',
         '🌟 Seu nível mostra o quanto você se dedicou, {nome}. A Ordem tem orgulho!',
-        '🌟 São 500 minutos de estudo para cada nível novo. Você consegue!',
+        '🌟 São 500 XP para cada nível novo. Você consegue!',
         '🌟 Os Guardiões lendários também começaram no nível 1, como você!',
         '🌟 Seu nome ecoa pelos salões da Ordem. Continue sua jornada!',
         '🌟 Quanto maior o nível, mais bonito fica o título de Guardião!',
@@ -2649,11 +2663,41 @@
       ],
       xp: [
         '📊 Cada minuto lido enche sua barra de poder! Continue!',
-        '📊 Ao completar 500 minutos, você sobe de nível, {nome}!',
+        '📊 Ao juntar 500 XP, você sobe de nível, {nome}!',
         '📊 Sua barra de poder cresce a cada página virada!',
         '📊 Você está no caminho certo para a glória, Guardião!',
         '📊 Registre suas leituras e veja a barra brilhar cada vez mais!',
         '📊 Já sinto o poder subindo aí dentro. Falta pouco para a próxima conquista!'
+      ],
+      xp_leitura: [
+        '📖 São {xpLeitura} XP vindos dos livros, {nome}! Cada minuto lido vale 1 XP no grimório.',
+        '📖 Seus livros já renderam {xpLeitura} XP, {nome}! Que biblioteca poderosa!',
+        '📖 O grimório marca {xpLeitura} XP de leitura. Cada página virada conta, Guardião!',
+        '📖 {xpLeitura} XP de leitura! Os pergaminhos da Ordem brilham por sua causa!',
+        '📖 Ler é a magia mais antiga da Ordem, {nome}. Você já juntou {xpLeitura} XP com ela!'
+      ],
+      xp_duolingo: [
+        '🦉 São {xpDuo} XP vindos das línguas, {nome}! Cada minuto de Duolingo vale 1 XP.',
+        '🦉 O Oráculo anotou {xpDuo} XP de Duolingo no seu selo, {nome}! Que língua afiada!',
+        '🦉 {xpDuo} XP de línguas! Os corvos mensageiros já espalharam a notícia, Guardião!',
+        '🦉 Falar outras línguas é magia rara, {nome}. Você já juntou {xpDuo} XP com ela!',
+        '🦉 Suas lições no Duolingo somam {xpDuo} XP. A Ordem tem orgulho de você!'
+      ],
+      xp_ambos: [
+        '📊 Leitura e Duolingo enchem a mesma barra, {nome}! Faltam {faltam} XP para o próximo nível.',
+        '📊 Livros e línguas: os dois dão XP! Faltam {faltam} XP para você subir, {nome}.',
+        '📊 Toque no seu avatar para ver quanto XP veio de cada magia, {nome}!',
+        '📊 Cada minuto de estudo, lendo ou no Duolingo, vale 1 XP. Faltam {faltam} para o próximo nível!'
+      ],
+      xp_duo_novo: [
+        '🦉 Novidade da Ordem, {nome}! Agora o Duolingo também vale XP. Cada minuto conta para o seu nível!',
+        '🦉 O conselho da Ordem decidiu: as lições de Duolingo agora enchem a barra de XP, {nome}!',
+        '🦉 Corvo mensageiro chegando! Recado: seus minutos de Duolingo agora valem XP, {nome}!'
+      ],
+      xp_duo_novo_nivel: [
+        '🦉 Novidade da Ordem, {nome}! O Duolingo agora vale XP, e com ele você chegou ao nível {nivel}!',
+        '🦉 Corvo mensageiro com boas notícias! Seus minutos de Duolingo viraram XP e você é nível {nivel}, {nome}!',
+        '🦉 O Duolingo agora conta para o nível, {nome}. Seus estudos antigos valeram: nível {nivel}!'
       ],
       oraculo_conselho: [
         'Ehehe! Você me tocou! Sou o Oráculo da Ordem, guardião do conhecimento!',
@@ -3447,7 +3491,11 @@
         streak:  hs.streakLeitura || 0,
         nivel:   hs.nivel || 1,
         duo:     hs.duoBatidos || 0,
-        energia: hs.energia || 0
+        energia: hs.energia || 0,
+        xpLeitura: hs.xpLeitura || 0,
+        xpDuo:     hs.xpDuo || 0,
+        xpTotal:   hs.xpTotal || 0,
+        faltam:    500 - ((hs.xpTotal || 0) % 500)
       };
       const d = Object.assign(base, dados || {});
       return lista[i].replace(/\{(\w+)\}/g, (m, k) => (d[k] != null ? d[k] : m));
@@ -4001,7 +4049,7 @@
     let currentEnergy  = 0;
     let currentLevel   = 1;
     let heroState      = {
-      nome: '', nivel: 1, xpTotal: 0, energia: 0, cristais: 0,
+      nome: '', nivel: 1, xpTotal: 0, xpLeitura: 0, xpDuo: 0, xpDuoAtivo: false, energia: 0, cristais: 0,
       avatarUrl: '', streakLeitura: 0, duoBatidos: 0, metaDuo: 7
     };
 
@@ -4034,9 +4082,18 @@
         const trans = Object.values(transMap);
         const emailLower = currentUserEmail.toLowerCase();
 
-        const xpTotal = trans
-          .filter(t => t.email === emailLower && t.status === 'Aprovado' && t.tipo === 'Leitura')
-          .reduce((sum, t) => sum + Number(t.quantidade), 0);
+        // XP separado por modalidade (Fase 5). O Duolingo só entra no nível depois que o Mestre
+        // confirma a virada no Simulador (config/xp_duolingo_ativo). Até lá, o nível é só de leitura.
+        let xpDuoAtivo = false;
+        try {
+          const ativoSnap = await db.ref('config/xp_duolingo_ativo').get();
+          xpDuoAtivo = ativoSnap.exists() && ativoSnap.val() === true;
+        } catch (e) { xpDuoAtivo = false; }
+        const aprovadas = trans.filter(t => t.email === emailLower && t.status === 'Aprovado');
+        const somaXP = (tipo) => aprovadas.filter(t => t.tipo === tipo).reduce((sum, t) => sum + (Number(t.quantidade) || 0), 0);
+        const xpLeitura = somaXP('Leitura');
+        const xpDuo     = somaXP('Duolingo');
+        const xpTotal   = xpLeitura + (xpDuoAtivo ? xpDuo : 0);
 
         const myTrans = trans
           .filter(t => t.email === emailLower)
@@ -4052,6 +4109,9 @@
           historico: myTrans,
           xp: {
             total:   xpTotal,
+            leitura: xpLeitura,
+            duo:     xpDuo,
+            duoAtivo: xpDuoAtivo,
             nivel:   Math.floor(xpTotal / 500) + 1,
             atual:   xpTotal % 500,
             proximo: 500
@@ -4079,7 +4139,7 @@
         // Nível e XP
         currentLevel = d.xp.nivel;
         document.getElementById('xp-header').textContent = `${d.nome}  ·  Nível ${d.xp.nivel}`;
-        document.getElementById('xp-text').textContent = `${d.xp.total} / ${d.xp.proximo} min`;
+        document.getElementById('xp-text').textContent = `${Math.floor(d.xp.atual)} / ${d.xp.proximo} XP`;
         document.getElementById('xp-fill').style.width = (d.xp.atual / 500 * 100) + '%';
 
         // Level Up!
@@ -4095,6 +4155,7 @@
         document.getElementById('hero-img').src = d.avatarUrl;
         heroState = {
           nome: d.nome, nivel: d.xp.nivel, xpTotal: d.xp.total,
+          xpLeitura: d.xp.leitura, xpDuo: d.xp.duo, xpDuoAtivo: d.xp.duoAtivo,
           energia: d.energia, cristais: d.cristais,
           avatarUrl: d.avatarUrl,
           streakLeitura: 0, duoBatidos: 0,
@@ -4207,6 +4268,7 @@
         if (bonusRes.aguardando) msgOra.push(falar('bonus_aguarda', { nome: d.nome }));
         if (!msgOra.length) msgOra.push(falar('ora_boas_vindas', { nome: d.nome }));
         if (Date.now() >= _oraHoldAte) oraMsg(msgOra);
+        anunciarXpDuolingo(d, userKey, xpLeitura);
 
       } catch(err) {
         oraMsg(falar('erro_conexao'));
@@ -4575,6 +4637,9 @@
                        'Campeão','Herói da Ordem','Lenda Viva','Guardião Imortal','Mestre Supremo'];
       const titulo = titulos[Math.min(heroState.nivel - 1, titulos.length - 1)];
       sub.textContent = `✦ ${titulo.toUpperCase()} · NÍVEL ${heroState.nivel} ✦`;
+      document.getElementById('hero-xp-l').textContent = Math.floor(heroState.xpLeitura || 0);
+      document.getElementById('hero-xp-d').textContent = Math.floor(heroState.xpDuo || 0);
+      document.getElementById('hero-xp-duo-chip').style.display = heroState.xpDuoAtivo ? '' : 'none';
 
       // Fala contextual
       oraFalarEm(bubble, gerarFalaHeroi());
@@ -4692,7 +4757,7 @@
       const rect = el.getBoundingClientRect();
       const fillW = document.getElementById('xp-fill').offsetWidth;
       spawnColorSparks(rect.left + fillW, rect.top + rect.height/2, 8, ['rgba(0,212,255,', 'rgba(80,180,255,', 'rgba(0,100,255,']);
-      oraMsg(falar('xp'));
+      oraMsg(falar(heroState.xpDuoAtivo && Math.random() < 0.5 ? 'xp_ambos' : 'xp'));
     }
 
     // - ORÁCULO -
@@ -5570,6 +5635,27 @@
       } else {
         mostrar('duo-streak-label', '');
       }
+    }
+
+    // ── AVISO ÚNICO: o Duolingo passou a valer XP ────────────────
+    // Aparece uma vez por aparelho. Se o nível subiu por causa disso, o Oráculo conta.
+    function anunciarXpDuolingo(d, userKey, xpLeitura) {
+      if (!d.xp.duoAtivo) return;
+      const chave = 'minutinhos_xp_duo_visto_' + userKey;
+      let visto = null;
+      try { visto = localStorage.getItem(chave); } catch (e) {}
+      if (visto) return;
+      try { localStorage.setItem(chave, '1'); } catch (e) {}
+      const nivelAntes = Math.floor(xpLeitura / 500) + 1;
+      const subiu = d.xp.nivel > nivelAntes;
+      setTimeout(() => {
+        _oraHoldAte = Math.max(_oraHoldAte, Date.now() + 9000);
+        oraMsg(falar(subiu ? 'xp_duo_novo_nivel' : 'xp_duo_novo', { nome: d.nome, nivel: d.xp.nivel, xpDuo: d.xp.duo }));
+        vibrate([40, 30, 60]);
+        soundTone(523, 'sine', 0.3, 0.2, 0.01);
+        setTimeout(() => soundTone(784, 'sine', 0.3, 0.2, 0.01), 140);
+        spawnColorSparks(window.innerWidth / 2, window.innerHeight / 3, 24, ['rgba(0,212,255,', 'rgba(255,215,0,', 'rgba(255,255,150,']);
+      }, 2200);
     }
 
     // ── FIM DE SEMANA DAS CABEÇAS ───────────────────────────────
