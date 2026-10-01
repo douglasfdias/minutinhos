@@ -4489,7 +4489,7 @@
         atualizarEscudosUI(allTrans, emailLower);
 
         // ── Selos: calcula, grava as conquistas novas e atualiza os avisos ──
-        try { await cerCarregarEstado(); await verificarSelos(allTrans, emailLower); cerMontarFila(); cerUrlTeste(); cerIniciar(); } catch (e) { console.error('selos/cerimônias:', e); }
+        try { await cerCarregarEstado(); await verificarSelos(allTrans, emailLower); cerMontarFila(); cerUrlTeste(); cerIniciar(); cerOuvirTeste(); } catch (e) { console.error('selos/cerimônias:', e); }
 
         // ── Oráculo contextual ──
         const msgOra = [];
@@ -6147,6 +6147,14 @@
       const k = sanitizeEmail(currentUserEmail);
       let u = {};
       try { await garantirAuth(); const sn = await db.ref('usuarios/' + k).get(); u = sn.exists() ? sn.val() : {}; } catch (e) { console.error('cerCarregarEstado:', e); }
+      /* "Voltar passos" feito pelo Painel: o Mestre grava cer_reset; aqui o aparelho apaga as cópias locais uma vez */
+      try {
+        const rs = String(u.cer_reset || ''), visto = localStorage.getItem('cer_reset_' + k) || '';
+        if (rs !== visto) {
+          ['cer_vistas_', 'nov_vistas_', 'selos_vistos_', 'cer_base_'].forEach(pf => localStorage.removeItem(pf + k));
+          localStorage.setItem('cer_reset_' + k, rs);
+        }
+      } catch (e) {}
       Cer.vistas = Object.assign({}, cerLsGet('cer_vistas_'), u.cer_vistas || {});
       Cer.novVistas = Object.assign({}, cerLsGet('nov_vistas_'), u.novidades_vistas || {});
       let base = u.cer_base || null;
@@ -6194,6 +6202,26 @@
         const nv = NOVIDADES.find(x => x.id === q.get('novidade'));
         if (nv) Cer.fila.push({ chave: 'demo-nov', tipo: 'novidade', novidade: nv, demo: true });
       } catch (e) {}
+    }
+    /* Teste enviado pelo Painel (🧪 Testes): usuarios/{emailKey}/cer_teste. Toca uma cerimônia de mentira, sem gravar nada. */
+    let _cerTesteOuvindo = false;
+    function cerOuvirTeste() {
+      if (_cerTesteOuvindo) return; _cerTesteOuvindo = true;
+      const ref = db.ref('usuarios/' + sanitizeEmail(currentUserEmail) + '/cer_teste');
+      ref.on('value', sn => {
+        const v = sn.val(); if (!v) return;
+        try { ref.remove(); } catch (e) {}
+        if (!v.ts || Math.abs(Date.now() - Number(v.ts)) > 15 * 60 * 1000 || !selosDisponiveis()) return;
+        if (v.tipo === 'novidade') {
+          const nv = NOVIDADES.find(x => x.id === (v.id || 'selos-1'));
+          if (nv) Cer.fila.push({ chave: 'teste-nov-' + Date.now(), tipo: 'novidade', novidade: nv, demo: true });
+        } else {
+          const rar = SEL_RAR.includes(v.rar) ? v.rar : 'comum', todos = selOrdSelos(_selosCfg.selos).filter(x => x.ativo !== false);
+          const s = todos.find(x => x.raridade === rar) || todos[0];
+          if (s) Cer.fila.push({ chave: 'teste-selo-' + Date.now(), tipo: 'selo', selo: s, demo: true });
+        }
+        cerIniciar();
+      }, e => console.error('cer_teste:', e));
     }
     function cerReplay(id) {
       const nv = NOVIDADES.find(x => x.id === id); if (!nv || _cerAtiva) return;
