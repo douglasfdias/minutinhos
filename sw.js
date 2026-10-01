@@ -46,7 +46,7 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-const CACHE_NAME = 'minutinhos-v36';
+const CACHE_NAME = 'minutinhos-v37';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
