@@ -542,7 +542,7 @@
     .cer-info.on { opacity:1; }
     .cer-nome { font-family:'Cinzel',serif; font-weight:900; font-size:1.15rem; color:#FCD34D; }
     .cer-ora { display:flex; align-items:flex-end; gap:10px; width:100%; max-width:430px; margin-top:6px; }
-    .cer-ora img { height:min(21vh,150px); width:auto; max-width:38vw; object-fit:contain; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+    .cer-ora img { height:min(26vh,188px); width:auto; max-width:46vw; object-fit:contain; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
     .cer-balao { flex:1; position:relative; background:rgba(255,255,255,0.08); border:1.5px solid rgba(252,211,77,0.55); border-radius:14px; padding:10px 12px; font-size:0.84rem; line-height:1.4; color:#F5EBD0; min-height:4.4em; max-height:22vh; overflow-y:auto; }
     .cer-botoes { display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:10px; width:100%; }
     .cer-btn { min-width:210px; padding:13px 26px; border:0; border-radius:26px; font-family:'Cinzel',serif; font-weight:900; font-size:1rem; color:#3a2200; background:linear-gradient(180deg,#FFF3B0,#FFD700 55%,#E0A100); box-shadow:0 4px 18px rgba(255,215,0,0.45); cursor:pointer; animation:cerBtn 1.6s ease-in-out infinite; }
@@ -6125,6 +6125,8 @@
     const CER_COR = { comum: '#A9BDD8', raro: '#00D4FF', epico: '#FFB300', lend: '#FFD700' };
     const CER_FAISCA = { comum: ['rgba(169,189,216,', 'rgba(255,255,255,'], raro: ['rgba(0,212,255,', 'rgba(201,247,255,'], epico: ['rgba(255,179,0,', 'rgba(255,140,0,', 'rgba(255,243,176,'], lend: ['rgba(255,215,0,', 'rgba(255,140,0,', 'rgba(0,212,255,', 'rgba(255,255,255,'] };
     const CER_TRAJE = { comum: '', raro: '', epico: 'cerimonia', lend: 'gala' };
+    const CER_REACAO = { comum: 'aplaude', raro: 'aplaude', epico: 'surpreso', lend: 'fanfarra' };   // no instante da abertura
+    const CER_POSE_FINAL = { comum: 'revela', raro: 'revela', epico: 'comemora', lend: 'comemora' };  // enquanto o Oráculo conta a história
     const Cer = { fila: [], atual: null, fase: '', rar: 'comum', idx: 0, vistas: {}, novVistas: {}, base: null, espera: null };
     let _cerDig = null;
 
@@ -6206,7 +6208,7 @@
 
     function cerOraPose(pose, traje) {
       const img = cerEl('cer-ora-img'); if (!img) return;
-      const cands = []; if (traje) cands.push(ORA_BASE + pose + '--' + traje + '.webp'); cands.push(ORA_BASE + pose + '.webp'); cands.push(ORA_PADRAO);
+      const cands = []; if (traje) cands.push(ORA_BASE + pose + '--' + traje + '.webp'); cands.push(ORA_BASE + pose + '.webp'); cands.push(ORA_BASE + 'padrao.webp'); cands.push(ORA_PADRAO);
       let i = 0; img.onerror = () => { i++; if (i < cands.length) img.src = cands[i]; else img.onerror = null; };
       img.src = cands[0];
     }
@@ -6302,6 +6304,7 @@
         else { soundForgeEpic(); setTimeout(soundLevelUp, 450); spawnColorSparks(cx, cy, 60, cores); spawnShockwave(cx, cy, cores[0], 150); setTimeout(() => { spawnShockwave(cx, cy, cores[3], 210); spawnColorSparks(cx, cy, 40, cores); }, 350); vibrate([80, 40, 120, 40, 80, 40, 160]); }
       } catch (e) { console.error(e); }
       cerEl('cer-bau').classList.add('sumindo');
+      cerOraPose(CER_REACAO[rar], CER_TRAJE[rar]);
       const sel = cerEl('cer-selo'); sel.innerHTML = seloSvgC(s.emblema || f.emblema, rar, { size: cerTam(), img: s.imagem }); sel.className = 'cer-selo sobe';
       setTimeout(() => { if (Cer.fase === 'revelado' || Cer.fase === 'abrindo') sel.className = 'cer-selo flutua'; }, 1000);
       cerEl('cer-titulo').textContent = 'Selo conquistado!'; cerEl('cer-sub').textContent = '';
@@ -6311,7 +6314,7 @@
       setTimeout(() => {
         if (Cer.fase !== 'abrindo') return;
         Cer.fase = 'revelado';
-        cerOraPose(rar === 'comum' ? 'revela' : 'comemora', CER_TRAJE[rar]);
+        cerOraPose(CER_POSE_FINAL[rar], CER_TRAJE[rar]);
         cerDigitar(s.historia || ('Parabéns, ' + cerNome() + '! Você mereceu este selo.'));
         const b = cerEl('cer-btn'); b.textContent = '✨ Coletar'; b.style.display = '';
       }, 1300);
