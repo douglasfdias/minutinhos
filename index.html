@@ -440,6 +440,58 @@
     .colecao-slot.cheio { filter:none; opacity:1; text-shadow:0 0 10px rgba(125,211,252,0.9); }
     .colecao-desc { font-size:0.74rem; color:rgba(230,215,180,0.85); margin-bottom:5px; }
     .colecao-linha { font-size:0.68rem; color:rgba(200,180,140,0.6); margin-top:3px; }
+
+    /* ── Selos (Fase 6, passo 2) ── */
+    .bau-tab { position:relative; }
+    .col-chave { display:flex; gap:6px; margin-bottom:12px; }
+    .col-chip { flex:1; position:relative; padding:7px 4px; border-radius:20px; text-align:center; background:rgba(255,255,255,0.04); border:1.5px solid rgba(125,211,252,0.25); color:rgba(180,210,235,0.65); font-family:'Cinzel',serif; font-size:0.74rem; font-weight:700; cursor:pointer; -webkit-user-select:none; }
+    .col-chip.active { background:rgba(125,211,252,0.16); border-color:#7DD3FC; color:#7DD3FC; }
+    .col-dot { display:none; position:absolute; top:3px; right:8px; width:9px; height:9px; border-radius:50%; background:#FF8C00; border:1.5px solid #0D1B35; }
+    .col-dot.on { display:block; }
+    .sl-resumo { text-align:center; font-family:'Cinzel',serif; font-weight:800; font-size:0.82rem; color:#FCD34D; margin-bottom:10px; }
+    .sl-fam { background:rgba(255,255,255,0.04); border:1.5px solid rgba(125,211,252,0.22); border-radius:12px; padding:10px 6px 8px; margin-bottom:10px; }
+    .sl-fam-topo { display:flex; justify-content:space-between; align-items:center; padding:0 6px; }
+    .sl-fam-nome { font-family:'Cinzel',serif; font-weight:800; font-size:0.82rem; color:#7DD3FC; }
+    .sl-fam-qtd { font-weight:900; font-size:0.78rem; color:#FCD34D; }
+    .sl-fam-hist { font-size:0.7rem; font-style:italic; color:rgba(200,180,140,0.7); padding:2px 6px 6px; }
+    .sl-grade { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+    .sl-cel { position:relative; background:none; border:0; padding:4px 2px; display:flex; flex-direction:column; align-items:center; gap:3px; cursor:pointer; -webkit-tap-highlight-color:transparent; font-family:inherit; }
+    .sl-cel:active { transform:scale(0.95); }
+    .sl-cel-nome { font-size:0.62rem; line-height:1.15; text-align:center; color:rgba(230,215,180,0.92); font-weight:700; }
+    .sl-cel.bloq .sl-cel-nome { color:rgba(200,180,140,0.45); }
+    .sl-novo { position:absolute; top:0; right:6px; z-index:2; background:#FF8C00; color:#fff; font-size:0.5rem; font-weight:900; padding:1px 5px; border-radius:8px; }
+    .sl-svg { display:block; overflow:visible; }
+    @keyframes slPulsa { 0%,100% { opacity:0.12; } 50% { opacity:0.8; } }
+    @keyframes slCintila { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+    @keyframes slGira { to { transform:rotate(360deg); } }
+    .sl-halo { animation:slPulsa 3s ease-in-out infinite; }
+    .sl-gemas { animation:slCintila 2.2s ease-in-out infinite; }
+    .sl-brilho { animation:slPulsa 3.6s ease-in-out infinite; }
+    .sl-reflexo, .sl-raios { transform-box:fill-box; transform-origin:center; }
+    .sl-reflexo { animation:slGira 7s linear infinite; }
+    .sl-raios { animation:slGira 26s linear infinite; }
+    .sl-pausa .sl-halo, .sl-pausa .sl-gemas, .sl-pausa .sl-brilho, .sl-pausa .sl-reflexo, .sl-pausa .sl-raios { animation-play-state:paused; }
+    @media (prefers-reduced-motion: reduce) { .sl-halo, .sl-gemas, .sl-brilho, .sl-reflexo, .sl-raios { animation:none; } }
+    #selo-card { position:fixed; inset:0; z-index:5000; display:none; align-items:center; justify-content:center; background:rgba(5,10,25,0.88); padding:18px; }
+    #selo-card.open { display:flex; }
+    .sc-caixa { position:relative; width:100%; max-width:340px; max-height:90vh; max-height:90dvh; overflow-y:auto; background:linear-gradient(160deg,#14284d,#0a1630); border:2px solid rgba(125,211,252,0.4); border-radius:18px; padding:20px 16px 16px; text-align:center; animation:scEntra 0.35s cubic-bezier(0.2,1.3,0.4,1); }
+    @keyframes scEntra { from { opacity:0; transform:scale(0.8) translateY(14px); } to { opacity:1; transform:none; } }
+    .sc-x { position:absolute; top:8px; right:10px; background:none; border:0; color:rgba(230,215,180,0.7); font-size:1.2rem; cursor:pointer; padding:4px 8px; }
+    .sc-medalha { display:flex; justify-content:center; margin:4px 0 8px; }
+    .sc-nome { font-family:'Cinzel',serif; font-weight:900; font-size:1.1rem; color:#FCD34D; }
+    .sc-rar { display:inline-block; margin:6px 0 4px; padding:2px 10px; border-radius:10px; font-size:0.66rem; font-weight:900; letter-spacing:0.06em; text-transform:uppercase; }
+    .sc-rar.comum { background:#4A6484; color:#E6EEF8; }
+    .sc-rar.raro { background:#0086B3; color:#fff; }
+    .sc-rar.epico { background:#B8860B; color:#fff; }
+    .sc-rar.lend { background:linear-gradient(90deg,#FF8C00,#FFD700); color:#3a2200; }
+    .sc-fam { font-size:0.68rem; color:rgba(200,180,140,0.65); }
+    .sc-txt { font-size:0.8rem; color:rgba(230,215,180,0.92); line-height:1.4; margin:10px 0 4px; }
+    .sc-hist { font-style:italic; }
+    .sc-dica { font-size:0.7rem; color:rgba(200,180,140,0.55); margin-top:8px; }
+    .sc-prog { height:8px; border-radius:6px; background:rgba(255,255,255,0.1); overflow:hidden; margin:8px 0 3px; }
+    .sc-prog i { display:block; height:100%; background:linear-gradient(90deg,#00D4FF,#FCD34D); }
+    .sc-prog-txt { font-size:0.7rem; color:rgba(200,180,140,0.85); }
+    .sc-data { font-size:0.7rem; color:rgba(125,211,252,0.85); margin-top:6px; }
     .bau-panel { display:none; }
     .bau-panel.active { display:block; }
 
@@ -2127,7 +2179,7 @@
 
       <div class="bau-tabs">
         <button class="bau-tab active" id="btab-missoes" onclick="bauTab('missoes')">⚔️ Missões</button>
-        <button class="bau-tab" id="btab-colecao" onclick="bauTab('colecao')">🛡️ Coleção</button>
+        <button class="bau-tab" id="btab-colecao" onclick="bauTab('colecao')">🛡️ Coleção<span class="col-dot" id="col-dot-tab"></span></button>
         <button class="bau-tab" id="btab-hist" onclick="bauTab('hist')">📋 Histórico</button>
       </div>
 
@@ -2140,9 +2192,14 @@
 
       <!-- PAINEL: COLEÇÃO (escudos e futuros artefatos) -->
       <div class="bau-panel" id="bpanel-colecao">
+        <div class="col-chave" id="col-chave" style="display:none">
+          <button class="col-chip active" id="cchip-escudos" onclick="colecaoVis('escudos')">🛡️ Escudos</button>
+          <button class="col-chip" id="cchip-selos" onclick="colecaoVis('selos')">🏅 Selos<span class="col-dot" id="col-dot-selos"></span></button>
+        </div>
         <div id="bau-colecao-lista">
           <div class="bau-empty">Abrindo a coleção...</div>
         </div>
+        <div id="bau-selos-lista" style="display:none"></div>
       </div>
 
       <!-- PAINEL: HISTÓRICO -->
@@ -2154,6 +2211,11 @@
 
       <button class="bau-close" onclick="fecharBau()">✕ Fechar</button>
     </div>
+  </div>
+
+  <!-- ═══════════ CARTÃO DO SELO ═══════════ -->
+  <div id="selo-card" onclick="if(event.target===this)fecharSelo()">
+    <div class="sc-caixa" id="selo-card-caixa"></div>
   </div>
 
   <!-- ═══════════ MODAL VOUCHERS ═══════════ -->
@@ -3331,6 +3393,21 @@
         '⏱ Fim do tempo de tela! A Ordem chama você de volta, {nome}! ⚔️'
       ],
 
+      /* ── Selos (Fase 6) ── */
+      selo_colecao: [
+        'Aqui moram os selos da Ordem, {nome}! Cada um conta uma façanha sua. Toque em um para ver a história.',
+        'Selos não se compram, {nome}: se conquistam! Os apagados ainda esperam por você.',
+        'Olha só a sua coleção! Os selos com cadeado mostram o caminho da próxima façanha.'
+      ],
+      selo_novo: [
+        '🏅 Um selo novo para a sua coleção: {selo}! Dá uma olhada na chave Selos do Baú.',
+        '🏅 A Ordem acaba de carimbar o selo {selo} para você, {nome}! Ele espera na Coleção.',
+        '🏅 {selo}! Até o dragão da bagunça parou para aplaudir. Corra ver o selo no Baú!'
+      ],
+      selo_varios: [
+        '🏅 A Ordem revirou os arquivos e achou {qtd} selos que você já tinha merecido, {nome}! Estão na Coleção do Baú.',
+        '🏅 Surpresa, {nome}! {qtd} selos estavam guardados esperando por você. Confira na chave Selos do Baú!'
+      ],
       /* ── Coleção do Baú e escudos ── */
       colecao_abrir: [
         'Aqui ficam os escudos que você conquistou, {nome}! Eles guardam a sua chama.',
@@ -4260,6 +4337,9 @@
           streakConfig.recompensa_duo_semanal = Number(cfg.recompensa_duo_semanal) || 0;   // 0 desliga a recompensa
         }
         bonusCfg = normalizarBonus(cfg);   // marcos, faixas e prêmios editados na aba Bônus do Painel
+        _selosCfg = cfg.selos || null;               // catálogo de selos (Fase 6)
+        _selosAtivo = cfg.selos_ativo === true;      // interruptor do Painel
+        _cfgMetaLeitura = Number(cfg.meta_leitura_semanal) || 140;
         if (cfg.custo_forja)            streakConfig.custo_forja             = Number(cfg.custo_forja);
         if (cfg.ganho_forja)            streakConfig.ganho_forja             = Number(cfg.ganho_forja);
         // Update forge UI text and logic with latest config
@@ -4320,6 +4400,9 @@
           if (gL.cheio || gD.cheio) agendarCelebracao(() => celebrarEscudo('cheio', gL.cheio ? 'Leitura' : 'Duolingo', gL.cheio + gD.cheio));
         }
         atualizarEscudosUI(allTrans, emailLower);
+
+        // ── Selos: calcula, grava as conquistas novas e atualiza os avisos ──
+        try { await verificarSelos(allTrans, emailLower); } catch (e) { console.error('selos:', e); }
 
         // ── Oráculo contextual ──
         const msgOra = [];
@@ -5636,6 +5719,299 @@
       mostrar('streak-leitura-escudo', 'Leitura');
       mostrar('duo-escudo', 'Duolingo');
     }
+
+    /* ══════════════════════════════════════════════════════
+       SELOS (Fase 6, passo 2). Catálogo em config/selos, conquistas em selos/{emailKey}/{id}.
+       As contas são as mesmas do Painel (seloMetricas): só transações Aprovadas, tudo acumulativo.
+       Conquista gravada uma única vez (transaction) e permanente. Só aparece com config/selos_ativo ligado.
+    ══════════════════════════════════════════════════════ */
+    const SELO_IMG_BASE = 'https://douglasfdias.github.io/minutinhos/selos/';
+    const SEL_RAR = ['comum', 'raro', 'epico', 'lend'];
+    const SEL_RAR_NOME = { comum: 'Comum', raro: 'Raro', epico: 'Épico', lend: 'Lendário' };
+    const SEL_UN = { xp: 'XP', dias_estudo: 'dias', sequencia: 'dias seguidos', semanas_meta: 'semanas', vitorias: 'vitórias', missoes: 'missões', forja: 'cristais', manual: '' };
+    let _selosCfg = null, _selosAtivo = false, _selosGanhos = {}, _selosMetricas = null;
+    let _selosNovos = 0, _selosRodando = false, _colecaoVis = 'escudos', _cfgMetaLeitura = 140;
+
+    const selEsc = x => String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const selFmt = n => Number(n || 0).toLocaleString('pt-BR');
+    const selOrd = o => Object.entries(o || {}).map(([id, v]) => Object.assign({ id }, v)).sort((a, b) => (Number(a.ordem) || 0) - (Number(b.ordem) || 0) || (a.id < b.id ? -1 : 1));
+    const selRarIdx = r => Math.max(0, SEL_RAR.indexOf(r));
+    const selOrdSelos = o => selOrd(o).sort((a, b) => selRarIdx(a.raridade) - selRarIdx(b.raridade) || (Number(a.ordem) || 0) - (Number(b.ordem) || 0));
+
+    function selEmbInfo(id) {
+      const c = (_selosCfg && _selosCfg.emblemas) || {}, e = c[id];
+      return { src: (e && e.imagem) || (SELO_IMG_BASE + 'emblema-' + id + '.webp'), busto: e ? !!e.busto : id === 'oraculo' };
+    }
+
+    /* "Como ganhar": campo vazio acompanha a regra (mesmo texto do Painel) */
+    function seloComoAutoC(r) {
+      r = r || {}; const n = selFmt(r.valor), t = r.tipo, m = r.mod;
+      if (t === 'xp') return m === 'total' ? 'Acumule ' + n + ' XP somando leitura e Duolingo' : 'Acumule ' + n + ' XP de ' + (m === 'duolingo' ? 'Duolingo' : 'leitura');
+      if (t === 'dias_estudo') return 'Estude em ' + n + ' dias diferentes';
+      if (t === 'sequencia') return (m === 'duolingo' ? 'Estude Duolingo por ' : 'Leia por ') + n + ' dias seguidos';
+      if (t === 'semanas_meta') return Number(r.valor) === 1 ? 'Cumpra a meta semanal 1 vez' : 'Cumpra a meta semanal em ' + n + ' semanas';
+      if (t === 'vitorias') return m === 'duelo' ? (Number(r.valor) === 1 ? 'Vença 1 Duelo da semana' : 'Vença ' + n + ' Duelos') : m === 'torneio' ? 'Vença ' + n + ' Torneios das Línguas' : 'Some ' + n + ' vitórias entre Duelo e Torneio';
+      if (t === 'missoes') return 'Conclua ' + n + ' missões';
+      if (t === 'forja') return 'Forje ' + n + ' cristais no total';
+      return 'Concedido pelo Mestre em momentos especiais';
+    }
+    const seloComoC = s => String((s && s.como) || '').trim() || seloComoAutoC(s && s.regra);
+
+    /* Medalha: moldura em SVG por raridade + emblema. Animação só com opacidade/giro, pausa fora da tela. */
+    let _slN = 0;
+    function seloSvgC(emb, rar, o) {
+      o = o || {};
+      const size = o.size || 74, bloq = !!o.bloq, info = selEmbInfo(emb), src = o.img || info.src, bust = !o.img && info.busto;
+      const ix = bust ? 12 : 21, iy = bust ? 13.4 : 21, iw = bust ? 76 : 58;
+      const cid = 'slc' + (++_slN);
+      const clip = bust ? '<clipPath id="' + cid + '"><circle cx="50" cy="50" r="36.5"/></clipPath>' : '';
+      const cl = bust ? ' clip-path="url(#' + cid + ')"' : '';
+      const gem = (cx, cy, k) => '<polygon points="' + cx + ',' + (cy - k) + ' ' + (cx + k * 0.75) + ',' + cy + ' ' + cx + ',' + (cy + k) + ' ' + (cx - k * 0.75) + ',' + cy + '" fill="#E9FCFF" stroke="#006C91" stroke-width=".7"/>';
+      const abre = '<svg class="sl-svg" viewBox="0 0 100 100" width="' + size + '" height="' + size + '">';
+      if (bloq) {
+        return abre + clip + '<circle cx="50" cy="50" r="46" fill="#0A1528" fill-opacity=".85" stroke="#5B6B82" stroke-width="1.6" stroke-dasharray="4.5 3.2"/>'
+          + '<circle cx="50" cy="50" r="37" fill="#0D1B35" fill-opacity=".9"/>'
+          + '<image href="' + selEsc(src) + '" x="' + ix + '" y="' + iy + '" width="' + iw + '" height="' + iw + '" style="filter:brightness(0) invert(1) opacity(.16)"' + cl + '/>'
+          + '<circle cx="79" cy="79" r="10" fill="#1E3A5F" stroke="#6B84A3" stroke-width="1.2"/><rect x="74.6" y="78" width="8.8" height="6.6" rx="1.4" fill="#9FB3CC"/>'
+          + '<path d="M76.6 78 v-2.2 a2.4 2.4 0 0 1 4.8 0 v2.2" fill="none" stroke="#9FB3CC" stroke-width="1.5"/></svg>';
+      }
+      const img = '<image href="' + selEsc(src) + '" x="' + ix + '" y="' + iy + '" width="' + iw + '" height="' + iw + '" style="filter:drop-shadow(0 1px 1.2px rgba(0,0,0,.55))"' + cl + '/>';
+      let corpo;
+      if (rar === 'raro') {
+        corpo = '<circle cx="50" cy="50" r="47" fill="url(#slRC2)"/><circle cx="50" cy="50" r="47" fill="none" stroke="#005A7A"/><circle cx="50" cy="50" r="39.5" fill="#06142B"/><circle cx="50" cy="50" r="37" fill="url(#slDR2)"/>'
+          + '<circle cx="50" cy="50" r="37" fill="none" stroke="#7BE8FF" stroke-opacity=".6" stroke-width=".8"/>'
+          + '<circle class="sl-halo" cx="50" cy="50" r="47" fill="none" stroke="#7BE8FF" stroke-width="2.4"/>'
+          + '<g class="sl-gemas">' + gem(50, 4.5, 4.2) + gem(95.5, 50, 4.2) + gem(50, 95.5, 4.2) + gem(4.5, 50, 4.2) + '</g>';
+      } else if (rar === 'epico') {
+        let studs = '';
+        for (let i = 0; i < 12; i++) { if (i % 3 === 0) continue; const a = (-90 + i * 30) * Math.PI / 180; studs += '<circle cx="' + (50 + 43.3 * Math.cos(a)).toFixed(1) + '" cy="' + (50 + 43.3 * Math.sin(a)).toFixed(1) + '" r="1.5" fill="#FFF3B0" stroke="#8A6508" stroke-width=".5"/>'; }
+        corpo = '<circle cx="50" cy="50" r="48" fill="url(#slRE2)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#7A5706"/><circle cx="50" cy="50" r="39.8" fill="#120F2B"/><circle cx="50" cy="50" r="37" fill="url(#slDE2)"/>'
+          + '<circle cx="50" cy="50" r="37" fill="none" stroke="#FF8C00" stroke-opacity=".75" stroke-width="1.1"/>' + studs
+          + '<circle class="sl-brilho" cx="50" cy="50" r="48" fill="none" stroke="#FF8C00" stroke-width="2.4"/>'
+          + '<circle class="sl-reflexo" cx="50" cy="50" r="44" fill="none" stroke="#FFF8CC" stroke-width="2" stroke-linecap="round" stroke-dasharray="14 262"/>'
+          + '<polygon points="50,-1 57,6 50,14 43,6" fill="#00D4FF" stroke="#B8860B" stroke-width="1.4"/><polygon points="50,2.6 53,6 50,9.6 47,6" fill="#E9FCFF"/>'
+          + '<polygon points="50,101 57,94 50,86 43,94" fill="#FF8C00" stroke="#B8860B" stroke-width="1.4"/>';
+      } else if (rar === 'lend') {
+        let raios = '';
+        for (let a = 0; a < 360; a += 20) { const r1 = (a - 4) * Math.PI / 180, r2 = (a + 4) * Math.PI / 180; raios += '<polygon points="50,50 ' + (50 + 49 * Math.cos(r1)).toFixed(1) + ',' + (50 + 49 * Math.sin(r1)).toFixed(1) + ' ' + (50 + 49 * Math.cos(r2)).toFixed(1) + ',' + (50 + 49 * Math.sin(r2)).toFixed(1) + '" fill="#FFD700" fill-opacity=".38"/>'; }
+        corpo = '<g class="sl-raios">' + raios + '</g><circle cx="50" cy="50" r="44" fill="url(#slRL2)"/><circle cx="50" cy="50" r="44" fill="none" stroke="#7A5706"/><circle cx="50" cy="50" r="37.8" fill="#00D4FF"/><circle cx="50" cy="50" r="36.4" fill="#0A1A3A"/><circle cx="50" cy="50" r="35" fill="url(#slDE2)"/>';
+      } else {
+        corpo = '<circle cx="50" cy="50" r="47" fill="url(#slRC1)"/><circle cx="50" cy="50" r="47" fill="none" stroke="#2B3E58"/><circle cx="50" cy="50" r="39.5" fill="#0A1528"/><circle cx="50" cy="50" r="37" fill="url(#slDC1)"/>'
+          + '<circle cx="50" cy="50" r="37" fill="none" stroke="#6B84A3" stroke-opacity=".55" stroke-width=".8"/>';
+      }
+      return abre + clip + corpo + img + '</svg>';
+    }
+    (function seloDefs() {
+      const d = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>'
+        + '<linearGradient id="slRC1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DCE6F2"/><stop offset=".45" stop-color="#8FA4BF"/><stop offset="1" stop-color="#4A6484"/></linearGradient>'
+        + '<radialGradient id="slDC1" cx=".5" cy=".38" r=".75"><stop offset="0" stop-color="#2A4D74"/><stop offset="1" stop-color="#0D1B35"/></radialGradient>'
+        + '<linearGradient id="slRC2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9F7FF"/><stop offset=".5" stop-color="#00D4FF"/><stop offset="1" stop-color="#0086B3"/></linearGradient>'
+        + '<radialGradient id="slDR2" cx=".5" cy=".38" r=".75"><stop offset="0" stop-color="#1A5A86"/><stop offset="1" stop-color="#081A33"/></radialGradient>'
+        + '<linearGradient id="slRE2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF3B0"/><stop offset=".45" stop-color="#FFD700"/><stop offset="1" stop-color="#B8860B"/></linearGradient>'
+        + '<radialGradient id="slDE2" cx=".5" cy=".38" r=".75"><stop offset="0" stop-color="#4A3A70"/><stop offset=".6" stop-color="#1C1A42"/><stop offset="1" stop-color="#0D1B35"/></radialGradient>'
+        + '<linearGradient id="slRL2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FF8C00"/><stop offset=".5" stop-color="#FFF3B0"/><stop offset="1" stop-color="#FFD700"/></linearGradient>'
+        + '</defs></svg>';
+      if (document.body) document.body.insertAdjacentHTML('afterbegin', d);
+      else document.addEventListener('DOMContentLoaded', () => document.body.insertAdjacentHTML('afterbegin', d));
+    })();
+
+    /* Pausa as animações dos selos que saem da tela */
+    let _selosObs = null;
+    function selosObservar(raiz) {
+      if (!raiz || typeof IntersectionObserver === 'undefined') return;
+      if (!_selosObs) _selosObs = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('sl-pausa', !e.isIntersecting)));
+      raiz.querySelectorAll('.sl-svg').forEach(el => _selosObs.observe(el));
+    }
+
+    /* ── Contas de cada regra (copia fiel do seloMetricas do Painel) ── */
+    function seloMetricasC(trans, email, pagos, inv) {
+      const mt = trans.filter(t => t.email === email && t.status === 'Aprovado');
+      const somaTipo = tp => mt.filter(t => t.tipo === tp).reduce((x, t) => x + (Number(t.quantidade) || 0), 0);
+      const xpL = somaTipo('Leitura'), xpD = somaTipo('Duolingo');
+      const min = { leitura: Number(streakConfig.min_leitura_diaria) || 15, duolingo: Number(streakConfig.min_duolingo_diario) || 7 };
+      const porDia = tp => { const m = {}; mt.filter(t => t.tipo === tp).forEach(t => { const d = dataEstudo(t), q = Number(t.quantidade) || 0; m[d] = tp === 'Leitura' ? Math.max(m[d] || 0, q) : (m[d] || 0) + q; }); return m; };
+      const diasOk = (tp, mod) => new Set(Object.entries(porDia(tp)).filter(([, q]) => q >= min[mod]).map(([d]) => d));
+      const dL = diasOk('Leitura', 'leitura'), dD = diasOk('Duolingo', 'duolingo');
+      const prot = item => new Set(Object.values((inv && inv.usos) || {}).filter(x => x && x.item === item).map(x => x.dia));
+      const maior = (set, p) => {
+        const dias = [...set].sort(); if (!dias.length) return 0;
+        let run = 0, best = 0, d = dias[0]; const fim = dias[dias.length - 1];
+        while (d <= fim) { if (set.has(d)) { run++; if (run > best) best = run; } else if (!(p.has(d) && run > 0)) run = 0; d = addDiasStr(d, 1); }
+        return best;
+      };
+      const semL = {}; mt.filter(t => t.tipo === 'Leitura').forEach(t => { const sg = segundaDeStr(dataEstudo(t)); semL[sg] = (semL[sg] || 0) + (Number(t.quantidade) || 0); });
+      const metaL = Number(_cfgMetaLeitura) || 140, metaDias = Number(streakConfig.meta_duo_semanal_dias) || 7;
+      const wL = new Set(Object.entries(semL).filter(([, m]) => m >= metaL).map(([sg]) => sg));
+      const cD = {}; dD.forEach(d => { const sg = segundaDeStr(d); cD[sg] = (cD[sg] || 0) + 1; });
+      const wD = new Set(Object.entries(cD).filter(([, n]) => n >= metaDias).map(([sg]) => sg));
+      const bp = pagos || {};
+      const duelo = Object.keys(bp).filter(k => k.indexOf('duelo_semana_') === 0).length;
+      const torneio = Object.keys(bp).filter(k => k.indexOf('torneio_semana_') === 0).length;
+      return {
+        xp: { leitura: xpL, duolingo: xpD, total: xpL + xpD },
+        dias_estudo: { leitura: dL.size, duolingo: dD.size, qualquer: new Set([...dL, ...dD]).size },
+        sequencia: { leitura: maior(dL, prot('protetor_leitura')), duolingo: maior(dD, prot('protetor_duolingo')) },
+        semanas_meta: { leitura: wL.size, duolingo: wD.size, qualquer: new Set([...wL, ...wD]).size },
+        vitorias: { duelo, torneio, total: duelo + torneio },
+        missoes: mt.filter(t => t.tipo === 'Missao' || t.tipo === 'Artefato').length,
+        forja: somaTipo('Forja')
+      };
+    }
+    function seloAtualC(regra, m) {
+      if (!regra || !m) return 0;
+      const v = m[regra.tipo];
+      return (v && typeof v === 'object') ? (v[regra.mod] || 0) : (v || 0);
+    }
+
+    /* ── Novidades (aviso até a criança abrir o selo; só vale para os dos últimos 7 dias) ── */
+    function selosVistos() {
+      try { return JSON.parse(localStorage.getItem('selos_vistos_' + sanitizeEmail(currentUserEmail)) || '[]'); } catch (e) { return []; }
+    }
+    function selosNovosLista() {
+      const v = selosVistos(), lim = Date.now() - 7 * 86400000;
+      return Object.keys(_selosGanhos).filter(id => {
+        if (v.includes(id) || !(_selosCfg && _selosCfg.selos && _selosCfg.selos[id])) return false;
+        const g = _selosGanhos[id] || {}, t = new Date(g.data || g.criado_em || 0).getTime();
+        return t > lim;
+      });
+    }
+    function selosAtualizarAvisos() {
+      _selosNovos = selosNovosLista().length;
+      ['col-dot-tab', 'col-dot-selos'].forEach(id => { const e = document.getElementById(id); if (e) e.classList.toggle('on', _selosNovos > 0); });
+      const b = document.getElementById('badge-footer-bau'); if (b && _selosNovos > 0) b.style.display = 'block';
+    }
+    function selosMarcarVisto(id) {
+      const v = selosVistos(); if (v.includes(id)) return;
+      v.push(id);
+      try { localStorage.setItem('selos_vistos_' + sanitizeEmail(currentUserEmail), JSON.stringify(v)); } catch (e) {}
+      selosAtualizarAvisos();
+    }
+
+    const selosDisponiveis = () => !!(_selosAtivo && _selosCfg && _selosCfg.selos && Object.keys(_selosCfg.selos).length);
+
+    /* ── Verifica conquistas e grava as novas (uma vez só, por transaction) ── */
+    async function verificarSelos(trans, email) {
+      if (_selosRodando) return;
+      _selosGanhos = {}; _selosMetricas = null;
+      if (!selosDisponiveis()) { selosAtualizarAvisos(); return; }
+      _selosRodando = true;
+      try {
+        const ekey = sanitizeEmail(email);
+        await garantirAuth();
+        const sn = await db.ref('selos/' + ekey).get();
+        _selosGanhos = sn.exists() ? sn.val() : {};
+        const pagos = await lerBonusPagos();       // null se falhar: só atrasa as vitórias, nunca concede a mais
+        const m = seloMetricasC(trans, email, pagos || {}, _inv);
+        _selosMetricas = m;
+        const novos = [];
+        for (const s of selOrdSelos(_selosCfg.selos)) {
+          const r = s.regra || {};
+          if (s.ativo === false || r.tipo === 'manual' || _selosGanhos[s.id]) continue;
+          const alvo = Number(r.valor);
+          if (!(alvo > 0) || seloAtualC(r, m) < alvo) continue;
+          try {
+            const reg = { data: new Date().toISOString(), origem: 'app' };
+            const res = await db.ref('selos/' + ekey + '/' + s.id).transaction(cur => cur === null ? reg : undefined);
+            if (res.committed === true) { _selosGanhos[s.id] = reg; novos.push(s); }
+          } catch (e) { console.error('selo não gravado (' + s.id + '):', e); }
+        }
+        selosAtualizarAvisos();
+        if (novos.length >= 3) {
+          agendarCelebracao(() => { try { soundLevelUp(); vibrate([40, 30, 60]); } catch (e) {} oraMsg(falar('selo_varios', { qtd: novos.length })); });
+        } else {
+          novos.forEach(s => agendarCelebracao(() => { try { soundCrystalChime(); vibrate([40, 30, 60]); } catch (e) {} oraMsg(falar('selo_novo', { selo: s.nome })); }));
+        }
+        if (document.getElementById('bpanel-colecao').classList.contains('active')) colecaoAtualizarChave();
+      } catch (e) {
+        console.error('verificarSelos falhou:', e);
+      } finally { _selosRodando = false; }
+    }
+
+    /* ── Coleção: chave Escudos | Selos ── */
+    function colecaoAtualizarChave() {
+      const ch = document.getElementById('col-chave'); if (!ch) return;
+      const tem = selosDisponiveis();
+      ch.style.display = tem ? 'flex' : 'none';
+      if (!tem) _colecaoVis = 'escudos';
+      colecaoVis(_colecaoVis, true);
+    }
+    function colecaoVis(v, silencioso) {
+      _colecaoVis = (v === 'selos' && selosDisponiveis()) ? 'selos' : 'escudos';
+      document.getElementById('bau-colecao-lista').style.display = _colecaoVis === 'escudos' ? '' : 'none';
+      document.getElementById('bau-selos-lista').style.display = _colecaoVis === 'selos' ? '' : 'none';
+      document.getElementById('cchip-escudos').classList.toggle('active', _colecaoVis === 'escudos');
+      document.getElementById('cchip-selos').classList.toggle('active', _colecaoVis === 'selos');
+      if (_colecaoVis === 'selos') { renderSelosColecao(); if (!silencioso) { try { soundButtonTap(); } catch (e) {} _oraEspelhar(falar('selo_colecao')); } }
+      else if (!silencioso) { try { soundButtonTap(); } catch (e) {} _oraEspelhar(falar('colecao_abrir')); }
+    }
+
+    function renderSelosColecao() {
+      const box = document.getElementById('bau-selos-lista'); if (!box) return;
+      if (!selosDisponiveis()) { box.innerHTML = '<div class="bau-empty">Os selos da Ordem ainda estão sendo forjados.<br>Volte em breve!</div>'; return; }
+      const cat = _selosCfg, ganhos = _selosGanhos, novos = new Set(selosNovosLista());
+      const visiveis = selOrdSelos(cat.selos).filter(s => s.ativo !== false || ganhos[s.id]);
+      const fams = selOrd(cat.familias).filter(f => f.ativo !== false);
+      let total = 0, tenho = 0;
+      const blocos = fams.map(f => {
+        const ss = visiveis.filter(s => s.familia === f.id); if (!ss.length) return '';
+        const g = ss.filter(s => ganhos[s.id]).length; total += ss.length; tenho += g;
+        const cels = ss.map(s => {
+          const ok = !!ganhos[s.id];
+          return '<button class="sl-cel' + (ok ? '' : ' bloq') + '" data-selo="' + selEsc(s.id) + '">'
+            + (novos.has(s.id) ? '<span class="sl-novo">NOVO</span>' : '')
+            + seloSvgC(s.emblema || f.emblema, s.raridade, { bloq: !ok, size: 74, img: s.imagem })
+            + '<span class="sl-cel-nome">' + selEsc(s.nome) + '</span></button>';
+        }).join('');
+        return '<div class="sl-fam"><div class="sl-fam-topo"><span class="sl-fam-nome">' + selEsc(f.nome) + '</span><span class="sl-fam-qtd">' + g + ' / ' + ss.length + '</span></div>'
+          + (f.historia ? '<div class="sl-fam-hist">' + selEsc(f.historia) + '</div>' : '') + '<div class="sl-grade">' + cels + '</div></div>';
+      }).join('');
+      box.innerHTML = '<div class="sl-resumo">🏅 ' + tenho + ' de ' + total + ' selos</div>' + blocos;
+      box.onclick = e => { const b = e.target.closest('[data-selo]'); if (b) abrirSelo(b.dataset.selo); };
+      selosObservar(box);
+    }
+
+    /* ── Cartão do selo: bloqueado mostra "como ganhar" e progresso; a história só aparece ao conquistar ── */
+    function abrirSelo(id) {
+      const s = _selosCfg && _selosCfg.selos && _selosCfg.selos[id]; if (!s) return;
+      const f = (_selosCfg.familias || {})[s.familia] || {}, g = _selosGanhos[id], ok = !!g, r = s.regra || {};
+      const rar = SEL_RAR.includes(s.raridade) ? s.raridade : 'comum';
+      let corpo;
+      if (ok) {
+        const dt = new Date(g.data || g.criado_em || Date.now());
+        corpo = '<div class="sc-txt sc-hist">' + selEsc(s.historia || '') + '</div><div class="sc-data">Conquistado em ' + dt.toLocaleDateString('pt-BR') + '</div>';
+      } else {
+        let prog = '';
+        if (r.tipo !== 'manual' && Number(r.valor) > 0) {
+          const at = seloAtualC(r, _selosMetricas), alvo = Number(r.valor), pct = Math.max(0, Math.min(100, at / alvo * 100));
+          prog = '<div class="sc-prog"><i style="width:' + pct.toFixed(1) + '%"></i></div><div class="sc-prog-txt">' + selFmt(Math.min(at, alvo)) + ' / ' + selFmt(alvo) + ' ' + selEsc(SEL_UN[r.tipo] || '') + '</div>';
+        }
+        corpo = '<div class="sc-txt"><b>Como ganhar:</b> ' + selEsc(seloComoC(s)) + '</div>' + prog + '<div class="sc-dica">A história deste selo aparece quando você o conquistar.</div>';
+      }
+      document.getElementById('selo-card-caixa').innerHTML =
+        '<button class="sc-x" onclick="fecharSelo()">✕</button>'
+        + '<div class="sc-medalha" id="sc-medalha">' + seloSvgC(s.emblema || f.emblema, rar, { bloq: !ok, size: 168, img: s.imagem }) + '</div>'
+        + '<div class="sc-nome">' + selEsc(s.nome) + '</div><span class="sc-rar ' + rar + '">' + SEL_RAR_NOME[rar] + '</span>'
+        + (f.nome ? '<div class="sc-fam">Família: ' + selEsc(f.nome) + '</div>' : '') + corpo;
+      document.getElementById('selo-card').classList.add('open');
+      selosObservar(document.getElementById('selo-card-caixa'));
+      try {
+        initAudio();
+        if (!ok) soundButtonTap();
+        else if (rar === 'comum') soundTone(660, 'sine', 0.15, 0.12, 0.005);
+        else if (rar === 'raro') soundCrystalChime();
+        else soundLevelUp();
+        vibrate(ok ? [30, 20, 50] : 20);
+        if (ok && (rar === 'epico' || rar === 'lend')) {
+          const el = document.getElementById('sc-medalha').getBoundingClientRect(), cx = el.left + el.width / 2, cy = el.top + el.height / 2;
+          setTimeout(() => { spawnColorSparks(cx, cy, rar === 'lend' ? 34 : 22, ['rgba(255,215,0,', 'rgba(255,140,0,', 'rgba(0,212,255,']); spawnShockwave(cx, cy, 'rgba(255,215,0,', rar === 'lend' ? 130 : 100); }, 250);
+        } else if (ok && rar === 'raro') {
+          const el = document.getElementById('sc-medalha').getBoundingClientRect();
+          setTimeout(() => spawnColorSparks(el.left + el.width / 2, el.top + el.height / 2, 14, ['rgba(0,212,255,', 'rgba(201,247,255,']), 250);
+        }
+      } catch (e) { console.error(e); }
+      if (ok) { selosMarcarVisto(id); if (_colecaoVis === 'selos') renderSelosColecao(); }
+    }
+    function fecharSelo() { const c = document.getElementById('selo-card'); if (c) c.classList.remove('open'); }
 
     // ── ABA COLEÇÃO DO BAÚ ──────────────────────────────────────
     const COLECAO_INFO = {
@@ -7022,7 +7398,7 @@
         document.getElementById('bpanel-' + t).classList.toggle('active', t === tab);
         document.getElementById('btab-' + t).classList.toggle('active', t === tab);
       });
-      if (tab === 'colecao') { renderColecao(); _oraEspelhar(falar('colecao_abrir')); }
+      if (tab === 'colecao') { renderColecao(); colecaoAtualizarChave(); if (_colecaoVis !== 'selos') _oraEspelhar(falar('colecao_abrir')); }
     }
 
     async function carregarBau() {
@@ -7060,7 +7436,7 @@
       const pendentes = Object.values(minhasMissoes).filter(m => m.status === 'Pendente').length;
       const badgeBau = document.getElementById('badge-footer-bau');
       if (badgeBau) {
-        badgeBau.style.display = pendentes > 0 ? 'block' : 'none';
+        badgeBau.style.display = (pendentes > 0 || _selosNovos > 0) ? 'block' : 'none';
       }
 
       // ── PAINEL: MISSÕES ──
