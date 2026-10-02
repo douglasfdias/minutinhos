@@ -6384,6 +6384,10 @@
       try { db.ref('usuarios/' + sanitizeEmail(currentUserEmail) + '/' + no + '/' + id).set(true).catch(e => console.error('cerMarcar:', e)); } catch (e) {}
     }
     const cerNaFila = ch => (Cer.atual && Cer.atual.chave === ch) || Cer.fila.some(i => i.chave === ch);
+    function cerEmpurrar(item) {                       // nunca entra a mesma cerimônia duas vezes, e a fila tem teto
+      if (!item || !item.chave || cerNaFila(item.chave) || Cer.fila.length >= 60) return false;
+      Cer.fila.push(item); return true;
+    }
 
     function cerMontarFila() {
       const novas = [];
@@ -6400,7 +6404,7 @@
         });
         selos.sort((a, b) => selRarIdx(a.selo.raridade) - selRarIdx(b.selo.raridade) || a.t - b.t);
       }
-      Cer.fila.push(...novas, ...selos);
+      novas.forEach(cerEmpurrar); selos.forEach(cerEmpurrar);
     }
     /* Teste: ?cer=comum|raro|epico|lend mostra a cerimônia de um selo daquela raridade (sem gravar nada); ?novidade=selos-1 mostra a novidade */
     function cerUrlTeste() {
@@ -6408,28 +6412,31 @@
         const q = new URLSearchParams(location.search), r = q.get('cer');
         if (r && SEL_RAR.includes(r) && selosDisponiveis()) {
           const s = selOrdSelos(_selosCfg.selos).find(x => x.raridade === r && x.ativo !== false);
-          if (s) Cer.fila.push({ chave: 'demo-selo', tipo: 'selo', selo: s, demo: true });
+          if (s) cerEmpurrar({ chave: 'demo-selo', tipo: 'selo', selo: s, demo: true });
         }
         const nv = NOVIDADES.find(x => x.id === q.get('novidade'));
-        if (nv) Cer.fila.push({ chave: 'demo-nov', tipo: 'novidade', novidade: nv, demo: true });
+        if (nv) cerEmpurrar({ chave: 'demo-nov', tipo: 'novidade', novidade: nv, demo: true });
       } catch (e) {}
     }
     /* Teste enviado pelo Painel (🧪 Testes): usuarios/{emailKey}/cer_teste. Toca uma cerimônia de mentira, sem gravar nada. */
-    let _cerTesteOuvindo = false;
+    let _cerTesteOuvindo = false, _cerTesteTs = 0;
     function cerOuvirTeste() {
       if (_cerTesteOuvindo) return; _cerTesteOuvindo = true;
       const ref = db.ref('usuarios/' + sanitizeEmail(currentUserEmail) + '/cer_teste');
       ref.on('value', sn => {
-        const v = sn.val(); if (!v) return;
-        try { ref.remove(); } catch (e) {}
-        if (!v.ts || Math.abs(Date.now() - Number(v.ts)) > 15 * 60 * 1000 || !selosDisponiveis()) return;
+        const v = sn.val(); if (!v || !v.ts) return;
+        const ts = Number(v.ts);
+        if (ts === _cerTesteTs) return;                // o mesmo pedido nunca toca duas vezes (se a remoção for negada, o Firebase "devolve" o valor e avisaria de novo)
+        _cerTesteTs = ts;
+        try { const r = ref.remove(); if (r && r.catch) r.catch(() => {}); } catch (e) {}
+        if (Math.abs(Date.now() - ts) > 15 * 60 * 1000 || !selosDisponiveis()) return;
         if (v.tipo === 'novidade') {
           const nv = NOVIDADES.find(x => x.id === (v.id || 'selos-1'));
-          if (nv) Cer.fila.push({ chave: 'teste-nov-' + Date.now(), tipo: 'novidade', novidade: nv, demo: true });
+          if (nv) cerEmpurrar({ chave: 'teste-nov', tipo: 'novidade', novidade: nv, demo: true });
         } else {
           const rar = SEL_RAR.includes(v.rar) ? v.rar : 'comum', todos = selOrdSelos(_selosCfg.selos).filter(x => x.ativo !== false);
           const s = todos.find(x => x.raridade === rar) || todos[0];
-          if (s) Cer.fila.push({ chave: 'teste-selo-' + Date.now(), tipo: 'selo', selo: s, demo: true });
+          if (s) cerEmpurrar({ chave: 'teste-selo', tipo: 'selo', selo: s, demo: true });
         }
         cerIniciar();
       }, e => console.error('cer_teste:', e));
@@ -6437,7 +6444,7 @@
     function cerReplay(id) {
       const nv = NOVIDADES.find(x => x.id === id); if (!nv || _cerAtiva) return;
       try { fecharBau(); } catch (e) {}
-      Cer.fila.push({ chave: 'replay:' + id, tipo: 'novidade', novidade: nv, demo: true });
+      if (!cerEmpurrar({ chave: 'replay:' + id, tipo: 'novidade', novidade: nv, demo: true })) return;
       cerProxima();
     }
     function cerIniciar() {
@@ -6512,7 +6519,15 @@
       else if (Cer.fase === 'revelado') cerColetar();
       else if (Cer.fase === 'novidade') cerAvancar();
     }
-    function cerPular() { if (Cer.fase === 'novidade') cerFimNovidade(); }
+    function cerPular() { if (Cer.fase === 'novidade') cerFimNovidade(); else if (Cer.fase === 'bau') cerPularTudo(); }
+    function cerPularTudo() {                          // marca tudo como visto e fecha (os selos continuam na Coleção)
+      [Cer.atual].concat(Cer.fila).forEach(i => {
+        if (!i || i.demo) return;
+        if (i.tipo === 'selo') { cerMarcar('cer_vistas', i.selo.id); selosMarcarVisto(i.selo.id); }
+        else if (i.tipo === 'novidade') cerMarcar('novidades_vistas', i.novidade.id);
+      });
+      Cer.fila = []; cerFechar();
+    }
 
     /* ── Selo: o baú treme e abre, o Oráculo reage em tela cheia, e o selo sai de dentro do baú ── */
     const CER_BAU_BORDA = 0.505;   // baú desenhado por código: onde fica a "boca" (borda da frente), em fração da altura
@@ -6544,6 +6559,7 @@
       else { bau.innerHTML = cerBauSvg(); bau.className = 'cer-bau treme'; }
       bau.style.display = '';
       cerEl('cer-btn').textContent = '🗝️ Abrir o baú';
+      const pl = cerEl('cer-pular'); pl.textContent = 'Pular as demais ⏭'; pl.style.display = Cer.fila.length > 5 ? '' : 'none';
       cerOraPose('bau', CER_TRAJE[rar]); cerDigitar(falar('cer_bau'));
       const pal = cerEl('cer-palco'); pal.classList.remove('treme'); void pal.offsetWidth; pal.classList.add('treme');
       try { Sfx.tremor(); vibrate([80, 40, 80, 40, 120]); } catch (e) {}
@@ -6553,7 +6569,7 @@
       Cer.fase = 'abrindo';
       try { initAudio(); Sfx.abrirBau(); vibrate([40, 30, 70]); } catch (e) {}
       const bau = cerEl('cer-bau'); bau.classList.remove('treme'); bau.classList.add('abrindo');
-      cerEl('cer').classList.add('aberto'); cerEl('cer-btn').style.display = 'none';
+      cerEl('cer').classList.add('aberto'); cerEl('cer-btn').style.display = 'none'; cerEl('cer-pular').style.display = 'none';
       clearInterval(_cerDig); _cerDig = null; cerEl('cer-balao').textContent = '';
       setTimeout(cerReacao, 800);
     }
@@ -6703,7 +6719,7 @@
       const vis = cerEl('cer-visual'); vis.innerHTML = cerVisualNovidade(sl.visual); vis.style.display = 'flex';
       cerEl('cer-info').innerHTML = '';
       cerOraPose('explica', ''); cerDigitar(sl.fala.replace(/\{nome\}/g, cerNome()));
-      cerEl('cer-btn').textContent = ult ? '✔ Entendi!' : 'Próximo ▶'; cerEl('cer-pular').style.display = ult ? 'none' : '';
+      cerEl('cer-btn').textContent = ult ? '✔ Entendi!' : 'Próximo ▶'; const pl = cerEl('cer-pular'); pl.textContent = 'Pular'; pl.style.display = ult ? 'none' : '';
       try { initAudio(); Sfx.pagina(); vibrate(15); } catch (e) {}
     }
     function cerAvancar() {
