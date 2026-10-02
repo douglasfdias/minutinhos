@@ -519,6 +519,10 @@
     .cer-glow { position:absolute; left:50%; top:50%; width:min(120vw,520px); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle, var(--cer-cor) 0%, transparent 62%); opacity:0.3; transform:translate(-50%,-50%); animation:cerPulsa 2.4s ease-in-out infinite; pointer-events:none; }
     @keyframes cerPulsa { 0%,100% { opacity:0.2; transform:translate(-50%,-50%) scale(0.9); } 50% { opacity:0.55; transform:translate(-50%,-50%) scale(1.08); } }
     .cer-bau { position:absolute; width:min(60vw,236px); cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity 0.6s, transform 0.6s; }
+    .cer-bau.img { width:min(68vw,280px); }
+    .cer-bau-img { display:block; width:100%; height:auto; filter:drop-shadow(0 0 14px var(--cer-cor)); }
+    .cer-bau.img.abrindo .cer-bau-img { animation:cerBauEstoura 0.75s ease-in forwards; }
+    @keyframes cerBauEstoura { 0% { transform:scale(1); filter:drop-shadow(0 0 14px var(--cer-cor)) brightness(1); } 60% { transform:scale(1.07); filter:drop-shadow(0 0 40px var(--cer-cor)) brightness(1.6); } 100% { transform:scale(1.1); filter:drop-shadow(0 0 60px var(--cer-cor)) brightness(2.2); } }
     .cer-bau svg { display:block; width:100%; height:auto; overflow:visible; filter:drop-shadow(0 0 18px var(--cer-cor)); }
     .cer-bau.treme { animation:cerTremor 2.6s ease-in-out infinite; }
     @keyframes cerTremor { 0%,45%,100% { transform:translate(0,0) rotate(0); } 5% { transform:translate(-5px,1px) rotate(-3deg); } 10% { transform:translate(5px,-1px) rotate(3deg); } 15% { transform:translate(-4px,2px) rotate(-2deg); } 20% { transform:translate(4px,-2px) rotate(2deg); } 25% { transform:translate(-3px,1px) rotate(-1deg); } 30% { transform:translate(3px,0) rotate(1deg); } 35% { transform:translate(-1px,0) rotate(0); } }
@@ -6334,7 +6338,7 @@
     };
     const CER_CONFETE = ['rgba(255,80,160,', 'rgba(80,200,255,', 'rgba(255,215,0,', 'rgba(120,255,120,'];
     const CER_POSE_FINAL = { comum: 'revela', raro: 'revela', epico: 'comemora', lend: 'comemora' };  // enquanto o Oráculo conta a história
-    const Cer = { fila: [], atual: null, fase: '', rar: 'comum', idx: 0, vistas: {}, novVistas: {}, base: null, espera: null };
+    const Cer = { fila: [], atual: null, fase: '', rar: 'comum', idx: 0, vistas: {}, novVistas: {}, base: null, espera: null, arte: {}, modoImg: false };
     let _cerDig = null;
 
     const NOVIDADES = [
@@ -6493,7 +6497,10 @@
       Cer.atual = item; _cerAtiva = true;
       const ov = cerEl('cer'); ov.classList.add('open'); ov.classList.remove('aberto', 'fechando');
       cerReset();
-      if (item.tipo === 'selo') cerPrepararSelo(item); else cerNovidadeSlide(0);
+      if (item.tipo === 'selo') {
+        const rar = SEL_RAR.includes(item.selo.raridade) ? item.selo.raridade : 'comum';
+        Promise.race([cerPrecarregarBau(rar), new Promise(r => setTimeout(r, 1800))]).then(() => { if (Cer.atual === item) cerPrepararSelo(item); });
+      } else cerNovidadeSlide(0);
     }
     function cerFechar() {
       cerEl('cer').classList.remove('open', 'aberto'); cerReset();
@@ -6508,14 +6515,34 @@
     function cerPular() { if (Cer.fase === 'novidade') cerFimNovidade(); }
 
     /* ── Selo: o baú treme e abre, o Oráculo reage em tela cheia, e o selo sai de dentro do baú ── */
-    const CER_BAU_BORDA = 0.505;   // onde fica a "boca" do baú (borda da frente), em fração da altura do desenho
+    const CER_BAU_BORDA = 0.505;   // baú desenhado por código: onde fica a "boca" (borda da frente), em fração da altura
+    /* Baú em arte (pasta bau/ do repositório): fechado[--raridade].webp e aberto[--raridade].webp (comum não leva sufixo).
+       A "boca" do baú aberto é a linha de onde o selo sai: dois pontos [x, y], em fração da imagem. O selo só aparece acima dela. */
+    const BAU_BASE = 'https://douglasfdias.github.io/minutinhos/bau/';
+    const CER_BAU_RIM = {
+      comum: [[0.1028, 0.6764], [0.9098, 0.6764]],
+      raro:  [[0.2690, 0.6044], [0.8346, 0.5601]],
+      epico: [[0.2888, 0.5894], [0.8149, 0.5538]],
+      lend:  [[0.2097, 0.5459], [0.6725, 0.5854]]
+    };
+    const bauArq = (estado, rar) => BAU_BASE + estado + (rar === 'comum' ? '' : '--' + rar) + '.webp';
+    function cerPrecarregarBau(rar) {            // se alguma das duas imagens faltar, a cerimônia usa o baú desenhado por código
+      if (Cer.arte[rar]) return Cer.arte[rar].p;
+      const carrega = url => new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = url; });
+      const o = { ok: false };
+      o.p = Promise.all([carrega(bauArq('fechado', rar)), carrega(bauArq('aberto', rar))]).then(([f, a]) => { o.ok = !!(f && a); return o; });
+      Cer.arte[rar] = o; return o.p;
+    }
     function cerPrepararSelo(item) {
       const s = item.selo, rar = SEL_RAR.includes(s.raridade) ? s.raridade : 'comum';
       Cer.fase = 'bau'; Cer.rar = rar;
       const ov = cerEl('cer'); ov.style.setProperty('--cer-cor', CER_COR[rar]);
       cerEl('cer-titulo').textContent = 'Um tesouro chegou!';
       cerEl('cer-sub').textContent = Cer.fila.length ? 'E ainda tem mais ' + Cer.fila.length + ' esperando' : 'Toque no baú para abrir';
-      const bau = cerEl('cer-bau'); bau.innerHTML = cerBauSvg(); bau.className = 'cer-bau treme'; bau.style.display = '';
+      const bau = cerEl('cer-bau'); Cer.modoImg = !!(Cer.arte[rar] && Cer.arte[rar].ok);
+      if (Cer.modoImg) { bau.innerHTML = '<img class="cer-bau-img" alt="" src="' + bauArq('fechado', rar) + '">'; bau.className = 'cer-bau img treme'; }
+      else { bau.innerHTML = cerBauSvg(); bau.className = 'cer-bau treme'; }
+      bau.style.display = '';
       cerEl('cer-btn').textContent = '🗝️ Abrir o baú';
       cerOraPose('bau', CER_TRAJE[rar]); cerDigitar(falar('cer_bau'));
       const pal = cerEl('cer-palco'); pal.classList.remove('treme'); void pal.offsetWidth; pal.classList.add('treme');
@@ -6537,6 +6564,7 @@
       Cer.fase = 'reacao'; Cer.reaSkip = false; Cer.reaInicio = Date.now();
       const fl = cerEl('cer-flash'); fl.classList.remove('vai'); void fl.offsetWidth; fl.classList.add('vai');
       const ov = cerEl('cer-reacao'); ov.className = 'cer-reacao on';
+      if (Cer.modoImg) { const bau = cerEl('cer-bau'); bau.innerHTML = '<img class="cer-bau-img" alt="" src="' + bauArq('aberto', Cer.rar) + '">'; bau.className = 'cer-bau img aberto'; }   // troca escondida pela cena
       const pal = cerEl('cer-palco'); pal.classList.remove('treme'); void pal.offsetWidth; pal.classList.add('treme');
       cerReacaoPasso(0);
     }
@@ -6578,21 +6606,35 @@
 
     /* O selo sai de dentro do baú: fica recortado na boca do baú (só aparece acima dela) enquanto sobe */
     function cerGeo() {
-      const m = cerEl('cer-meio').getBoundingClientRect(), b = cerEl('cer-bau').getBoundingClientRect();
-      return { mh: m.height, rimY: (b.top - m.top) + b.height * CER_BAU_BORDA, cx: (b.left - m.left) + b.width / 2, bh: b.height };
+      const m = cerEl('cer-meio').getBoundingClientRect(), b = cerEl('cer-bau').getBoundingClientRect(), mw = m.width;
+      const ox = b.left - m.left, oy = b.top - m.top;
+      let poly, rimY;
+      if (Cer.modoImg) {
+        const r = CER_BAU_RIM[Cer.rar] || CER_BAU_RIM.comum, X1 = ox + r[0][0] * b.width, Y1 = oy + r[0][1] * b.height, X2 = ox + r[1][0] * b.width, Y2 = oy + r[1][1] * b.height;
+        const k = (Y2 - Y1) / (X2 - X1), yA = Y1 + k * (0 - X1), yB = Y1 + k * (mw - X1);
+        poly = 'polygon(0px 0px, ' + mw + 'px 0px, ' + mw + 'px ' + yB + 'px, 0px ' + yA + 'px)';
+        rimY = Y1 + k * (ox + b.width / 2 - X1);
+      } else {
+        rimY = oy + b.height * CER_BAU_BORDA;
+        poly = 'polygon(0px 0px, ' + mw + 'px 0px, ' + mw + 'px ' + rimY + 'px, 0px ' + rimY + 'px)';
+      }
+      const ext = m.height * 1.3, pts = poly.match(/-?[\d.]+px/g).map(parseFloat);
+      const polyAberto = 'polygon(0px 0px, ' + mw + 'px 0px, ' + mw + 'px ' + (pts[5] + ext) + 'px, 0px ' + (pts[7] + ext) + 'px)';
+      return { mh: m.height, mw, rimY, cx: ox + b.width / 2, bh: b.height, poly, polyAberto };
     }
     function cerEmergir() {
       if (Cer.fase !== 'emergindo') return;
       const s = Cer.atual.selo, f = (_selosCfg.familias || {})[s.familia] || {}, rar = Cer.rar, tam = cerTam(), g = cerGeo();
       const fl = cerEl('cer-flash'); fl.classList.remove('vai'); void fl.offsetWidth; fl.classList.add('vai');
       const sai = cerEl('cer-saida'), sel = cerEl('cer-selo');
-      sai.style.clipPath = 'inset(0 0 ' + Math.max(0, g.mh - g.rimY) + 'px 0)';
+      sai.style.clipPath = g.poly;
+      sai.animate([{ clipPath: g.poly, offset: 0 }, { clipPath: g.poly, offset: 0.5 }, { clipPath: g.polyAberto, offset: 1 }], { duration: 1500, easing: 'linear', fill: 'forwards' });   // depois que o selo passa da boca, o recorte se abre aos poucos
       sel.innerHTML = seloSvgC(s.emblema || f.emblema, rar, { size: tam, img: s.imagem }); sel.style.opacity = '1';
       const yf = -Math.min(g.bh * 0.42, g.mh * 0.14);                              // onde o selo para: um pouco acima do centro
-      const y0 = g.rimY + tam / 2 - g.mh / 2;                                      // começa todo dentro do baú, escondido
+      const s0 = Cer.modoImg ? 0.4 : 0.6, y0 = g.rimY + tam * s0 / 2 - g.mh / 2 + 8;   // começa todo dentro do baú, escondido, e cresce ao subir
       Cer.yf = yf;
       sel.animate([
-        { transform: 'translateY(' + y0 + 'px) scale(0.6)', offset: 0 },
+        { transform: 'translateY(' + y0 + 'px) scale(' + s0 + ')', offset: 0 },
         { transform: 'translateY(' + (yf - 16) + 'px) scale(1.12)', offset: 0.72 },
         { transform: 'translateY(' + yf + 'px) scale(1)', offset: 1 }
       ], { duration: 1400, easing: 'cubic-bezier(0.2,0.8,0.3,1)', fill: 'forwards' });
@@ -6608,7 +6650,7 @@
         else { spawnColorSparks(cx, cy, 60, cores); spawnShockwave(cx, cy, cores[0], 150); setTimeout(() => { spawnShockwave(cx, cy, cores[3], 210); spawnColorSparks(cx, cy, 40, cores); }, 350); vibrate([80, 40, 120, 40, 80, 40, 160]); }
       } catch (e) { console.error(e); }
       setTimeout(() => cerEl('cer-bau').classList.add('sumindo'), 1000);
-      setTimeout(() => { sai.style.clipPath = 'none'; sai.classList.add('flutua'); }, 1450);
+      setTimeout(() => { sai.getAnimations().forEach(an => an.cancel()); sai.style.clipPath = 'none'; sai.classList.add('flutua'); }, 1550);
       cerEl('cer-titulo').textContent = 'Selo conquistado!'; cerEl('cer-sub').textContent = '';
       const inf = cerEl('cer-info');
       inf.innerHTML = '<div class="cer-nome">' + selEsc(s.nome) + '</div><span class="sc-rar ' + rar + '">' + SEL_RAR_NOME[rar] + '</span>' + (f.nome ? '<div class="sc-fam">Família: ' + selEsc(f.nome) + '</div>' : '');
