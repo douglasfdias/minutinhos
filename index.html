@@ -526,12 +526,23 @@
     .cer-bau.abrindo .cer-tampa { transform:translateY(-34px) rotate(-9deg) scaleY(0.72); }
     .cer-feixe { opacity:0; transition:opacity 0.4s; }
     .cer-bau.abrindo .cer-feixe { opacity:1; }
-    .cer-bau.sumindo { opacity:0; transform:translateY(60px) scale(0.7); pointer-events:none; }
+    .cer-bau.sumindo { opacity:0; transform:translateY(60px) scale(0.7); pointer-events:none; transition:opacity 0.7s, transform 0.7s; }
+    .cer-saida { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+    .cer-saida.flutua { animation:cerFlutua 3.2s ease-in-out infinite; }
     .cer-selo { position:absolute; display:flex; align-items:center; justify-content:center; opacity:0; }
-    .cer-selo.sobe { animation:cerSobe 0.95s cubic-bezier(0.2,1.2,0.4,1) forwards; }
-    .cer-selo.flutua { opacity:1; animation:cerFlutua 3.2s ease-in-out infinite; }
-    @keyframes cerSobe { 0% { opacity:0; transform:translateY(80px) scale(0.15) rotate(-25deg); } 55% { opacity:1; transform:translateY(-16px) scale(1.14) rotate(4deg); } 100% { opacity:1; transform:none; } }
     @keyframes cerFlutua { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-9px); } }
+    .cer-flare { position:absolute; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle, #fff 0%, var(--cer-cor) 28%, transparent 68%); opacity:0; animation:cerFlare 1.3s ease-out forwards; pointer-events:none; }
+    @keyframes cerFlare { 0% { opacity:0; transform:scale(0.3); } 25% { opacity:0.95; transform:scale(1.05); } 100% { opacity:0; transform:scale(1.7); } }
+    .cer-reacao { position:absolute; inset:0; z-index:5; display:none; flex-direction:column; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 44%, rgba(70,48,140,0.55), rgba(6,3,18,0.97) 72%); transition:background 0.4s; cursor:pointer; }
+    .cer-reacao.on { display:flex; animation:cerFade 0.25s ease-out; }
+    .cer-reacao.saindo { background:rgba(6,3,18,0); }
+    .cer-rea-raios { position:absolute; left:50%; top:44%; width:200vmax; height:200vmax; margin:-100vmax 0 0 -100vmax; background:repeating-conic-gradient(from 0deg, var(--cer-cor) 0 5deg, transparent 5deg 15deg); opacity:0.2; -webkit-mask-image:radial-gradient(circle, #000 0, transparent 42%); mask-image:radial-gradient(circle, #000 0, transparent 42%); animation:slGira 14s linear infinite; pointer-events:none; }
+    .cer-reacao.saindo .cer-rea-raios { opacity:0; transition:opacity 0.3s; }
+    .cer-rea-img { position:relative; height:min(50vh,400px); width:auto; max-width:92vw; object-fit:contain; filter:drop-shadow(0 8px 24px rgba(0,0,0,0.6)) drop-shadow(0 0 30px var(--cer-cor)); }
+    .cer-rea-img.pop { animation:cerPopOra 0.55s cubic-bezier(0.2,1.5,0.4,1); }
+    @keyframes cerPopOra { 0% { transform:scale(0.2) rotate(-8deg); opacity:0; } 60% { transform:scale(1.14) rotate(3deg); opacity:1; } 100% { transform:scale(1) rotate(0); opacity:1; } }
+    .cer-rea-txt { position:relative; margin-top:8px; font-family:'Cinzel',serif; font-weight:900; font-size:clamp(1.4rem,7vw,2.1rem); color:#FFF3B0; text-align:center; padding:0 12px; text-shadow:0 0 18px var(--cer-cor), 0 3px 10px rgba(0,0,0,0.7); transition:opacity 0.25s; }
+    .cer-rea-txt.pop { animation:cerPopOra 0.5s cubic-bezier(0.2,1.5,0.4,1); }
     .cer-visual { position:absolute; display:none; flex-direction:column; align-items:center; gap:10px; width:100%; }
     .cer-fila { display:flex; justify-content:center; gap:4px; }
     .cer-rot { text-align:center; font-size:0.62rem; color:rgba(230,215,180,0.85); font-weight:700; margin-top:-2px; }
@@ -550,7 +561,7 @@
     .cer-pular { background:none; border:0; color:rgba(200,215,240,0.6); font-size:0.78rem; padding:6px 14px; cursor:pointer; }
     .sl-ajuda-linha { text-align:center; margin:-4px 0 10px; }
     .sl-ajuda { background:rgba(125,211,252,0.1); border:1.5px solid rgba(125,211,252,0.35); color:#7DD3FC; border-radius:14px; padding:5px 12px; font-size:0.72rem; font-weight:700; cursor:pointer; }
-    @media (prefers-reduced-motion: reduce) { .cer-bau.treme, .cer-palco.treme, .cer-raios, .cer-glow, .cer-selo.flutua, .cer-btn { animation:none !important; } }
+    @media (prefers-reduced-motion: reduce) { .cer-bau.treme, .cer-palco.treme, .cer-raios, .cer-glow, .cer-saida.flutua, .cer-rea-raios, .cer-btn { animation:none !important; } }
     .bau-panel { display:none; }
     .bau-panel.active { display:block; }
 
@@ -2276,12 +2287,17 @@
   <div id="cer">
     <div class="cer-raios"></div>
     <div class="cer-flash" id="cer-flash"></div>
+    <div class="cer-reacao" id="cer-reacao" onclick="cerPularReacao()">
+      <div class="cer-rea-raios"></div>
+      <img class="cer-rea-img" id="cer-rea-img" alt="">
+      <div class="cer-rea-txt" id="cer-rea-txt"></div>
+    </div>
     <div class="cer-palco" id="cer-palco">
       <div class="cer-topo"><div class="cer-titulo" id="cer-titulo"></div><div class="cer-sub" id="cer-sub"></div></div>
       <div class="cer-meio" id="cer-meio">
         <div class="cer-glow"></div>
         <div class="cer-bau" id="cer-bau" onclick="cerBotao()"></div>
-        <div class="cer-selo" id="cer-selo"></div>
+        <div class="cer-saida" id="cer-saida"><div class="cer-selo" id="cer-selo"></div></div>
         <div class="cer-visual" id="cer-visual"></div>
       </div>
       <div class="cer-info" id="cer-info"></div>
@@ -6113,6 +6129,190 @@
     function fecharSelo() { const c = document.getElementById('selo-card'); if (c) c.classList.remove('open'); }
 
     /* ══════════════════════════════════════════════════════
+       SFX: sons das cerimônias (Fase 6). Ainda 100% sintetizados no navegador (sem arquivos),
+       mas com timbres mais ricos que os tons puros do resto do app: sinos com parciais
+       inharmônicos, cordas dedilhadas com filtro, metais com swell, coro com formantes,
+       tímpano, prato, palmas e rangido de madeira, tudo com reverb longo e quente.
+       Funciona com o AudioContext do app ou com um OfflineAudioContext (para pré-ouvir/renderizar).
+    ══════════════════════════════════════════════════════ */
+    const Sfx = (() => {
+      let ac = null, bus = null, revSend = null, noiseBuf = null;
+      const R = (a, b) => a + Math.random() * (b - a);
+
+      function impulso(dur) {
+        const sr = ac.sampleRate, len = Math.floor(sr * dur), buf = ac.createBuffer(2, len, sr), pre = Math.floor(sr * 0.018);
+        for (let c = 0; c < 2; c++) {
+          const d = buf.getChannelData(c); let lp = 0;
+          for (let i = pre; i < len; i++) {
+            const x = (i - pre) / (len - pre), k = 0.3 + 0.62 * x;           // o fim da cauda fica mais escuro (ar absorve agudos)
+            lp += ((Math.random() * 2 - 1) - lp) * (1 - k);
+            d[i] = lp * Math.pow(1 - x, 2.4) * 2.2;
+          }
+        }
+        return buf;
+      }
+      function usar(ctx, destino) {
+        if (ac === ctx) return true;
+        ac = ctx; noiseBuf = null;
+        bus = ac.createGain(); bus.gain.value = 0.9;
+        const comp = ac.createDynamicsCompressor();
+        comp.threshold.value = -16; comp.knee.value = 14; comp.ratio.value = 3.5; comp.attack.value = 0.004; comp.release.value = 0.22;
+        bus.connect(comp); comp.connect(destino || ac.destination);
+        const conv = ac.createConvolver(); conv.buffer = impulso(2.6);
+        revSend = ac.createGain(); const revOut = ac.createGain(); revOut.gain.value = 0.55;
+        revSend.connect(conv); conv.connect(revOut); revOut.connect(bus);
+        return true;
+      }
+      const offline = () => typeof OfflineAudioContext !== 'undefined' && ac instanceof OfflineAudioContext;
+      /* exigeRodando: sons que tocam sozinhos (sem toque do usuário) só soam se o áudio já estiver liberado, para não sair atrasado depois */
+      const ok = (exigeRodando) => {
+        if (!ac && !(typeof audioCtx !== 'undefined' && audioCtx && usar(audioCtx, masterGain))) return null;
+        if (!offline() && ac.state === 'suspended') { try { ac.resume(); } catch (e) {} if (exigeRodando) return null; }
+        return ac;
+      };
+      const T0 = () => ac.currentTime + 0.03;
+
+      function ruidoBuf() { if (!noiseBuf) { noiseBuf = ac.createBuffer(1, ac.sampleRate * 3, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; } return noiseBuf; }
+      function ruido(t, dur) { const s = ac.createBufferSource(); s.buffer = ruidoBuf(); s.loop = true; s.start(t, R(0, 1.5)); s.stop(t + dur + 0.05); return s; }
+      function send(node, seco, umido) {
+        const d = ac.createGain(); d.gain.value = seco; node.connect(d); d.connect(bus);
+        if (umido > 0) { const w = ac.createGain(); w.gain.value = umido; node.connect(w); w.connect(revSend); }
+      }
+      function filtro(tipo, f, q) { const b = ac.createBiquadFilter(); b.type = tipo; b.frequency.value = f; if (q != null) b.Q.value = q; return b; }
+      function swell(g, t, vol, a, dur, rel) {                                    // sobe, sustenta e solta
+        const p = g.gain, v = Math.max(vol, 0.0003);
+        p.setValueAtTime(0.0001, t); p.exponentialRampToValueAtTime(v, t + a);
+        p.setValueAtTime(v, t + Math.max(a, dur - rel)); p.exponentialRampToValueAtTime(0.0001, t + dur);
+      }
+
+      /* ── instrumentos ── */
+      function sino(t, f, vol, dec, rv) {
+        const g = ac.createGain();
+        [[1, 1, 1], [2, 0.45, 0.7], [2.76, 0.38, 0.5], [5.4, 0.2, 0.3], [8.93, 0.1, 0.18]].forEach(([r, a, d], i) => {
+          const o = ac.createOscillator(), pg = ac.createGain();
+          o.frequency.value = f * r * (i ? 1 + R(-0.002, 0.002) : 1);
+          pg.gain.setValueAtTime(0.0001, t); pg.gain.linearRampToValueAtTime(vol * a, t + 0.003); pg.gain.exponentialRampToValueAtTime(0.0001, t + dec * d + 0.02);
+          o.connect(pg); pg.connect(g); o.start(t); o.stop(t + dec * d + 0.06);
+        });
+        const n = ruido(t, 0.03), nf = filtro('highpass', 5000), ng = ac.createGain();       // "tim" do martelinho
+        ng.gain.setValueAtTime(vol * 0.22, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
+        n.connect(nf); nf.connect(ng); ng.connect(g);
+        send(g, 0.8, rv == null ? 0.7 : rv);
+      }
+      function pluck(t, f, vol, dec, rv) {
+        const lp = filtro('lowpass', 1000, 1.1), g = ac.createGain();
+        lp.frequency.setValueAtTime(Math.min(f * 9, 9000), t); lp.frequency.exponentialRampToValueAtTime(Math.max(f * 1.4, 300), t + dec * 0.7);
+        [-7, 7].forEach(c => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = c; o.connect(lp); o.start(t); o.stop(t + dec + 0.05); });
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol * 0.5, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+        lp.connect(g); send(g, 0.8, rv == null ? 0.5 : rv);
+      }
+      function metal(t, f, vol, dur, rv) {
+        const lp = filtro('lowpass', f * 1.2, 0.8), g = ac.createGain();
+        lp.frequency.setValueAtTime(f * 1.2, t); lp.frequency.exponentialRampToValueAtTime(Math.min(f * 7, 7000), t + 0.09); lp.frequency.exponentialRampToValueAtTime(f * 3.2, t + dur);
+        [-9, 0, 9].forEach(c => {
+          const o = ac.createOscillator(), lfo = ac.createOscillator(), lg = ac.createGain();
+          o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = c;
+          lfo.frequency.value = 5.2; lg.gain.value = f * 0.004; lfo.connect(lg); lg.connect(o.frequency); lfo.start(t + 0.25); lfo.stop(t + dur + 0.1);
+          o.connect(lp); o.start(t); o.stop(t + dur + 0.1);
+        });
+        lp.connect(g); swell(g, t, vol * 0.4, 0.05, dur, 0.18); send(g, 0.8, rv == null ? 0.35 : rv);
+      }
+      function coro(t, freqs, vol, dur) {
+        const g = ac.createGain(), mix = ac.createGain(), f1 = filtro('bandpass', 780, 3.5), f2 = filtro('bandpass', 1250, 4);
+        mix.gain.value = 0.9;
+        freqs.forEach(f => [-11, 0, 11].forEach(c => { const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; o.detune.value = c; o.connect(mix); o.start(t); o.stop(t + dur + 0.3); }));
+        mix.connect(f1); mix.connect(f2); f1.connect(g); f2.connect(g);
+        swell(g, t, vol * 0.5, 0.55, dur, 0.9); send(g, 0.45, 1.0);
+      }
+      function timpano(t, f, vol) {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.frequency.setValueAtTime(f * 1.7, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.09);
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+        o.connect(g); o.start(t); o.stop(t + 1.05);
+        const n = ruido(t, 0.08), nf = filtro('lowpass', 240), ng = ac.createGain();
+        ng.gain.setValueAtTime(vol * 0.8, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.07); n.connect(nf); nf.connect(ng); ng.connect(g);
+        send(g, 1, 0.22);
+      }
+      function prato(t, vol, atk, dec) {
+        const n = ruido(t, atk + dec), hp = filtro('highpass', 4500), g = ac.createGain();
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + atk); g.gain.exponentialRampToValueAtTime(0.0001, t + atk + dec);
+        n.connect(hp); hp.connect(g); send(g, 0.6, 0.6);
+      }
+      function whoosh(t, dur, f0, f1, vol) {
+        const n = ruido(t, dur), bp = filtro('bandpass', f0, 1.3), g = ac.createGain();
+        bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + dur);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        n.connect(bp); bp.connect(g); send(g, 0.8, 0.35);
+      }
+      function rangido(t, dur, vol) {
+        const o = ac.createOscillator(), bp = filtro('bandpass', 640, 9), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
+        o.type = 'sawtooth'; o.frequency.setValueAtTime(92, t); o.frequency.linearRampToValueAtTime(150, t + dur * 0.6); o.frequency.linearRampToValueAtTime(118, t + dur);
+        lfo.frequency.value = 13; lg.gain.value = 0.35; lfo.connect(lg); lg.connect(g.gain); lfo.start(t); lfo.stop(t + dur + 0.1);
+        o.connect(bp); bp.connect(g); g.gain.value = 0; swell(g, t, vol * 0.6, 0.06, dur, 0.18); o.start(t); o.stop(t + dur + 0.05);
+        const n = ruido(t, dur), nb = filtro('bandpass', 900, 3), ng = ac.createGain();
+        swell(ng, t, vol * 0.18, 0.06, dur, 0.18); n.connect(nb); nb.connect(ng); send(ng, 0.8, 0.15);
+        send(g, 0.8, 0.15);
+      }
+      function clique(t, vol) {
+        const n = ruido(t, 0.02), bp = filtro('bandpass', 3000, 2), g = ac.createGain();
+        g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.012); n.connect(bp); bp.connect(g);
+        const o = ac.createOscillator(), og = ac.createGain(); o.frequency.value = 900; og.gain.setValueAtTime(vol * 0.5, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.014);
+        o.connect(og); o.start(t); o.stop(t + 0.03); send(g, 0.9, 0.12); send(og, 0.9, 0.12);
+      }
+      function palma(t, vol) {
+        [0, 0.007, 0.016].forEach(d => {
+          const n = ruido(t + d, 0.09), hp = filtro('highpass', 600), bp = filtro('bandpass', 1500, 0.9), g = ac.createGain();
+          g.gain.setValueAtTime(vol * (d ? 0.7 : 1), t + d); g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.07);
+          n.connect(hp); hp.connect(bp); bp.connect(g); send(g, 0.9, 0.18);
+        });
+      }
+      function pop(t, vol) {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.frequency.setValueAtTime(280, t); o.frequency.exponentialRampToValueAtTime(640, t + 0.07);
+        g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.13); o.connect(g); o.start(t); o.stop(t + 0.15); send(g, 0.9, 0.2);
+      }
+      function uau(t, vol) {                                   // "uau!": assobio que sobe e oscila
+        const o = ac.createOscillator(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
+        o.frequency.setValueAtTime(330, t); o.frequency.exponentialRampToValueAtTime(1050, t + 0.26);
+        lfo.frequency.value = 9; lg.gain.value = 22; lfo.connect(lg); lg.connect(o.frequency); lfo.start(t); lfo.stop(t + 0.4);
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+        o.connect(g); o.start(t); o.stop(t + 0.38); send(g, 0.8, 0.4);
+      }
+      function faisca(t, n, vol) {
+        const notas = [2093, 2349, 2637, 3136, 3520, 4186];
+        for (let i = 0; i < n; i++) sino(t + i * R(0.05, 0.12), notas[Math.floor(R(0, notas.length))], vol * 0.4, 0.35, 0.8);
+      }
+      function arpejo(t, notas, passo, vol, dec) { notas.forEach((f, i) => pluck(t + i * passo, f, vol, dec || 0.55, 0.6)); }
+
+      /* ── sons prontos ── */
+      return {
+        usar, ok,
+        tremor() { if (!ok(true)) return; const t = T0();
+          const n = ruido(t, 1.3), lp = filtro('lowpass', 110, 0.7), g = ac.createGain(); swell(g, t, 0.5, 0.15, 1.3, 0.5); n.connect(lp); lp.connect(g); send(g, 1, 0.1);
+          const o = ac.createOscillator(), og = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
+          o.frequency.value = 52; lfo.frequency.value = 9; lg.gain.value = 0.25; lfo.connect(lg); lg.connect(og.gain); og.gain.value = 0; swell(og, t, 0.4, 0.15, 1.2, 0.5);
+          o.connect(og); o.start(t); o.stop(t + 1.3); lfo.start(t); lfo.stop(t + 1.3); send(og, 1, 0.05);
+          clique(t + 0.12, 0.35); clique(t + 0.46, 0.3); clique(t + 0.8, 0.25); },
+        abrirBau() { if (!ok()) return; const t = T0(); rangido(t, 0.55, 0.65); clique(t, 0.7); clique(t + 0.5, 0.85); whoosh(t + 0.45, 0.5, 500, 3500, 0.3); faisca(t + 0.55, 3, 0.6); },
+        reacao(pose, rar) { if (!ok()) return; const t = T0();
+          if (pose === 'aplaude') { [0, 0.17, 0.33, 0.5].forEach(d => palma(t + d, 0.95)); arpejo(t, [523.25, 659.25, 783.99], 0.17, 0.35); }
+          else if (pose === 'surpreso') { uau(t, 0.3); sino(t + 0.18, 1568, 0.3, 1.2); const n = ruido(t, 0.12), bp = filtro('bandpass', 1800, 1), g = ac.createGain(); g.gain.setValueAtTime(0.18, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.11); n.connect(bp); bp.connect(g); send(g, 0.8, 0.2); }
+          else if (pose === 'fanfarra') { timpano(t, 98, 0.55); [392, 523.25, 659.25].forEach(f => metal(t, f, 0.18, 0.5)); [523.25, 659.25, 783.99].forEach(f => metal(t + 0.55, f, 0.18, 0.7)); }
+          else { arpejo(t + 0.02, [523.25, 659.25, 783.99, 1046.5, 1318.5], 0.07, 0.3); [261.63, 392, 523.25].forEach(f => metal(t, f, 0.18, 0.45)); faisca(t + 0.1, 5, 0.55); palma(t + 0.25, 0.6); palma(t + 0.45, 0.6); } },
+        emergir(rar) { if (!ok()) return; const t = T0();
+          if (rar === 'comum') { whoosh(t, 0.5, 300, 1800, 0.25); sino(t + 0.25, 1046.5, 0.35, 1.4); sino(t + 0.4, 1568, 0.28, 1.4); [523.25, 659.25, 783.99].forEach(f => pluck(t + 0.3, f, 0.15, 0.8)); }
+          else if (rar === 'raro') { whoosh(t, 0.6, 300, 3000, 0.3); arpejo(t + 0.1, [523.25, 659.25, 783.99, 1046.5, 1318.5], 0.075, 0.19); [1046.5, 1318.5, 1568].forEach(f => sino(t + 0.5, f, 0.26, 1.6)); faisca(t + 0.55, 6, 0.5); }
+          else if (rar === 'epico') { timpano(t, 82, 0.8); whoosh(t, 0.7, 200, 2500, 0.35); prato(t + 0.1, 0.25, 0.7, 1.4); [261.63, 392, 523.25].forEach(f => metal(t + 0.05, f, 0.17, 1.4)); coro(t + 0.2, [261.63, 329.63, 392, 523.25], 0.35, 2.2); [1046.5, 1318.5, 1568, 2093].forEach((f, i) => sino(t + 0.7 + i * 0.09, f, 0.3, 1.5)); faisca(t + 0.9, 10, 0.5); }
+          else { timpano(t, 82, 0.9); timpano(t + 0.22, 82, 0.6); timpano(t + 0.4, 98, 0.7); prato(t + 0.55, 0.5, 0.01, 1.8); whoosh(t, 0.8, 150, 3500, 0.4);
+            [[392, 0.55, 0.35], [523.25, 0.9, 0.35], [659.25, 1.25, 0.35], [783.99, 1.6, 1.6]].forEach(([f, d, du]) => { metal(t + d, f, 0.2, du); metal(t + d, f / 2, 0.14, du); });
+            coro(t + 0.6, [261.63, 329.63, 392, 523.25, 659.25], 0.4, 3.4);
+            [1046.5, 1174.7, 1318.5, 1568, 1760, 2093, 2349, 2637].forEach((f, i) => sino(t + 1.0 + i * 0.1, f, 0.3, 1.6)); faisca(t + 1.2, 16, 0.6); sino(t + 2.2, 2093, 0.3, 2.2); sino(t + 2.35, 3136, 0.22, 2.2); } },
+        coletar() { if (!ok()) return; const t = T0(); whoosh(t, 0.5, 3000, 400, 0.35); sino(t + 0.5, 2093, 0.4, 1.0); pop(t + 0.5, 0.4); faisca(t + 0.52, 3, 0.5); },
+        pagina() { if (!ok()) return; const t = T0(); pluck(t, 659.25, 0.42, 0.35); sino(t + 0.05, 1568, 0.32, 0.7); }
+      };
+    })();
+
+    /* ══════════════════════════════════════════════════════
        MOTOR DE CERIMÔNIAS (Fase 6, passo 4). Tela cheia, uma de cada vez, com fila:
        novidades primeiro, depois selos (do menos raro para o mais raro). Hoje: selos e novidades.
        Depois: marcos, nível, Duelo/Torneio (passo 5). O crédito segue pelos sistemas seguros de sempre:
@@ -6125,7 +6325,14 @@
     const CER_COR = { comum: '#A9BDD8', raro: '#00D4FF', epico: '#FFB300', lend: '#FFD700' };
     const CER_FAISCA = { comum: ['rgba(169,189,216,', 'rgba(255,255,255,'], raro: ['rgba(0,212,255,', 'rgba(201,247,255,'], epico: ['rgba(255,179,0,', 'rgba(255,140,0,', 'rgba(255,243,176,'], lend: ['rgba(255,215,0,', 'rgba(255,140,0,', 'rgba(0,212,255,', 'rgba(255,255,255,'] };
     const CER_TRAJE = { comum: '', raro: '', epico: 'cerimonia', lend: 'gala' };
-    const CER_REACAO = { comum: 'aplaude', raro: 'aplaude', epico: 'surpreso', lend: 'fanfarra' };   // no instante da abertura
+    /* Cena de reação (tela cheia, entre abrir o baú e o selo sair): pose, duração em ms, frase. Alterna para dar movimento. */
+    const CER_SEQ = {
+      comum: [['aplaude', 1300, 'Que bonito!']],
+      raro:  [['surpreso', 850, 'Uau!'], ['aplaude', 1300, 'Um selo raro!']],
+      epico: [['surpreso', 850, 'Eita!'], ['comemora', 1400, 'Um selo épico!']],
+      lend:  [['surpreso', 950, 'NÃO ACREDITO!'], ['fanfarra', 1500, 'LENDÁRIO!'], ['comemora', 1000, 'Que façanha!']]
+    };
+    const CER_CONFETE = ['rgba(255,80,160,', 'rgba(80,200,255,', 'rgba(255,215,0,', 'rgba(120,255,120,'];
     const CER_POSE_FINAL = { comum: 'revela', raro: 'revela', epico: 'comemora', lend: 'comemora' };  // enquanto o Oráculo conta a história
     const Cer = { fila: [], atual: null, fase: '', rar: 'comum', idx: 0, vistas: {}, novVistas: {}, base: null, espera: null };
     let _cerDig = null;
@@ -6234,8 +6441,8 @@
       Cer.espera = setTimeout(() => { Cer.espera = null; if (!_cerAtiva && Cer.fila.length) cerProxima(); }, Math.max(500, _celebLivreEm - Date.now()));
     }
 
-    function cerOraPose(pose, traje) {
-      const img = cerEl('cer-ora-img'); if (!img) return;
+    function cerOraPose(pose, traje, imgId) {
+      const img = cerEl(imgId || 'cer-ora-img'); if (!img) return;
       const cands = []; if (traje) cands.push(ORA_BASE + pose + '--' + traje + '.webp'); cands.push(ORA_BASE + pose + '.webp'); cands.push(ORA_BASE + 'padrao.webp'); cands.push(ORA_PADRAO);
       let i = 0; img.onerror = () => { i++; if (i < cands.length) img.src = cands[i]; else img.onerror = null; };
       img.src = cands[0];
@@ -6271,7 +6478,9 @@
     function cerReset() {
       clearInterval(_cerDig); _cerDig = null;
       const bau = cerEl('cer-bau'); bau.className = 'cer-bau'; bau.innerHTML = ''; bau.style.display = 'none';
-      const sel = cerEl('cer-selo'); sel.className = 'cer-selo'; sel.innerHTML = ''; sel.style.transform = ''; sel.getAnimations().forEach(a => a.cancel());
+      const sel = cerEl('cer-selo'); sel.className = 'cer-selo'; sel.innerHTML = ''; sel.style.transform = ''; sel.style.opacity = ''; sel.getAnimations().forEach(a => a.cancel());
+      const sai = cerEl('cer-saida'); sai.className = 'cer-saida'; sai.style.clipPath = ''; sai.querySelectorAll('.cer-flare').forEach(e => e.remove());
+      clearTimeout(Cer.reaTimer); const rea = cerEl('cer-reacao'); rea.className = 'cer-reacao'; cerEl('cer-rea-img').getAnimations().forEach(a => a.cancel()); cerEl('cer-rea-txt').style.opacity = '';
       const vis = cerEl('cer-visual'); vis.style.display = 'none'; vis.innerHTML = '';
       const inf = cerEl('cer-info'); inf.className = 'cer-info'; inf.innerHTML = '';
       cerEl('cer-btn').style.display = ''; cerEl('cer-pular').style.display = 'none';
@@ -6298,7 +6507,8 @@
     }
     function cerPular() { if (Cer.fase === 'novidade') cerFimNovidade(); }
 
-    /* ── Selo: baú que treme, abre e revela ── */
+    /* ── Selo: o baú treme e abre, o Oráculo reage em tela cheia, e o selo sai de dentro do baú ── */
+    const CER_BAU_BORDA = 0.505;   // onde fica a "boca" do baú (borda da frente), em fração da altura do desenho
     function cerPrepararSelo(item) {
       const s = item.selo, rar = SEL_RAR.includes(s.raridade) ? s.raridade : 'comum';
       Cer.fase = 'bau'; Cer.rar = rar;
@@ -6309,59 +6519,123 @@
       cerEl('cer-btn').textContent = '🗝️ Abrir o baú';
       cerOraPose('bau', CER_TRAJE[rar]); cerDigitar(falar('cer_bau'));
       const pal = cerEl('cer-palco'); pal.classList.remove('treme'); void pal.offsetWidth; pal.classList.add('treme');
-      try { soundTone(90, 'sawtooth', 0.5, 0.07, 0.02); vibrate([80, 40, 80, 40, 120]); } catch (e) {}
+      try { Sfx.tremor(); vibrate([80, 40, 80, 40, 120]); } catch (e) {}
     }
     function cerAbrir() {
       if (Cer.fase !== 'bau') return;
       Cer.fase = 'abrindo';
-      try { initAudio(); soundTone(220, 'triangle', 0.25, 0.12, 0.01); vibrate([40, 30, 70]); } catch (e) {}
+      try { initAudio(); Sfx.abrirBau(); vibrate([40, 30, 70]); } catch (e) {}
       const bau = cerEl('cer-bau'); bau.classList.remove('treme'); bau.classList.add('abrindo');
       cerEl('cer').classList.add('aberto'); cerEl('cer-btn').style.display = 'none';
       clearInterval(_cerDig); _cerDig = null; cerEl('cer-balao').textContent = '';
-      setTimeout(cerRevelar, 650);
+      setTimeout(cerReacao, 800);
     }
-    function cerRevelar() {
-      const s = Cer.atual.selo, f = (_selosCfg.familias || {})[s.familia] || {}, rar = Cer.rar;
+
+    /* Cena de reação: o Oráculo grande no centro, alternando poses, com efeitos */
+    function cerReacao() {
+      if (Cer.fase !== 'abrindo') return;
+      Cer.fase = 'reacao'; Cer.reaSkip = false; Cer.reaInicio = Date.now();
       const fl = cerEl('cer-flash'); fl.classList.remove('vai'); void fl.offsetWidth; fl.classList.add('vai');
-      const r = cerEl('cer-meio').getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const ov = cerEl('cer-reacao'); ov.className = 'cer-reacao on';
+      const pal = cerEl('cer-palco'); pal.classList.remove('treme'); void pal.offsetWidth; pal.classList.add('treme');
+      cerReacaoPasso(0);
+    }
+    function cerReacaoPasso(i) {
+      const seq = CER_SEQ[Cer.rar];
+      if (Cer.reaSkip || Cer.fase !== 'reacao') return;
+      if (i >= seq.length) { cerReacaoFim(); return; }
+      const pose = seq[i][0], ms = seq[i][1], txt = seq[i][2], rar = Cer.rar;
+      const img = cerEl('cer-rea-img'), t = cerEl('cer-rea-txt');
+      cerOraPose(pose, CER_TRAJE[rar], 'cer-rea-img');
+      img.classList.remove('pop'); t.classList.remove('pop'); void img.offsetWidth; img.classList.add('pop'); t.classList.add('pop');
+      t.textContent = txt; t.style.opacity = '1';
+      const r = img.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * 0.45;
       try {
-        const cores = CER_FAISCA[rar];
-        if (rar === 'comum') { soundCrystalChime(); spawnColorSparks(cx, cy, 14, cores); vibrate([30, 20, 40]); }
-        else if (rar === 'raro') { soundCrystalChime(); setTimeout(soundLevelUp, 250); spawnColorSparks(cx, cy, 28, cores); spawnShockwave(cx, cy, cores[0], 110); vibrate([40, 30, 70]); }
-        else if (rar === 'epico') { soundForgeEpic(); spawnColorSparks(cx, cy, 42, cores); spawnShockwave(cx, cy, cores[0], 130); setTimeout(() => spawnShockwave(cx, cy, cores[1], 170), 250); vibrate([60, 30, 90, 30, 60]); }
-        else { soundForgeEpic(); setTimeout(soundLevelUp, 450); spawnColorSparks(cx, cy, 60, cores); spawnShockwave(cx, cy, cores[0], 150); setTimeout(() => { spawnShockwave(cx, cy, cores[3], 210); spawnColorSparks(cx, cy, 40, cores); }, 350); vibrate([80, 40, 120, 40, 80, 40, 160]); }
+        Sfx.reacao(pose, rar);
+        const festa = pose === 'aplaude' || pose === 'comemora', n = { comum: 14, raro: 22, epico: 30, lend: 42 }[rar];
+        spawnColorSparks(cx, cy, n, festa ? CER_CONFETE : CER_FAISCA[rar]);
+        spawnShockwave(cx, cy, CER_FAISCA[rar][0], 150 + i * 30);
+        vibrate(i === 0 ? [50, 30, 80] : [30, 20, 50]);
       } catch (e) { console.error(e); }
-      cerEl('cer-bau').classList.add('sumindo');
-      cerOraPose(CER_REACAO[rar], CER_TRAJE[rar]);
-      const sel = cerEl('cer-selo'); sel.innerHTML = seloSvgC(s.emblema || f.emblema, rar, { size: cerTam(), img: s.imagem }); sel.className = 'cer-selo sobe';
-      setTimeout(() => { if (Cer.fase === 'revelado' || Cer.fase === 'abrindo') sel.className = 'cer-selo flutua'; }, 1000);
+      Cer.reaTimer = setTimeout(() => cerReacaoPasso(i + 1), ms);
+    }
+    function cerPularReacao() {
+      if (Cer.fase !== 'reacao' || Date.now() - Cer.reaInicio < 900) return;      // evita pular sem querer no toque duplo do baú
+      Cer.reaSkip = true; clearTimeout(Cer.reaTimer); cerReacaoFim();
+    }
+    function cerReacaoFim() {
+      if (Cer.fase !== 'reacao') return;
+      Cer.fase = 'emergindo'; clearTimeout(Cer.reaTimer);
+      const ov = cerEl('cer-reacao'), big = cerEl('cer-rea-img'), small = cerEl('cer-ora-img');
+      const seq = CER_SEQ[Cer.rar];
+      cerOraPose(seq[seq.length - 1][0], CER_TRAJE[Cer.rar]);                     // o Oráculo pequeno reaparece na mesma pose
+      const a = big.getBoundingClientRect(), b = small.getBoundingClientRect();
+      const dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2), sc = Math.max(0.15, b.height / Math.max(a.height, 1));
+      ov.classList.add('saindo'); cerEl('cer-rea-txt').style.opacity = '0';
+      const an = big.animate([{ transform: 'none' }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + sc + ')' }], { duration: 420, easing: 'cubic-bezier(0.5,0,0.8,0.3)', fill: 'forwards' });
+      setTimeout(() => { ov.classList.remove('on', 'saindo'); try { an.cancel(); } catch (e) {} cerEmergir(); }, 440);
+    }
+
+    /* O selo sai de dentro do baú: fica recortado na boca do baú (só aparece acima dela) enquanto sobe */
+    function cerGeo() {
+      const m = cerEl('cer-meio').getBoundingClientRect(), b = cerEl('cer-bau').getBoundingClientRect();
+      return { mh: m.height, rimY: (b.top - m.top) + b.height * CER_BAU_BORDA, cx: (b.left - m.left) + b.width / 2, bh: b.height };
+    }
+    function cerEmergir() {
+      if (Cer.fase !== 'emergindo') return;
+      const s = Cer.atual.selo, f = (_selosCfg.familias || {})[s.familia] || {}, rar = Cer.rar, tam = cerTam(), g = cerGeo();
+      const fl = cerEl('cer-flash'); fl.classList.remove('vai'); void fl.offsetWidth; fl.classList.add('vai');
+      const sai = cerEl('cer-saida'), sel = cerEl('cer-selo');
+      sai.style.clipPath = 'inset(0 0 ' + Math.max(0, g.mh - g.rimY) + 'px 0)';
+      sel.innerHTML = seloSvgC(s.emblema || f.emblema, rar, { size: tam, img: s.imagem }); sel.style.opacity = '1';
+      const yf = -Math.min(g.bh * 0.42, g.mh * 0.14);                              // onde o selo para: um pouco acima do centro
+      const y0 = g.rimY + tam / 2 - g.mh / 2;                                      // começa todo dentro do baú, escondido
+      Cer.yf = yf;
+      sel.animate([
+        { transform: 'translateY(' + y0 + 'px) scale(0.6)', offset: 0 },
+        { transform: 'translateY(' + (yf - 16) + 'px) scale(1.12)', offset: 0.72 },
+        { transform: 'translateY(' + yf + 'px) scale(1)', offset: 1 }
+      ], { duration: 1400, easing: 'cubic-bezier(0.2,0.8,0.3,1)', fill: 'forwards' });
+      const fla = document.createElement('div'); fla.className = 'cer-flare';
+      fla.style.left = (g.cx - 110) + 'px'; fla.style.top = (g.rimY - 110) + 'px'; sai.appendChild(fla);
+      const r = cerEl('cer-meio').getBoundingClientRect(), cx = r.left + g.cx, cy = r.top + g.rimY - tam * 0.4;
+      try {
+        Sfx.emergir(rar);
+        const cores = CER_FAISCA[rar];
+        if (rar === 'comum') { spawnColorSparks(cx, cy, 14, cores); vibrate([30, 20, 40]); }
+        else if (rar === 'raro') { spawnColorSparks(cx, cy, 28, cores); spawnShockwave(cx, cy, cores[0], 110); vibrate([40, 30, 70]); }
+        else if (rar === 'epico') { spawnColorSparks(cx, cy, 42, cores); spawnShockwave(cx, cy, cores[0], 130); setTimeout(() => spawnShockwave(cx, cy, cores[1], 170), 250); vibrate([60, 30, 90, 30, 60]); }
+        else { spawnColorSparks(cx, cy, 60, cores); spawnShockwave(cx, cy, cores[0], 150); setTimeout(() => { spawnShockwave(cx, cy, cores[3], 210); spawnColorSparks(cx, cy, 40, cores); }, 350); vibrate([80, 40, 120, 40, 80, 40, 160]); }
+      } catch (e) { console.error(e); }
+      setTimeout(() => cerEl('cer-bau').classList.add('sumindo'), 1000);
+      setTimeout(() => { sai.style.clipPath = 'none'; sai.classList.add('flutua'); }, 1450);
       cerEl('cer-titulo').textContent = 'Selo conquistado!'; cerEl('cer-sub').textContent = '';
       const inf = cerEl('cer-info');
       inf.innerHTML = '<div class="cer-nome">' + selEsc(s.nome) + '</div><span class="sc-rar ' + rar + '">' + SEL_RAR_NOME[rar] + '</span>' + (f.nome ? '<div class="sc-fam">Família: ' + selEsc(f.nome) + '</div>' : '');
-      setTimeout(() => inf.classList.add('on'), 700);
+      setTimeout(() => inf.classList.add('on'), 900);
       setTimeout(() => {
-        if (Cer.fase !== 'abrindo') return;
+        if (Cer.fase !== 'emergindo') return;
         Cer.fase = 'revelado';
         cerOraPose(CER_POSE_FINAL[rar], CER_TRAJE[rar]);
         cerDigitar(s.historia || ('Parabéns, ' + cerNome() + '! Você mereceu este selo.'));
         const b = cerEl('cer-btn'); b.textContent = '✨ Coletar'; b.style.display = '';
-      }, 1300);
+      }, 1500);
     }
     function cerColetar() {
       if (Cer.fase !== 'revelado') return;
       Cer.fase = 'coletando';
-      const it = Cer.atual, sel = cerEl('cer-selo');
+      const it = Cer.atual, sel = cerEl('cer-selo'), sai = cerEl('cer-saida');
       cerEl('cer-btn').style.display = 'none'; cerEl('cer-info').classList.remove('on'); cerEl('cer-ora-img').parentNode.style.opacity = '0';
-      try { initAudio(); soundTone(520, 'sine', 0.2, 0.1, 0.005); } catch (e) {}
-      const alvo = document.querySelector('.menu-item[onclick="abrirBau()"]');
-      const a = sel.getBoundingClientRect();
+      try { initAudio(); Sfx.coletar(); } catch (e) {}
+      sai.classList.remove('flutua');
+      sel.getAnimations().forEach(an => { try { an.commitStyles(); } catch (e) {} an.cancel(); });
+      const alvo = document.querySelector('.menu-item[onclick="abrirBau()"]'), a = sel.getBoundingClientRect();
       let tx = innerWidth * 0.5, ty = innerHeight - 34;
       if (alvo) { const t = alvo.getBoundingClientRect(); tx = t.left + t.width / 2; ty = t.top + t.height / 2; }
-      const dx = tx - (a.left + a.width / 2), dy = ty - (a.top + a.height / 2);
-      sel.className = 'cer-selo'; sel.style.opacity = '1';
-      sel.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(0.16)', opacity: 0.95 }], { duration: 800, easing: 'cubic-bezier(0.55,0,0.85,0.4)', fill: 'forwards' });
+      const dx = tx - (a.left + a.width / 2), dy = ty - (a.top + a.height / 2), yf = Cer.yf || 0;
+      sel.animate([{ transform: 'translateY(' + yf + 'px) scale(1)' }, { transform: 'translate(' + dx + 'px,' + (yf + dy) + 'px) scale(0.16)' }], { duration: 800, easing: 'cubic-bezier(0.55,0,0.85,0.4)', fill: 'forwards' });
       setTimeout(() => {
-        try { soundCrystalChime(); vibrate([30, 20, 50]); spawnColorSparks(tx, ty, 18, CER_FAISCA[Cer.rar]); if (alvo) alvo.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 450 }); } catch (e) {}
+        try { vibrate([30, 20, 50]); spawnColorSparks(tx, ty, 18, CER_FAISCA[Cer.rar]); if (alvo) alvo.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 450 }); } catch (e) {}
         if (!it.demo) { cerMarcar('cer_vistas', it.selo.id); selosMarcarVisto(it.selo.id); }
         cerEl('cer').classList.add('fechando');
         setTimeout(() => {
@@ -6388,7 +6662,7 @@
       cerEl('cer-info').innerHTML = '';
       cerOraPose('explica', ''); cerDigitar(sl.fala.replace(/\{nome\}/g, cerNome()));
       cerEl('cer-btn').textContent = ult ? '✔ Entendi!' : 'Próximo ▶'; cerEl('cer-pular').style.display = ult ? 'none' : '';
-      try { initAudio(); soundButtonTap(); vibrate(15); } catch (e) {}
+      try { initAudio(); Sfx.pagina(); vibrate(15); } catch (e) {}
     }
     function cerAvancar() {
       const n = Cer.atual.novidade;
