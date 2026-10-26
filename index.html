@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
@@ -1572,112 +1573,258 @@
       min-width: 14px; text-align: center; border: 1.5px solid #1A0A00;
     }
 
-    /* ══ CHAT (WhatsApp-style - igual nos dois apps) ══ */
-    #chat-overlay {
-      position: fixed; inset: 0; z-index: 2100;
-      background: white; display: none; flex-direction: column;
+    /* ══ CENTRAL DE MENSAGENS (Fase 10) · mesmo visual nos dois apps ══ */
+    #cx-overlay {
+      --cx-navy: #1B2440; --cx-navy2: #2A3660; --cx-ouro: #D4A84B; --cx-ouro-claro: #F3DFA6;
+      --cx-papel: #F6F0E2; --cx-lista: #FFFDF8; --cx-linha: #EEE6D3; --cx-texto: #1F2430;
+      --cx-sub: #7A7466; --cx-enviada: #FBEFC9; --cx-recebida: #FFFFFF; --cx-verde: #22A55A;
+      --cx-azul: #2F9BE0;
+      position: fixed; left: 0; top: 0; width: 100%; height: 100%;
+      z-index: 3000; display: none; flex-direction: column;
+      background: var(--cx-lista); overflow: hidden;
+      font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      color: var(--cx-texto); -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: contain;
     }
-    #chat-overlay.open { display: flex; }
-    .chat-header {
-      display: flex; align-items: center; gap: 8px;
-      padding: 0 6px 0 4px; min-height: 56px;
-      background: #075E54; flex-shrink: 0;
+    #cx-overlay.open { display: flex; }
+    #cx-overlay *, #cx-overlay *::before, #cx-overlay *::after { box-sizing: border-box; }
+    #cx-overlay button { font-family: inherit; }
+
+    /* Cabeçalho (lista e conversa) */
+    .cx-head {
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+      min-height: 58px; padding: env(safe-area-inset-top, 0px) 6px 0 6px;
+      background: linear-gradient(180deg, var(--cx-navy2), var(--cx-navy));
+      border-bottom: 2px solid var(--cx-ouro); color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.18);
     }
-    .chat-header-title {
-      font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800;
-      color: white; flex: 1;
+    .cx-head-tit {
+      flex: 1; min-width: 0; padding-left: 8px;
+      font-family: 'Cinzel', 'Nunito', serif; font-weight: 700; font-size: 1.08rem;
+      letter-spacing: 0.5px; color: var(--cx-ouro-claro);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .chat-back-btn {
-      color: white; font-size: 0.9rem; cursor: pointer;
-      display: flex; align-items: center; gap: 8px;
-      background: none; border: none; padding: 10px 6px; flex: 1;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: none; user-select: none;
+    .cx-icon-btn {
+      width: 42px; height: 42px; border-radius: 50%; border: none; flex-shrink: 0;
+      background: transparent; color: #fff; font-size: 1.25rem; line-height: 1;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
-    .chat-back-avatar {
-      width: 36px; height: 36px; border-radius: 50%; overflow: hidden;
-      background: rgba(255,255,255,0.25); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; color: white;
+    .cx-icon-btn:active { background: rgba(255,255,255,0.14); }
+    .cx-icon-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+    /* Aviso de notificações desligadas */
+    .cx-aviso {
+      display: none; align-items: center; gap: 10px; padding: 10px 14px;
+      background: #FFF4D6; border-bottom: 1px solid #F0DFAE; font-size: 0.84rem; color: #6B5310;
     }
-    .chat-back-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .chat-back-name { font-size: 0.92rem; font-weight: 700; color: white; }
-    .chat-close-btn {
-      background: none; border: none; color: rgba(255,255,255,0.8);
-      font-size: 1.2rem; cursor: pointer; padding: 12px 10px; flex-shrink: 0;
+    .cx-aviso.show { display: flex; }
+    .cx-aviso span { flex: 1; line-height: 1.3; }
+    .cx-aviso button {
+      border: none; border-radius: 18px; padding: 7px 14px; font-weight: 800; font-size: 0.8rem;
+      background: var(--cx-navy); color: var(--cx-ouro-claro); cursor: pointer; flex-shrink: 0;
     }
-    .chat-contact-list { flex: 1; overflow-y: auto; background: white; scrollbar-width: none; }
-    .chat-contact-item {
-      display: flex; align-items: center; gap: 13px;
-      padding: 11px 16px; border-bottom: 1px solid #f0f0f0;
-      cursor: pointer; background: white;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: none; user-select: none;
+
+    /* Lista de conversas */
+    .cx-lista { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--cx-lista); }
+    .cx-secao {
+      padding: 14px 16px 6px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.8px;
+      text-transform: uppercase; color: #9A7A2E;
     }
-    .chat-contact-item:active { background: #f5f5f5; }
-    .chat-contact-avatar {
-      width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; font-weight: 700; color: white; overflow: hidden;
-      background: #25D366;
+    .cx-item {
+      display: flex; align-items: center; gap: 13px; padding: 10px 14px 10px 14px;
+      cursor: pointer; position: relative; -webkit-user-select: none; user-select: none;
     }
-    .chat-contact-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .chat-contact-info { flex: 1; min-width: 0; }
-    .chat-contact-name { color: #111; font-size: 0.92rem; font-weight: 700; margin-bottom: 3px; font-family: 'Nunito', sans-serif; }
-    .chat-contact-preview { color: #667781; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .chat-contact-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
-    .chat-contact-time { color: #667781; font-size: 0.72rem; }
-    .chat-contact-unread {
-      background: #25D366; color: white; border-radius: 50%;
-      font-size: 0.7rem; font-weight: 800;
-      min-width: 20px; height: 20px;
-      display: flex; align-items: center; justify-content: center;
+    .cx-item:active { background: #F5EEDD; }
+    .cx-item-corpo {
+      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px;
+      border-bottom: 1px solid var(--cx-linha); padding-bottom: 11px; margin-bottom: -11px;
+      align-self: stretch; justify-content: center;
     }
-    .chat-no-contacts { text-align: center; color: #667781; font-size: 0.88rem; padding: 40px 20px; }
-    #chat-thread {
-      position: absolute; inset: 0; background: white;
-      display: flex; flex-direction: column;
-      transform: translateX(100%);
-      transition: transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
+    .cx-item-l1, .cx-item-l2 { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .cx-item-nome { flex: 1; min-width: 0; font-weight: 800; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cx-item-hora { font-size: 0.74rem; color: var(--cx-sub); flex-shrink: 0; }
+    .cx-item-hora.nova { color: var(--cx-verde); font-weight: 800; }
+    .cx-item-prev {
+      flex: 1; min-width: 0; font-size: 0.86rem; color: var(--cx-sub);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    #chat-thread.open { transform: translateX(0); }
-    .chat-messages {
-      flex: 1; overflow-y: auto; padding: 8px 10px;
-      background: #e5ddd5;
-      display: flex; flex-direction: column; gap: 3px;
-      scrollbar-width: none;
-    }
-    .chat-date-sep { display: flex; justify-content: center; margin: 10px 0 6px; }
-    .chat-date-pill {
-      background: rgba(255,255,255,0.92); color: #667781;
-      font-size: 0.72rem; padding: 4px 14px; border-radius: 8px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.12);
-    }
-    .chat-bubble-row { display: flex; margin: 1px 0; }
-    .chat-bubble-row.recv { justify-content: flex-start; }
-    .chat-bubble-row.sent { justify-content: flex-end; }
-    .chat-bubble { max-width: 75%; padding: 6px 10px 4px; font-size: 0.88rem; line-height: 1.4; word-wrap: break-word; }
-    .chat-bubble.recv { background: white; color: #303030; border-radius: 0 8px 8px 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.13); }
-    .chat-bubble.sent { background: #dcf8c6; color: #303030; border-radius: 8px 0 8px 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.13); }
-    .chat-bubble-time { font-size: 0.65rem; color: #667781; display: block; margin-top: 2px; text-align: right; }
-    .chat-thread-empty { text-align: center; color: #667781; font-size: 0.85rem; margin-top: 40px; }
-    .chat-input-bar {
-      display: flex; align-items: center; gap: 8px; padding: 8px 10px;
-      background: #f0f0f0; flex-shrink: 0;
-    }
-    .chat-input {
-      flex: 1; background: white; border: none; border-radius: 24px;
-      color: #303030; padding: 10px 15px; font-size: 0.9rem;
-      font-family: 'Nunito', sans-serif; outline: none;
-    }
-    .chat-input::placeholder { color: #aaa; }
-    .chat-send-btn {
-      background: #25D366; border: none; border-radius: 50%;
-      width: 44px; height: 44px; flex-shrink: 0;
-      font-size: 1.1rem; cursor: pointer; color: white;
+    .cx-item-prev i { color: #B0A890; }
+    .cx-item-badge {
+      min-width: 21px; height: 21px; padding: 0 6px; border-radius: 11px; flex-shrink: 0;
+      background: var(--cx-verde); color: #fff; font-size: 0.74rem; font-weight: 900;
       display: flex; align-items: center; justify-content: center;
     }
-    .chat-send-btn:active { transform: scale(0.92); }
+    .cx-vazio { text-align: center; color: var(--cx-sub); font-size: 0.9rem; padding: 40px 24px; line-height: 1.5; }
+
+    /* Avatares */
+    .cx-av {
+      width: 50px; height: 50px; border-radius: 50%; flex-shrink: 0; overflow: hidden; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1.25rem; color: #fff;
+      background-color: #C9B27A; background-repeat: no-repeat;
+      box-shadow: inset 0 0 0 2px rgba(212,168,75,0.55);
+    }
+    .cx-av.foto { background-size: cover; background-position: center; }
+    .cx-av.corpo { background-size: 300%; background-position: 50% 4%; background-color: #E9DDBF; }
+    .cx-av.grupo { background: radial-gradient(circle at 35% 30%, #34447A, var(--cx-navy)); font-size: 1.45rem; }
+    .cx-av.emoji { font-size: 1.5rem; }
+    .cx-av.p { width: 38px; height: 38px; font-size: 1rem; }
+    .cx-av.p.emoji, .cx-av.p.grupo { font-size: 1.15rem; }
+    .cx-av-on {
+      position: absolute; right: 1px; bottom: 1px; width: 12px; height: 12px; border-radius: 50%;
+      background: var(--cx-verde); border: 2px solid #fff; display: none;
+    }
+    .cx-wrap-av { position: relative; flex-shrink: 0; }
+    .cx-wrap-av.on .cx-av-on { display: block; }
+
+    /* Tela da conversa (desliza por cima da lista) */
+    .cx-conv {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      background: var(--cx-papel); transform: translateX(100%);
+      transition: transform 0.24s cubic-bezier(0.25,0.46,0.45,0.94); will-change: transform;
+    }
+    .cx-conv.open { transform: translateX(0); }
+    .cx-conv-quem { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+    .cx-conv-txt { min-width: 0; display: flex; flex-direction: column; }
+    .cx-conv-nome { font-weight: 800; font-size: 1rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cx-conv-sub { font-size: 0.74rem; color: rgba(255,255,255,0.78); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .cx-msgs {
+      flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+      padding: 8px 10px 10px; display: flex; flex-direction: column;
+      background-color: var(--cx-papel);
+      background-image:
+        radial-gradient(rgba(212,168,75,0.13) 1.2px, transparent 1.3px),
+        radial-gradient(rgba(27,36,64,0.05) 1.2px, transparent 1.3px);
+      background-size: 26px 26px, 26px 26px; background-position: 0 0, 13px 13px;
+    }
+    .cx-dia { align-self: center; margin: 10px 0 6px; padding: 5px 12px; border-radius: 8px;
+      background: rgba(255,253,246,0.96); color: #6E6757; font-size: 0.74rem; font-weight: 700;
+      box-shadow: 0 1px 1.5px rgba(0,0,0,0.12); position: sticky; top: 4px; z-index: 1; }
+    .cx-naolidas { align-self: stretch; text-align: center; margin: 10px -10px 6px; padding: 5px 0;
+      background: rgba(255,250,235,0.9); color: #8A6A1E; font-size: 0.76rem; font-weight: 800; }
+    .cx-aviso-conv { align-self: center; max-width: 88%; text-align: center; margin: 8px 0; padding: 7px 12px;
+      border-radius: 8px; background: #FFF6D8; color: #6B5A2A; font-size: 0.76rem; line-height: 1.35;
+      box-shadow: 0 1px 1.5px rgba(0,0,0,0.08); }
+
+    .cx-linha { display: flex; margin-top: 2px; }
+    .cx-linha.inicio { margin-top: 8px; }
+    .cx-linha.eu { justify-content: flex-end; }
+    .cx-b {
+      position: relative; max-width: min(80%, 520px); padding: 6px 8px 7px 9px;
+      font-size: 0.94rem; line-height: 1.38; border-radius: 9px;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.13);
+      -webkit-user-select: text; user-select: text; -webkit-touch-callout: default;
+    }
+    .cx-linha.ele .cx-b { background: var(--cx-recebida); }
+    .cx-linha.eu .cx-b { background: var(--cx-enviada); }
+    .cx-linha.inicio.ele .cx-b { border-top-left-radius: 0; }
+    .cx-linha.inicio.eu .cx-b { border-top-right-radius: 0; }
+    .cx-linha.inicio.ele .cx-b::before, .cx-linha.inicio.eu .cx-b::before {
+      content: ''; position: absolute; top: 0; width: 8px; height: 10px;
+    }
+    .cx-linha.inicio.ele .cx-b::before { left: -7px; background: linear-gradient(225deg, var(--cx-recebida) 50%, transparent 50%); }
+    .cx-linha.inicio.eu .cx-b::before { right: -7px; background: linear-gradient(135deg, var(--cx-enviada) 50%, transparent 50%); }
+    .cx-autor { font-size: 0.78rem; font-weight: 900; margin-bottom: 1px; }
+    .cx-txt { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+    .cx-txt a { color: #1F6FB2; text-decoration: underline; word-break: break-all; }
+    .cx-txt.emoji-so { font-size: 2rem; line-height: 1.2; }
+    .cx-meta {
+      float: right; margin: 7px 0 -5px 10px; font-size: 0.68rem; color: #8C8574;
+      display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;
+      -webkit-user-select: none; user-select: none; position: relative; top: 1px;
+    }
+    .cx-tick { width: 16px; height: 11px; fill: #9C9585; }
+    .cx-tick.lido { fill: var(--cx-azul); }
+    .cx-relogio { width: 11px; height: 11px; fill: #9C9585; }
+
+    .cx-descer {
+      position: absolute; right: 12px; bottom: 76px; width: 42px; height: 42px; border-radius: 50%;
+      border: none; background: #fff; color: var(--cx-navy); box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+      display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 2;
+    }
+    .cx-descer.show { display: flex; }
+    .cx-descer svg { width: 22px; height: 22px; fill: currentColor; }
+    .cx-descer b {
+      position: absolute; top: -6px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px;
+      border-radius: 10px; background: var(--cx-verde); color: #fff; font-size: 0.7rem;
+      display: none; align-items: center; justify-content: center;
+    }
+    .cx-descer b.show { display: flex; }
+
+    /* Barra de escrita */
+    .cx-barra {
+      display: flex; align-items: flex-end; gap: 7px; flex-shrink: 0;
+      padding: 7px 8px calc(7px + env(safe-area-inset-bottom, 0px)); background: transparent;
+    }
+    .cx-campo {
+      flex: 1; min-width: 0; display: flex; align-items: flex-end; background: #fff;
+      border-radius: 24px; padding: 4px 6px 4px 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.14);
+    }
+    .cx-campo textarea {
+      flex: 1; min-width: 0; border: none; outline: none; resize: none; background: transparent;
+      font-family: inherit; font-size: 1rem; line-height: 1.35; color: var(--cx-texto);
+      padding: 8px 0; height: 37px; max-height: 128px; overflow-y: auto;
+      -webkit-user-select: text; user-select: text;
+    }
+    .cx-campo textarea::placeholder { color: #A9A291; }
+    .cx-cont { align-self: center; font-size: 0.68rem; color: #B04A2E; padding: 0 4px; display: none; }
+    .cx-cont.show { display: block; }
+    .cx-enviar {
+      width: 48px; height: 48px; border-radius: 50%; border: none; flex-shrink: 0; cursor: pointer;
+      background: linear-gradient(145deg, var(--cx-navy2), var(--cx-navy)); color: var(--cx-ouro-claro);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25), inset 0 0 0 2px rgba(212,168,75,0.6);
+      transition: transform 0.1s, opacity 0.15s;
+    }
+    .cx-enviar svg { width: 22px; height: 22px; fill: currentColor; margin-left: 3px; }
+    .cx-enviar:active { transform: scale(0.92); }
+    .cx-enviar.vazio { opacity: 0.55; }
+    .cx-so-leitura {
+      flex-shrink: 0; text-align: center; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+      font-size: 0.82rem; color: #6E6757; background: #FBF6EA; border-top: 1px solid var(--cx-linha);
+    }
+
+    /* Aviso flutuante de nova mensagem (com o app aberto) */
+    #cx-toast {
+      position: fixed; left: 8px; right: 8px; top: calc(env(safe-area-inset-top, 0px) + 8px);
+      z-index: 6000; display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      background: #FFFDF6; border-radius: 14px; border-left: 4px solid #D4A84B;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.28); cursor: pointer; max-width: 520px; margin: 0 auto;
+      transform: translateY(-140%); transition: transform 0.28s cubic-bezier(0.34,1.4,0.64,1);
+      font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #1F2430;
+    }
+    #cx-toast.show { transform: translateY(0); }
+    #cx-toast .cx-toast-txt { flex: 1; min-width: 0; }
+    #cx-toast .cx-toast-nome { font-weight: 900; font-size: 0.88rem; }
+    #cx-toast .cx-toast-msg { font-size: 0.85rem; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Perfil (nome e foto do Mestre no chat) */
+    .cx-perfil-fundo { position: absolute; inset: 0; z-index: 5; background: rgba(15,20,35,0.55); display: none; align-items: center; justify-content: center; padding: 18px; }
+    .cx-perfil-fundo.open { display: flex; }
+    .cx-perfil { width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; background: #FFFDF8; border-radius: 16px; padding: 18px; border-top: 4px solid #D4A84B; }
+    .cx-perfil h4 { font-family: 'Cinzel', 'Nunito', serif; font-size: 1.05rem; color: #1B2440; margin-bottom: 12px; }
+    .cx-perfil label { display: block; font-size: 0.78rem; font-weight: 800; color: #7A7466; margin: 10px 0 4px; }
+    .cx-perfil input { width: 100%; padding: 10px 12px; border: 1.5px solid #E2D7BC; border-radius: 10px; font-size: 0.95rem; font-family: inherit; background: #fff; -webkit-user-select: text; user-select: text; }
+    .cx-perfil-prev { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+    .cx-perfil-ops { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .cx-perfil-ops .cx-av { cursor: pointer; }
+    .cx-perfil-ops .cx-av.sel { box-shadow: 0 0 0 3px #22A55A; }
+    .cx-perfil-btns { display: flex; gap: 8px; margin-top: 16px; }
+    .cx-perfil-btns button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-weight: 800; font-size: 0.92rem; cursor: pointer; }
+    .cx-perfil-btns .ok { background: #1B2440; color: #F3DFA6; }
+    .cx-perfil-btns .nao { background: #EFE8D6; color: #5B5546; }
+    .cx-dica { font-size: 0.74rem; color: #8C8574; margin-top: 6px; line-height: 1.35; }
+    .cx-msgs { position: relative; }
+    .cx-item-prev .cx-tick { vertical-align: -1px; margin-right: 2px; }
+    .cx-pill {
+      position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 6;
+      background: rgba(27,36,64,0.92); color: #F3DFA6; font-size: 0.82rem; font-weight: 700;
+      padding: 8px 16px; border-radius: 18px; pointer-events: none; opacity: 0; transition: opacity 0.2s;
+    }
+    .cx-pill.show { opacity: 1; }
+    .cx-linha.pisca .cx-b { animation: cx-pisca 1s ease-out; }
+    @keyframes cx-pisca { 0% { box-shadow: 0 0 0 4px rgba(212,168,75,0.7); } 100% { box-shadow: 0 1px 1px rgba(0,0,0,0.13); } }
 
     /* ══ HERO OVERLAY ══ */
     #hero-overlay {
@@ -1908,36 +2055,6 @@
 
       <div id="ranking-lista"></div>
       <button class="ranking-close" onclick="fecharRanking()">⚔ Fechar</button>
-    </div>
-  </div>
-
-  <!-- ══ CHAT MENSAGENS (WhatsApp-style) ══ -->
-  <div id="chat-overlay">
-    <!-- Painel 1 - lista de contatos (Mestres) -->
-    <div class="chat-header">
-      <span class="chat-header-title">💬 Mensagens</span>
-      <button class="chat-close-btn" onclick="fecharMensagens()">✕</button>
-    </div>
-    <div class="chat-contact-list" id="chat-contact-list">
-      <div class="chat-no-contacts">⏳ Carregando...</div>
-    </div>
-
-    <!-- Painel 2 - thread (desliza por cima) -->
-    <div id="chat-thread">
-      <div class="chat-header">
-        <button class="chat-back-btn" onclick="voltarParaLista()" id="chat-back-btn">
-          <div class="chat-back-avatar" id="chat-back-avatar">⚔️</div>
-          <span class="chat-back-name" id="chat-thread-title">Conversa</span>
-        </button>
-        <button class="chat-close-btn" onclick="fecharMensagens()">✕</button>
-      </div>
-      <div class="chat-messages" id="chat-messages"></div>
-      <div class="chat-input-bar">
-        <input type="text" id="chat-input" class="chat-input"
-               placeholder="Mensagem" maxlength="500"
-               onkeydown="if(event.key==='Enter') enviarMensagem()">
-        <button class="chat-send-btn" onclick="enviarMensagem()">➤</button>
-      </div>
     </div>
   </div>
 
@@ -4168,6 +4285,39 @@
       }
     }
 
+
+    function _idDispositivo(chave) {
+      try {
+        let id = localStorage.getItem(chave);
+        if (!id) { id = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem(chave, id); }
+        return id;
+      } catch (e) { return 'd_sem_memoria'; }
+    }
+    // Uma entrada por aparelho (chave fixa) e sem cópias do mesmo token:
+    // era a repetição de tokens que fazia a mesma notificação chegar 2, 3 vezes.
+    async function _gravarToken(caminho, chaveDisp, token, app) {
+      const base = db.ref(caminho);
+      const atual = (await base.get().catch(() => null));
+      const upd = {};
+      Object.entries((atual && atual.val()) || {}).forEach(([k, v]) => {
+        const tk = (v && typeof v === 'object') ? v.token : (v === true ? k : v);
+        if (k !== chaveDisp && tk === token) upd[k] = null;
+      });
+      upd[chaveDisp] = { token, criadoEm: new Date().toISOString(), ua: navigator.userAgent.substring(0, 120), app };
+      await base.update(upd);
+    }
+
+    async function registrarTokenPush() {
+      if (!('serviceWorker' in navigator) || !('Notification' in window) || !currentUserEmail) return false;
+      if (Notification.permission !== 'granted') return false;
+      await garantirAuth();
+      const reg = await navigator.serviceWorker.ready;
+      const token = await firebase.messaging().getToken({ vapidKey: VAPID_PUBLIC_KEY, serviceWorkerRegistration: reg });
+      if (!token || !currentUserEmail) return false;
+      await _gravarToken('fcm_tokens/' + sanitizeEmail(currentUserEmail), _idDispositivo('minutinhos_disp_guardiao'), token, 'guardiao');
+      return true;
+    }
+
     async function ativarNotificacoesPush() {
       try {
         if (!('serviceWorker' in navigator) || !('Notification' in window)) {
@@ -4179,17 +4329,7 @@
           oraMsg(falar('push_negada'));
           return;
         }
-        await garantirAuth();
-        const reg = await navigator.serviceWorker.ready;
-        const messaging = firebase.messaging();
-        const token = await messaging.getToken({ vapidKey: VAPID_PUBLIC_KEY, serviceWorkerRegistration: reg });
-        if (token && currentUserEmail) {
-          const emailKey = sanitizeEmail(currentUserEmail);
-          await db.ref('fcm_tokens/' + emailKey).push({
-            token: token,
-            criadoEm: new Date().toISOString(),
-            ua: navigator.userAgent.substring(0, 120)
-          });
+        if (await registrarTokenPush()) {
           const btn = document.getElementById('btn-ativar-push');
           if (btn) btn.textContent = '🔔 Notificações ativadas';
           oraMsg(falar('push_ok'));
@@ -4286,6 +4426,7 @@
       try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
       currentUserEmail = null;
       listenerAtivo = false;
+      if (Chat.ativo) Chat.parar();
       vibrate(40);
       soundTone(400, 'sine', 0.15, 0.15, 0.005);
       mostrarSelecao();
@@ -7316,11 +7457,6 @@
     ============================================================ */
     let listenerAtivo    = false;
     let filaNotificacoes = [];
-    // Chat - estado
-    let msgCache          = {};   // { mestreUid: [{key, de, mestreUid, texto, timestamp}] }
-    let mestresInfo       = {};   // { mestreUid: { nome, emoji } }
-    let selectedMestreUid = null; // conversa aberta
-    let mensagensNaoLidas = {};   // { mestreUid: count }
 
     async function iniciarListeners() {
       if (listenerAtivo) return;
@@ -7408,58 +7544,9 @@
         });
       }).catch(() => {});
 
-      // Busca nomes dos Mestres (pai, mãe) do nó /admins
-      _carregarMestresInfo().then(() => {
-        // Se o overlay de chat já está aberto, re-renderiza com os nomes carregados
-        if (document.getElementById('chat-overlay').classList.contains('open')) {
-          renderContactList();
-        }
-      });
-
-      // Mensagens - carrega histórico e escuta novas
-      const emailKey2 = emailKey;
-      const existingMsgKeys = new Set();
-
-      db.ref('mensagens/' + emailKey2).once('value').then(histSnap => {
-        if (histSnap.exists()) {
-          histSnap.forEach(c => {
-            existingMsgKeys.add(c.key);
-            const msg = c.val();
-            if (!msg) return;
-            const uid = _getMestreUidLegado(msg);
-            if (!msgCache[uid]) msgCache[uid] = [];
-            msgCache[uid].push({ key: c.key, ...msg });
-          });
-        }
-
-        // Agora escuta novos (somente os que ainda não estavam)
-        db.ref('mensagens/' + emailKey2).on('child_added', snap => {
-          if (existingMsgKeys.has(snap.key)) return;
-          existingMsgKeys.add(snap.key);
-          const msg = snap.val();
-          if (!msg) return;
-          const uid = _getMestreUidLegado(msg);
-          if (!msgCache[uid]) msgCache[uid] = [];
-          msgCache[uid].push({ key: snap.key, ...msg });
-
-          // Atualiza thread se estiver aberta
-          if (selectedMestreUid === uid) renderThread(uid);
-          // Atualiza lista se estiver na lista
-          const overlay = document.getElementById('chat-overlay');
-          if (overlay.classList.contains('open') && !selectedMestreUid) renderContactList();
-
-          // Notifica se não for mensagem própria
-          const meuKey = sanitizeEmail(currentUserEmail || '');
-          if (msg.de !== meuKey) {
-            if (!overlay.classList.contains('open') || selectedMestreUid !== uid) {
-              mensagensNaoLidas[uid] = (mensagensNaoLidas[uid] || 0) + 1;
-              atualizarBadgeChat();
-              initAudio(); vibrate([40, 20, 60]);
-              soundTone(1047, 'sine', 0.2, 0.15, 0.01);
-            }
-          }
-        });
-      }).catch(() => {});
+      // Central de Mensagens (Fase 10) e push deste aparelho
+      iniciarChatGuardiao(emailKey);
+      registrarTokenPush().catch(() => {});
     }
 
     function tocarSino(notif) {
@@ -7538,183 +7625,924 @@
     }
 
     /* ============================================================
-       CHAT - WhatsApp-style
+       CENTRAL DE MENSAGENS (Fase 10) · módulo igual nos dois apps
+       Estrutura no Firebase:
+         chat/c/{cid}/m/{mid}   = { de, texto, ts }      (mensagens)
+         chat/c/{cid}/lido/{id} = ts da última lida       (vistos)
+         chat/pres/{id}         = { on, ts }              (online)
+         chat/uids/{authUid}    = chave do Guardião        (só crianças)
+       Membros: "g_{chaveDoEmail}" (Guardião) e "m_{uidDoMestre}".
+       Conversas: "familia" (grupo) ou "~idA~idB~" (dupla, em ordem).
     ============================================================ */
+    const Chat = (() => {
+      const GRUPO = 'familia';
+      const MAX_TXT = 1000;
+      const LIMITE = 400;
+      const CORES = ['#B5532A', '#2F7D4F', '#3A5BA8', '#8A4FB0', '#A8741A', '#1E8A8A', '#B0386A'];
+      const ICON = {
+        voltar: '<svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>',
+        fechar: '<svg viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>',
+        enviar: '<svg viewBox="0 0 24 24"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>',
+        descer: '<svg viewBox="0 0 24 24"><path d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>',
+        perfil: '<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>',
+        um: '<svg class="cx-tick" viewBox="0 0 16 11"><path d="M11.07.65 4.98 6.74 2.4 4.16 1.33 5.23l3.65 3.65 7.16-7.16z"/></svg>',
+        dois: (azul) => '<svg class="cx-tick' + (azul ? ' lido' : '') + '" viewBox="0 0 16 11"><path d="M11.07.65 4.98 6.74 2.4 4.16 1.33 5.23l3.65 3.65 7.16-7.16zM15.6.65 8.44 7.81l-.95-.95-1.07 1.07 2.02 2.02 8.23-8.23z"/></svg>',
+        relogio: '<svg class="cx-relogio" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>'
+      };
+      const DIAS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 
-    function escapeHtmlMsg(str) {
-      const div = document.createElement('div');
-      div.textContent = String(str || '');
-      return div.innerHTML;
-    }
+      let C = null, eu = null, iniciado = false;
+      let membros = {}, conversas = {}, escutando = new Set(), offs = [];
+      let aberta = null, overlayAberto = false, nivelHist = 0;
+      let pres = {}, presRef = null;
+      let el = {};
+      let renderPend = new Set(), renderTimer = null;
+      let toastTimer = null, pillTimer = null, rascTimer = null, audioCtx = null;
+      let novasAbaixo = 0, cidPendente = null, domPronto = false, globaisProntos = false, inicioSessao = Date.now();
 
-    function _getMestreUidLegado(msg) {
-      if (msg.mestreUid) return msg.mestreUid;
-      const uids = Object.keys(mestresInfo);
-      return uids.length > 0 ? uids[0] : '_mestre';
-    }
+      /* ── utilidades ── */
+      const TS = () => firebase.database.ServerValue.TIMESTAMP;
+      const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      const urlCss = (u) => esc(String(u || '').replace(/["'()\\\s]/g, (c) => encodeURIComponent(c)));
+      const cidDireto = (a, b) => '~' + [a, b].sort().join('~') + '~';
+      const participantes = (cid) => cid === GRUPO ? Object.keys(membros) : cid.slice(1, -1).split('~');
+      const ehMinha = (cid) => cid === GRUPO || participantes(cid).includes(eu);
+      const outro = (cid) => participantes(cid).find((x) => x !== eu);
+      const nome = (id) => (membros[id] && membros[id].nome) || (String(id).startsWith('m_') ? 'Mestre' : 'Guardião');
+      const primeiroNome = (id) => nome(id).split(' ')[0];
+      const cor = (id) => { let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return CORES[h % CORES.length]; };
+      const vibrar = (p) => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
+      const doisDig = (n) => String(n).padStart(2, '0');
+      const hora = (ts) => { const d = new Date(ts); return doisDig(d.getHours()) + ':' + doisDig(d.getMinutes()); };
+      const inicioDia = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+      const difDias = (ts) => Math.round((inicioDia(new Date()) - inicioDia(new Date(ts))) / 86400000);
 
-    function _formatContactTime(ts) {
-      if (!ts) return '';
-      const d = new Date(ts), now = new Date();
-      const diff = Math.floor((now - d) / 86400000);
-      if (diff === 0) return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      if (diff === 1) return 'ontem';
-      if (diff < 7) return ['dom','seg','ter','qua','qui','sex','sáb'][d.getDay()];
-      return d.toLocaleDateString('pt-BR');
-    }
-
-    const _AVATAR_COLORS = ['#128C7E','#075E54','#7C3AED','#DC2626','#2563EB','#D97706'];
-    function _avatarColor(s) { let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))&0xFFFFFF; return _AVATAR_COLORS[h % _AVATAR_COLORS.length]; }
-
-    function _formatDateSep(ts) {
-      const d = new Date(ts), now = new Date();
-      const dDay  = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const diff  = Math.round((today - dDay) / 86400000);
-      if (diff === 0) return 'Hoje';
-      if (diff === 1) return 'Ontem';
-      if (diff < 7) return ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'][d.getDay()];
-      return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
-    }
-
-    function atualizarBadgeChat() {
-      const badge = document.getElementById('chat-badge-footer');
-      if (!badge) return;
-      const total = Object.values(mensagensNaoLidas).reduce((a, b) => a + b, 0);
-      badge.style.display = total > 0 ? 'block' : 'none';
-      if (total > 0) badge.textContent = total > 9 ? '9+' : total;
-    }
-
-    async function _carregarMestresInfo() {
-      try {
-        await garantirAuth();
-        const snap = await db.ref('admins').once('value');
-        if (!snap.exists()) return;
-        snap.forEach(child => {
-          const v = child.val();
-          mestresInfo[child.key] = {
-            nome:  (v && v.nome)  ? v.nome  : 'Mestre',
-            emoji: (v && v.emoji) ? v.emoji : '⚔️'
-          };
-        });
-      } catch(e) { console.warn('Erro ao buscar mestres:', e.message); }
-    }
-
-    async function abrirMensagens() {
-      initAudio(); vibrate(20);
-      document.getElementById('chat-overlay').classList.add('open');
-      const list = document.getElementById('chat-contact-list');
-      if (list) list.innerHTML = '<div class="chat-no-contacts">⏳ Carregando...</div>';
-      if (!Object.keys(mestresInfo).length) await _carregarMestresInfo();
-      renderContactList();
-    }
-
-    function fecharMensagens() {
-      document.getElementById('chat-overlay').classList.remove('open');
-      document.getElementById('chat-thread').classList.remove('open');
-      selectedMestreUid = null; vibrate(15);
-    }
-
-    function voltarParaLista() {
-      document.getElementById('chat-thread').classList.remove('open');
-      selectedMestreUid = null;
-      renderContactList();
-    }
-
-    function abrirConversa(mestreUid) {
-      selectedMestreUid = mestreUid;
-      mensagensNaoLidas[mestreUid] = 0;
-      atualizarBadgeChat();
-      const info = mestresInfo[mestreUid] || { nome: 'Mestre', emoji: '⚔️' };
-      const avatarEl = document.getElementById('chat-back-avatar');
-      const titleEl  = document.getElementById('chat-thread-title');
-      if (avatarEl) avatarEl.textContent = info.emoji;
-      if (titleEl)  titleEl.textContent  = info.nome;
-      renderThread(mestreUid);
-      document.getElementById('chat-thread').classList.add('open');
-    }
-
-    function renderContactList() {
-      const list = document.getElementById('chat-contact-list');
-      if (!list) return;
-      const uids = Object.keys(mestresInfo);
-      if (!uids.length) {
-        list.innerHTML = '<div class="chat-no-contacts">Nenhum Mestre disponível ainda.</div>';
-        return;
+      function horaLista(ts) {
+        if (!ts) return '';
+        const n = difDias(ts);
+        if (n <= 0) return hora(ts);
+        if (n === 1) return 'Ontem';
+        if (n < 7) return DIAS[new Date(ts).getDay()].split('-')[0];
+        const d = new Date(ts);
+        return doisDig(d.getDate()) + '/' + doisDig(d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(2);
       }
-      list.innerHTML = uids.map(uid => {
-        const info   = mestresInfo[uid] || { nome: 'Mestre', emoji: '⚔️' };
-        const msgs   = (msgCache[uid] || []).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-        const last   = msgs[msgs.length - 1];
-        const unread = mensagensNaoLidas[uid] || 0;
-        const preview = last ? escapeHtmlMsg(last.texto || '') : '<i style="color:#aaa">Toque para iniciar conversa</i>';
-        const time    = last ? _formatContactTime(last.timestamp) : '';
-        const cor     = _avatarColor(uid);
-        return `<div class="chat-contact-item" onclick="abrirConversa('${uid}')">
-          <div class="chat-contact-avatar" style="background:${cor};font-size:1.4rem">${info.emoji}</div>
-          <div class="chat-contact-info">
-            <div class="chat-contact-name">${escapeHtmlMsg(info.nome)}</div>
-            <div class="chat-contact-preview">${preview}</div>
-          </div>
-          <div class="chat-contact-meta">
-            <span class="chat-contact-time">${time}</span>
-            ${unread > 0 ? `<span class="chat-contact-unread">${unread > 9 ? '9+' : unread}</span>` : '<span style="width:20px"></span>'}
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-
-    function renderThread(mestreUid) {
-      const area = document.getElementById('chat-messages');
-      if (!area) return;
-      const emailKey = currentUserEmail ? sanitizeEmail(currentUserEmail) : '';
-      const msgs = (msgCache[mestreUid] || []).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-      if (!msgs.length) {
-        area.innerHTML = '<div class="chat-thread-empty">Nenhuma mensagem ainda. Diga olá! 👋</div>';
-        return;
+      function rotuloDia(ts) {
+        const n = difDias(ts);
+        if (n <= 0) return 'Hoje';
+        if (n === 1) return 'Ontem';
+        const d = new Date(ts);
+        if (n < 7) { const s = DIAS[d.getDay()]; return s.charAt(0).toUpperCase() + s.slice(1); }
+        return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
       }
-      let html = '', lastSep = null;
-      msgs.forEach(m => {
-        const sep = _formatDateSep(m.timestamp);
-        if (sep !== lastSep) {
-          html += `<div class="chat-date-sep"><span class="chat-date-pill">${sep}</span></div>`;
-          lastSep = sep;
+      function quando(ts) {
+        const n = difDias(ts);
+        if (n <= 0) return 'hoje às ' + hora(ts);
+        if (n === 1) return 'ontem às ' + hora(ts);
+        const d = new Date(ts);
+        return 'em ' + doisDig(d.getDate()) + '/' + doisDig(d.getMonth() + 1) + ' às ' + hora(ts);
+      }
+      function linkificar(txtEsc) {
+        return txtEsc.replace(/\bhttps?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]/g,
+          (u) => '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>');
+      }
+      function soEmoji(t) {
+        const s = String(t || '').replace(/\s/g, '');
+        if (!s || s.length > 16) return false;
+        try { return /^(?:\p{Extended_Pictographic}|\p{Emoji_Modifier}|‍|️)+$/u.test(s); } catch (e) { return false; }
+      }
+
+      /* ── conversas ── */
+      function cv(cid) {
+        if (!conversas[cid]) conversas[cid] = { cid, msgs: new Map(), lido: {}, pend: new Set(), carregado: false, ord: null, erro: false };
+        return conversas[cid];
+      }
+      function ordenadas(c) {
+        if (!c.ord) {
+          c.ord = [...c.msgs.entries()].map(([id, m]) => Object.assign({ id }, m))
+            .sort((a, b) => ((a.ts || 0) - (b.ts || 0)) || (a.id < b.id ? -1 : 1));
         }
-        const minha = m.de === emailKey;
-        const hora  = m.timestamp
-          ? new Date(m.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-          : '';
-        html += `<div class="chat-bubble-row ${minha ? 'sent' : 'recv'}">
-          <div class="chat-bubble ${minha ? 'sent' : 'recv'}">${escapeHtmlMsg(m.texto || '')}<span class="chat-bubble-time">${hora}</span></div>
-        </div>`;
-      });
-      area.innerHTML = html;
-      area.scrollTop = area.scrollHeight;
+        return c.ord;
+      }
+      const ultima = (cid) => { const c = conversas[cid]; if (!c) return null; const o = ordenadas(c); return o.length ? o[o.length - 1] : null; };
+      function naoLidas(cid) {
+        if (!ehMinha(cid)) return 0;
+        const c = conversas[cid]; if (!c) return 0;
+        const l = c.lido[eu] || 0;
+        let n = 0;
+        c.msgs.forEach((m) => { if (m && m.de !== eu && (m.ts || 0) > l) n++; });
+        return n;
+      }
+      function cidsMinhas() {
+        const ids = Object.keys(membros).filter((id) => id !== eu);
+        return [GRUPO].concat(ids.map((id) => cidDireto(eu, id)));
+      }
+      function cidsOutras() {
+        if (!C || !C.ehMestre) return [];
+        const ids = Object.keys(membros).filter((id) => id !== eu).sort();
+        const r = [];
+        for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) r.push(cidDireto(ids[i], ids[j]));
+        return r;
+      }
+      function titulo(cid) {
+        if (cid === GRUPO) return 'Família';
+        if (ehMinha(cid)) return nome(outro(cid));
+        const [a, b] = participantes(cid);
+        return primeiroNome(a) + ' e ' + primeiroNome(b);
+      }
+
+      /* ── avatares (foto de rosto > recorte do avatar de corpo inteiro > emoji > inicial) ── */
+      function avatar(id, peq, comPres) {
+        const cls = 'cx-av' + (peq ? ' p' : '');
+        let h;
+        if (id === GRUPO) h = '<div class="' + cls + ' grupo">🛡️</div>';
+        else {
+          const m = membros[id] || {};
+          if (m.foto) h = '<div class="' + cls + ' foto" style="background-image:url(\'' + urlCss(m.foto) + '\')"></div>';
+          else if (m.avatar) h = '<div class="' + cls + ' corpo" style="background-image:url(\'' + urlCss(m.avatar) + '\')"></div>';
+          else if (m.emoji) h = '<div class="' + cls + ' emoji" style="background-color:' + cor(id) + '">' + esc(m.emoji) + '</div>';
+          else h = '<div class="' + cls + '" style="background-color:' + cor(id) + '">' + esc(nome(id).charAt(0).toUpperCase()) + '</div>';
+        }
+        if (!comPres || id === GRUPO) return h;
+        return '<div class="cx-wrap-av' + (online(id) ? ' on' : '') + '" data-pres="' + esc(id) + '">' + h + '<span class="cx-av-on"></span></div>';
+      }
+      const online = (id) => !!(pres[id] && pres[id].on === true);
+
+      /* ── vistos ── */
+      function ticks(cid, m) {
+        const c = conversas[cid];
+        if (c.pend.has(m.id)) return ICON.relogio;
+        const outros = participantes(cid).filter((x) => x !== m.de && membros[x]);
+        const lidos = outros.filter((x) => (c.lido[x] || 0) >= (m.ts || 0)).length;
+        if (outros.length && lidos === outros.length) return ICON.dois(true);
+        if (lidos > 0) return ICON.dois(false);
+        return ICON.um;
+      }
+
+      /* ── DOM ── */
+      function montarDom() {
+        if (domPronto) return;
+        domPronto = true;
+        const ov = document.createElement('div');
+        ov.id = 'cx-overlay';
+        ov.setAttribute('data-sem-toque', '');
+        ov.innerHTML =
+          '<div class="cx-head">' +
+            '<span class="cx-head-tit">💬 Mensagens</span>' +
+            '<button type="button" class="cx-icon-btn" id="cx-btn-perfil" aria-label="Meu perfil" style="display:none">' + ICON.perfil + '</button>' +
+            '<button type="button" class="cx-icon-btn" id="cx-btn-fechar" aria-label="Fechar">' + ICON.fechar + '</button>' +
+          '</div>' +
+          '<div class="cx-aviso" id="cx-aviso"><span>🔔 Ative as notificações para saber na hora quando chegar mensagem.</span><button type="button" id="cx-btn-push">Ativar</button></div>' +
+          '<div class="cx-lista" id="cx-lista"></div>' +
+          '<div class="cx-conv" id="cx-conv">' +
+            '<div class="cx-head">' +
+              '<button type="button" class="cx-icon-btn" id="cx-btn-voltar" aria-label="Voltar">' + ICON.voltar + '</button>' +
+              '<div class="cx-conv-quem"><div id="cx-conv-av"></div><div class="cx-conv-txt"><span class="cx-conv-nome" id="cx-conv-nome"></span><span class="cx-conv-sub" id="cx-conv-sub"></span></div></div>' +
+            '</div>' +
+            '<div class="cx-msgs" id="cx-msgs"></div>' +
+            '<button type="button" class="cx-descer" id="cx-descer" aria-label="Ir para o fim">' + ICON.descer + '<b id="cx-descer-n"></b></button>' +
+            '<div class="cx-barra" id="cx-barra">' +
+              '<div class="cx-campo"><textarea id="cx-texto" rows="1" maxlength="' + MAX_TXT + '" placeholder="Mensagem" enterkeyhint="enter" autocomplete="off"></textarea><span class="cx-cont" id="cx-cont"></span></div>' +
+              '<button type="button" class="cx-enviar vazio" id="cx-enviar" aria-label="Enviar">' + ICON.enviar + '</button>' +
+            '</div>' +
+            '<div class="cx-so-leitura" id="cx-so-leitura" style="display:none"></div>' +
+            '<div class="cx-pill" id="cx-pill"></div>' +
+          '</div>' +
+          '<div class="cx-perfil-fundo" id="cx-perfil-fundo"></div>';
+        document.body.appendChild(ov);
+        const t = document.createElement('div');
+        t.id = 'cx-toast';
+        t.setAttribute('data-sem-toque', '');
+        document.body.appendChild(t);
+
+        el = {
+          ov, toast: t,
+          lista: ov.querySelector('#cx-lista'), conv: ov.querySelector('#cx-conv'),
+          msgs: ov.querySelector('#cx-msgs'), ta: ov.querySelector('#cx-texto'),
+          enviar: ov.querySelector('#cx-enviar'), cont: ov.querySelector('#cx-cont'),
+          descer: ov.querySelector('#cx-descer'), descerN: ov.querySelector('#cx-descer-n'),
+          barra: ov.querySelector('#cx-barra'), soLeitura: ov.querySelector('#cx-so-leitura'),
+          aviso: ov.querySelector('#cx-aviso'), perfilBtn: ov.querySelector('#cx-btn-perfil'),
+          perfilFundo: ov.querySelector('#cx-perfil-fundo'), pill: ov.querySelector('#cx-pill'),
+          convAv: ov.querySelector('#cx-conv-av'), convNome: ov.querySelector('#cx-conv-nome'),
+          convSub: ov.querySelector('#cx-conv-sub')
+        };
+
+        ov.querySelector('#cx-btn-fechar').addEventListener('click', () => fechar());
+        ov.querySelector('#cx-btn-voltar').addEventListener('click', () => voltar());
+        ov.querySelector('#cx-btn-push').addEventListener('click', async () => {
+          if (C && C.ativarPush) { try { await C.ativarPush(); } catch (e) {} }
+          atualizarAvisoPush();
+        });
+        el.perfilBtn.addEventListener('click', () => abrirPerfil());
+        el.lista.addEventListener('click', (ev) => {
+          const it = ev.target.closest('.cx-item');
+          if (it) abrirConversa(it.getAttribute('data-cid'));
+        });
+        el.descer.addEventListener('click', () => { el.msgs.scrollTo({ top: el.msgs.scrollHeight, behavior: 'smooth' }); });
+        el.msgs.addEventListener('scroll', atualizarDescer, { passive: true });
+
+        // Escrever: cresce com as linhas, rascunho por conversa, Enter envia só com teclado físico
+        el.ta.addEventListener('input', () => {
+          const perto = pertoDoFim();
+          autoAltura();
+          estadoEnviar();
+          if (perto) rolarFim();
+          clearTimeout(rascTimer);
+          rascTimer = setTimeout(salvarRascunho, 400);
+        });
+        el.ta.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' && !ev.shiftKey && !ev.isComposing && tecladoFisico()) {
+            ev.preventDefault();
+            enviar();
+          }
+        });
+        el.ta.addEventListener('focus', () => { if (pertoDoFim(160)) setTimeout(rolarFim, 250); });
+        ['mousedown', 'pointerdown'].forEach((n) => el.enviar.addEventListener(n, (e) => e.preventDefault()));
+        el.enviar.addEventListener('click', () => enviar());
+
+        // Segurar a mensagem copia o texto
+        let segurar = null;
+        el.msgs.addEventListener('pointerdown', (ev) => {
+          const b = ev.target.closest('.cx-b');
+          if (!b || ev.target.closest('a')) return;
+          clearTimeout(segurar);
+          segurar = setTimeout(() => copiarMensagem(b), 550);
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach((n) => el.msgs.addEventListener(n, () => clearTimeout(segurar)));
+        el.msgs.addEventListener('scroll', () => clearTimeout(segurar), { passive: true });
+
+        t.addEventListener('click', () => {
+          const cid = t.getAttribute('data-cid');
+          esconderToast();
+          if (cid) abrirConversa(cid);
+        });
+      }
+
+      function prepararGlobais() {
+        if (globaisProntos) return;
+        globaisProntos = true;
+        window.addEventListener('popstate', (ev) => {
+          const st = ev.state && ev.state.cx;
+          if (st === 2) return;
+          if (st === 1) { if (aberta) fecharConversaUI(); nivelHist = 1; return; }
+          if (overlayAberto) { nivelHist = 0; fecharUI(); }
+        });
+        const vv = window.visualViewport;
+        if (vv) {
+          const aj = () => ajustarViewport();
+          vv.addEventListener('resize', aj);
+          vv.addEventListener('scroll', aj);
+        }
+        document.addEventListener('visibilitychange', () => {
+          publicarPresenca();
+          if (!document.hidden && overlayAberto && aberta) marcarLido(aberta);
+          if (!document.hidden) atualizarAvisoPush();
+        });
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.addEventListener('message', (ev) => {
+            const d = ev.data || {};
+            if (d.cx === 'abrir' && d.cid) abrirOuAgendar(d.cid);
+          });
+        }
+      }
+
+      function ajustarViewport() {
+        if (!overlayAberto || !el.ov) return;
+        const vv = window.visualViewport;
+        if (!vv) return;
+        const perto = aberta ? pertoDoFim() : false;
+        el.ov.style.height = vv.height + 'px';
+        el.ov.style.top = vv.offsetTop + 'px';
+        if (perto) rolarFim();
+      }
+
+      const tecladoFisico = () => { try { return window.matchMedia('(pointer: fine)').matches; } catch (e) { return false; } };
+      const pertoDoFim = (folga) => !el.msgs || (el.msgs.scrollHeight - el.msgs.scrollTop - el.msgs.clientHeight) < (folga || 90);
+      const rolarFim = () => { if (el.msgs) el.msgs.scrollTop = el.msgs.scrollHeight; };
+      function autoAltura() {
+        el.ta.style.height = 'auto';
+        el.ta.style.height = Math.min(Math.max(el.ta.scrollHeight, 37), 128) + 'px';
+      }
+      function estadoEnviar() {
+        const n = el.ta.value.length;
+        el.enviar.classList.toggle('vazio', !el.ta.value.trim());
+        el.cont.classList.toggle('show', n > MAX_TXT - 100);
+        el.cont.textContent = n + '/' + MAX_TXT;
+      }
+      function atualizarDescer() {
+        const longe = !pertoDoFim(260);
+        el.descer.classList.toggle('show', longe);
+        if (!longe) novasAbaixo = 0;
+        el.descerN.textContent = novasAbaixo > 99 ? '99+' : String(novasAbaixo);
+        el.descerN.classList.toggle('show', novasAbaixo > 0);
+      }
+      function pill(txt) {
+        el.pill.textContent = txt;
+        el.pill.classList.add('show');
+        clearTimeout(pillTimer);
+        pillTimer = setTimeout(() => el.pill.classList.remove('show'), 1600);
+      }
+      function copiarMensagem(b) {
+        const linha = b.closest('.cx-linha');
+        const c = conversas[aberta];
+        const m = c && linha && c.msgs.get(linha.getAttribute('data-mid'));
+        if (!m) return;
+        vibrar(30);
+        const ok = () => pill('Mensagem copiada');
+        try {
+          if (navigator.clipboard) navigator.clipboard.writeText(m.texto || '').then(ok).catch(() => {});
+        } catch (e) {}
+      }
+
+      /* ── rascunhos (um por conversa, guardados neste aparelho) ── */
+      const chaveRasc = (cid) => 'cx_rasc_' + eu + '_' + cid;
+      function salvarRascunho() {
+        if (!aberta || !eu) return;
+        try {
+          const v = el.ta.value;
+          if (v.trim()) localStorage.setItem(chaveRasc(aberta), v); else localStorage.removeItem(chaveRasc(aberta));
+        } catch (e) {}
+      }
+      function lerRascunho(cid) { try { return localStorage.getItem(chaveRasc(cid)) || ''; } catch (e) { return ''; } }
+      function apagarRascunho(cid) { try { localStorage.removeItem(chaveRasc(cid)); } catch (e) {} }
+
+      /* ── escuta do Firebase ── */
+      function escutar(cid) {
+        if (escutando.has(cid)) return;
+        escutando.add(cid);
+        const c = cv(cid);
+        const base = C.db.ref('chat/c/' + cid);
+        const q = base.child('m').orderByChild('ts').limitToLast(LIMITE);
+        const falha = (e) => { c.erro = true; console.warn('Chat: sem acesso a', cid, e && e.message); agendar(cid); };
+        const add = (s) => {
+          const v = s.val();
+          if (!v || typeof v !== 'object') return;
+          c.msgs.set(s.key, v); c.ord = null;
+          if (c.carregado) chegou(cid, s.key, v);
+          agendar(cid);
+        };
+        const mud = (s) => { const v = s.val(); if (!v) return; c.msgs.set(s.key, v); c.ord = null; agendar(cid); };
+        const rem = (s) => { c.msgs.delete(s.key); c.ord = null; agendar(cid); };
+        q.on('child_added', add, falha);
+        q.on('child_changed', mud, falha);
+        q.on('child_removed', rem, falha);
+        q.once('value').then(() => { c.carregado = true; c.erro = false; agendar(cid); }).catch(() => {});
+        const lidoRef = base.child('lido');
+        const lidoCb = (s) => {
+          const novo = s.val() || {};
+          // nunca deixa o "lido" local voltar para trás (escrita otimista)
+          if ((c.lido[eu] || 0) > (novo[eu] || 0)) novo[eu] = c.lido[eu];
+          c.lido = novo;
+          agendar(cid);
+        };
+        lidoRef.on('value', lidoCb, () => {});
+        offs.push(() => {
+          q.off('child_added', add); q.off('child_changed', mud); q.off('child_removed', rem);
+          lidoRef.off('value', lidoCb);
+        });
+      }
+
+      function chegou(cid, mid, m) {
+        if (!ehMinha(cid) || m.de === eu || m.importado) return;
+        if ((m.ts || 0) < inicioSessao - 60000) return;   // mensagem antiga que só sincronizou agora: entra só no contador
+        const c = conversas[cid];
+        if ((m.ts || 0) <= (c.lido[eu] || 0)) return;
+        const vendo = overlayAberto && aberta === cid && !document.hidden;
+        if (vendo) {
+          if (!pertoDoFim(160)) novasAbaixo++;
+          som('suave');
+          return;
+        }
+        if (document.hidden) return;              // com o app em segundo plano, quem avisa é a notificação do sistema
+        mostrarToast(cid, m);
+        som('chegou');
+        vibrar([60, 40, 90]);
+      }
+
+      function agendar(cid) {
+        renderPend.add(cid);
+        if (renderTimer) return;
+        renderTimer = setTimeout(() => {
+          renderTimer = null;
+          const lote = renderPend; renderPend = new Set();
+          if (overlayAberto && !aberta) renderLista();
+          if (overlayAberto && aberta && lote.has(aberta)) renderConversa();
+          atualizarTotal();
+        }, 40);
+      }
+
+      function atualizarTotal() {
+        let total = 0;
+        cidsMinhas().forEach((cid) => { total += naoLidas(cid); });
+        if (C && C.onTotal) { try { C.onTotal(total); } catch (e) {} }
+        try {
+          if (total > 0 && navigator.setAppBadge) navigator.setAppBadge(total).catch(() => {});
+          else if (navigator.clearAppBadge) navigator.clearAppBadge().catch(() => {});
+        } catch (e) {}
+        return total;
+      }
+
+      function marcarLido(cid) {
+        const c = conversas[cid];
+        if (!c || !ehMinha(cid)) return;
+        let ult = 0;
+        c.msgs.forEach((m, id) => { if (!c.pend.has(id) && (m.ts || 0) > ult) ult = m.ts; });
+        if (!ult || (c.lido[eu] || 0) >= ult) { fecharNotificacoes(cid); return; }
+        c.lido[eu] = ult;
+        C.db.ref('chat/c/' + cid + '/lido/' + eu).set(ult).catch(() => {});
+        fecharNotificacoes(cid);
+        atualizarTotal();
+      }
+
+      function fecharNotificacoes(cid) {
+        try {
+          if (!('serviceWorker' in navigator) || !navigator.serviceWorker.getRegistration) return;
+          navigator.serviceWorker.getRegistration().then((r) => r && r.getNotifications ? r.getNotifications({ tag: 'chat-' + cid }) : [])
+            .then((ns) => (ns || []).forEach((n) => n.close())).catch(() => {});
+        } catch (e) {}
+      }
+
+      /* ── presença (online / visto por último) ── */
+      function iniciarPresenca() {
+        presRef = C.db.ref('chat/pres/' + eu);
+        const con = C.db.ref('.info/connected');
+        const conCb = (s) => {
+          if (s.val() !== true || !presRef) return;
+          presRef.onDisconnect().set({ on: false, ts: TS() }).then(publicarPresenca).catch(() => {});
+        };
+        con.on('value', conCb);
+        const pr = C.db.ref('chat/pres');
+        const prCb = (s) => { pres = s.val() || {}; atualizarPresencaUI(); };
+        pr.on('value', prCb, () => {});
+        offs.push(() => { con.off('value', conCb); pr.off('value', prCb); });
+      }
+      function publicarPresenca() {
+        if (!presRef) return;
+        presRef.set({ on: !document.hidden, ts: TS() }).catch(() => {});
+      }
+      function subtitulo(cid) {
+        if (cid === GRUPO) {
+          return Object.keys(membros).sort((a, b) => (a === eu) - (b === eu) || nome(a).localeCompare(nome(b)))
+            .map((id) => id === eu ? 'você' : primeiroNome(id)).join(', ');
+        }
+        if (!ehMinha(cid)) return 'Somente leitura';
+        const o = outro(cid);
+        if (online(o)) return 'online';
+        const p = pres[o];
+        if (p && p.ts) return 'visto por último ' + quando(p.ts);
+        return o.startsWith('m_') ? 'Mestre da Ordem' : 'Guardião da Ordem';
+      }
+      function atualizarPresencaUI() {
+        if (!el.ov) return;
+        el.ov.querySelectorAll('[data-pres]').forEach((n) => n.classList.toggle('on', online(n.getAttribute('data-pres'))));
+        if (aberta) el.convSub.textContent = subtitulo(aberta);
+      }
+
+      /* ── lista de conversas ── */
+      function itemHtml(cid) {
+        const u = ultima(cid);
+        const n = naoLidas(cid);
+        const minha = ehMinha(cid);
+        let prev;
+        if (!u) prev = '<i>' + (cid === GRUPO ? 'Grupo de toda a família' : 'Toque para conversar') + '</i>';
+        else {
+          let pre = '';
+          if (u.de === eu) pre = ticks(cid, u) + ' ';
+          else if (cid === GRUPO || !minha) pre = esc(primeiroNome(u.de)) + ': ';
+          prev = pre + esc(String(u.texto || '').replace(/\s+/g, ' ').slice(0, 120));
+        }
+        const avId = cid === GRUPO ? GRUPO : (minha ? outro(cid) : participantes(cid)[0]);
+        return '<div class="cx-item" data-cid="' + esc(cid) + '">' + avatar(avId, false, minha) +
+          '<div class="cx-item-corpo">' +
+            '<div class="cx-item-l1"><span class="cx-item-nome">' + esc(titulo(cid)) + '</span><span class="cx-item-hora' + (n ? ' nova' : '') + '">' + (u ? horaLista(u.ts) : '') + '</span></div>' +
+            '<div class="cx-item-l2"><span class="cx-item-prev">' + prev + '</span>' + (n ? '<span class="cx-item-badge">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</div>' +
+          '</div></div>';
+      }
+      function renderLista() {
+        if (!el.lista || !C) return;
+        if (C.aviso) { el.lista.innerHTML = '<div class="cx-vazio">' + esc(C.aviso) + '</div>'; return; }
+        if (Object.keys(membros).length < 2) { el.lista.innerHTML = '<div class="cx-vazio">⏳ Convocando a família...</div>'; return; }
+        const ordemTipo = (cid) => cid === GRUPO ? 0 : (outro(cid).startsWith('m_') ? 1 : 2);
+        const minhas = cidsMinhas().sort((a, b) => {
+          const ua = ultima(a), ub = ultima(b);
+          if (ua && ub) return (ub.ts || 0) - (ua.ts || 0);
+          if (ua) return -1;
+          if (ub) return 1;
+          return ordemTipo(a) - ordemTipo(b) || titulo(a).localeCompare(titulo(b));
+        });
+        let h = minhas.map(itemHtml).join('');
+        const outras = cidsOutras().filter((cid) => ultima(cid))
+          .sort((a, b) => (ultima(b).ts || 0) - (ultima(a).ts || 0));
+        if (outras.length) h += '<div class="cx-secao">Conversas da família</div>' + outras.map(itemHtml).join('');
+        el.lista.innerHTML = h;
+      }
+
+      /* ── conversa aberta ── */
+      function renderConversa(modo) {
+        const cid = aberta;
+        const c = conversas[cid];
+        if (!c || !el.msgs) return;
+        const perto = pertoDoFim();
+        const antes = el.msgs.scrollTop;
+        const minha = ehMinha(cid);
+        const lados = participantes(cid);
+        const msgs = ordenadas(c);
+        let h = '';
+        if (cid === GRUPO) h += '<div class="cx-aviso-conv">🛡️ Grupo da família: todos os Guardiões e Mestres leem e escrevem aqui.</div>';
+        else if (!minha) h += '<div class="cx-aviso-conv">👁️ Conversa entre ' + esc(nome(lados[0])) + ' e ' + esc(nome(lados[1])) + '. Só os Mestres conseguem ver.</div>';
+        if (!msgs.length) {
+          h += '<div class="cx-aviso-conv">' + (c.erro ? 'Não foi possível abrir esta conversa agora.' : !c.carregado ? '⏳ Carregando...' :
+            (cid === GRUPO ? 'Ninguém escreveu ainda. Que tal começar? 👋' : 'Nenhuma mensagem ainda. Diga olá! 👋')) + '</div>';
+        }
+        let diaAnt = null, deAnt = null, tsAnt = 0;
+        msgs.forEach((m) => {
+          const ts = m.ts || 0;
+          const dia = inicioDia(new Date(ts));
+          if (dia !== diaAnt) { h += '<div class="cx-dia">' + rotuloDia(ts) + '</div>'; diaAnt = dia; deAnt = null; }
+          if (c.divisor === m.id) {
+            h += '<div class="cx-naolidas" id="cx-divisor">' + c.divisorN + (c.divisorN > 1 ? ' mensagens não lidas' : ' mensagem não lida') + '</div>';
+            deAnt = null;
+          }
+          const direita = minha ? m.de === eu : m.de === lados[0];
+          const inicio = m.de !== deAnt || ts - tsAnt > 10 * 60000;
+          deAnt = m.de; tsAnt = ts;
+          const autor = (!direita && inicio && (cid === GRUPO || !minha))
+            ? '<div class="cx-autor" style="color:' + cor(m.de) + '">' + esc(nome(m.de)) + '</div>' : '';
+          const emo = soEmoji(m.texto);
+          const meta = '<span class="cx-meta">' + hora(ts) + (minha && m.de === eu ? ticks(cid, m) : '') + '</span>';
+          h += '<div class="cx-linha ' + (direita ? 'eu' : 'ele') + (inicio ? ' inicio' : '') + '" data-mid="' + esc(m.id) + '">' +
+            '<div class="cx-b">' + autor + '<span class="cx-txt' + (emo ? ' emoji-so' : '') + '">' + linkificar(esc(m.texto)) + '</span>' + meta + '</div></div>';
+        });
+        el.msgs.innerHTML = h;
+        if (modo === 'abrir') posicionarAbertura();
+        else if (modo === 'fim' || perto) rolarFim();
+        else el.msgs.scrollTop = antes;
+        atualizarDescer();
+        if (overlayAberto && !document.hidden) marcarLido(cid);
+      }
+
+      function posicionarAbertura() {
+        const d = el.msgs.querySelector('#cx-divisor');
+        if (d) el.msgs.scrollTop = Math.max(0, d.offsetTop - 70); else rolarFim();
+        atualizarDescer();
+      }
+
+      function cabecalhoConversa(cid) {
+        const minha = ehMinha(cid);
+        el.convAv.innerHTML = avatar(cid === GRUPO ? GRUPO : (minha ? outro(cid) : participantes(cid)[0]), true, minha);
+        el.convNome.textContent = titulo(cid);
+        el.convSub.textContent = subtitulo(cid);
+        el.barra.style.display = minha ? '' : 'none';
+        el.soLeitura.style.display = minha ? 'none' : '';
+        el.soLeitura.textContent = 'Você está vendo a conversa de ' + titulo(cid) + '. Só eles escrevem aqui.';
+      }
+
+      function abrirConversa(cid, viaHist) {
+        if (!C || !cid) return;
+        if (cid !== GRUPO && !/^~[^~]+~[^~]+~$/.test(cid)) return;
+        if (!ehMinha(cid) && !C.ehMestre) return;
+        if (!overlayAberto) abrir(true);
+        if (aberta === cid) return;
+        const trocando = !!aberta;
+        if (aberta) { salvarRascunho(); limparDivisor(aberta); }
+        escutar(cid);
+        aberta = cid;
+        novasAbaixo = 0;
+        const c = cv(cid);
+        // divisor de "não lidas": a partir da primeira mensagem de outra pessoa depois do último visto
+        const lidoAntes = c.lido[eu] || 0;
+        const primeiras = ehMinha(cid) ? ordenadas(c).filter((m) => m.de !== eu && (m.ts || 0) > lidoAntes) : [];
+        c.divisor = primeiras.length ? primeiras[0].id : null;
+        c.divisorN = primeiras.length;
+        cabecalhoConversa(cid);
+        el.ta.value = lerRascunho(cid);
+        autoAltura(); estadoEnviar();
+        el.conv.classList.add('open');
+        renderConversa('abrir');
+        requestAnimationFrame(() => { if (aberta === cid) posicionarAbertura(); });
+        if (!viaHist) {
+          try {
+            if (trocando || nivelHist >= 2) history.replaceState({ cx: 2 }, '');
+            else { history.pushState({ cx: 2 }, ''); nivelHist = 2; }
+          } catch (e) {}
+        }
+        vibrar(12);
+      }
+      function limparDivisor(cid) { const c = conversas[cid]; if (c) { c.divisor = null; c.divisorN = 0; } }
+
+      function fecharConversaUI() {
+        if (!aberta) return;
+        salvarRascunho();
+        limparDivisor(aberta);
+        aberta = null;
+        try { el.ta.blur(); } catch (e) {}
+        el.conv.classList.remove('open');
+        renderLista();
+      }
+      function voltar() {
+        if (!aberta) return;
+        if (nivelHist >= 2) { try { history.back(); return; } catch (e) {} }
+        fecharConversaUI();
+      }
+
+      /* ── enviar ── */
+      function enviar() {
+        const cid = aberta;
+        if (!cid || !ehMinha(cid)) return;
+        const texto = el.ta.value.replace(/^\s*\n/, '').replace(/\s+$/, '');
+        if (!texto.trim()) return;
+        const final = texto.slice(0, MAX_TXT);
+        const c = cv(cid);
+        const ref = C.db.ref('chat/c/' + cid + '/m').push();
+        const mid = ref.key;
+        c.pend.add(mid);
+        el.ta.value = '';
+        autoAltura(); estadoEnviar(); apagarRascunho(cid);
+        som('enviar');
+        ref.set({ de: eu, texto: final, ts: TS() }).then(() => {
+          c.pend.delete(mid);
+          agendar(cid);
+          if (C.enviarPush) { try { C.enviarPush(cid, mid); } catch (e) {} }
+        }).catch((e) => {
+          c.pend.delete(mid);
+          c.msgs.delete(mid); c.ord = null;
+          agendar(cid);
+          if (aberta === cid && !el.ta.value) { el.ta.value = final; autoAltura(); estadoEnviar(); }
+          pill('Não foi possível enviar. Tente de novo.');
+          console.warn('Chat: falha ao enviar', e && e.message);
+        });
+        renderConversa('fim');
+      }
+
+      /* ── abrir / fechar a central ── */
+      function abrir(semHist) {
+        if (!C) return;
+        if (!overlayAberto) {
+          overlayAberto = true;
+          el.ov.classList.add('open');
+          document.documentElement.style.overflow = 'hidden';
+          ajustarViewport();
+          if (!semHist || nivelHist === 0) {
+            try { history.pushState({ cx: 1 }, ''); nivelHist = 1; } catch (e) {}
+          }
+          publicarPresenca();
+        }
+        el.perfilBtn.style.display = C.salvarPerfil ? '' : 'none';
+        atualizarAvisoPush();
+        renderLista();
+        vibrar(15);
+      }
+      function fecharUI() {
+        if (aberta) fecharConversaUI();
+        overlayAberto = false;
+        if (el.ov) { el.ov.classList.remove('open'); el.ov.style.height = ''; el.ov.style.top = ''; }
+        document.documentElement.style.overflow = '';
+        fecharPerfil();
+      }
+      function fechar() {
+        if (nivelHist > 0) {
+          const n = nivelHist; nivelHist = 0;
+          try { history.go(-n); } catch (e) {}
+          fecharUI();
+          return;
+        }
+        fecharUI();
+      }
+
+      function atualizarAvisoPush() {
+        if (!el.aviso) return;
+        let mostrar = false;
+        try { mostrar = !!(C && C.ativarPush && 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied'); } catch (e) {}
+        el.aviso.classList.toggle('show', mostrar);
+      }
+
+      /* ── aviso flutuante e som ── */
+      function mostrarToast(cid, m) {
+        const t = el.toast;
+        const corpo = cid === GRUPO ? primeiroNome(m.de) + ': ' + (m.texto || '') : (m.texto || '');
+        t.setAttribute('data-cid', cid);
+        t.innerHTML = avatar(cid === GRUPO ? GRUPO : m.de, true, false) +
+          '<div class="cx-toast-txt"><div class="cx-toast-nome">' + esc(cid === GRUPO ? 'Família' : nome(m.de)) + '</div>' +
+          '<div class="cx-toast-msg">' + esc(corpo.replace(/\s+/g, ' ')) + '</div></div>';
+        t.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(esconderToast, 4500);
+      }
+      function esconderToast() { if (el.toast) el.toast.classList.remove('show'); }
+
+      function som(tipo) {
+        if (C && C.som) { try { C.som(tipo); return; } catch (e) {} }
+        try {
+          const AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return;
+          audioCtx = audioCtx || new AC();
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          const notas = tipo === 'enviar' ? [[880, 0, 0.07]] : tipo === 'suave' ? [[1175, 0, 0.1]] : [[988, 0, 0.12], [1319, 0.13, 0.2]];
+          notas.forEach(([f, t0, d]) => {
+            const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+            const t = audioCtx.currentTime + t0;
+            o.type = 'sine'; o.frequency.value = f;
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(0.2, t + 0.015);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(t); o.stop(t + d + 0.03);
+          });
+        } catch (e) {}
+      }
+
+      /* ── perfil do Mestre (nome e foto que aparecem no chat) ── */
+      let perfilSel = null;
+      function abrirPerfil() {
+        if (!C || !C.salvarPerfil) return;
+        const m = membros[eu] || {};
+        perfilSel = { avatar: m.avatar || '', foto: m.foto || '' };
+        const ops = (C.fotosSugeridas || []).filter(Boolean);
+        el.perfilFundo.innerHTML =
+          '<div class="cx-perfil">' +
+            '<h4>Meu perfil no chat</h4>' +
+            '<div class="cx-perfil-prev"><div id="cx-perfil-av">' + avatar(eu, false, false) + '</div><div class="cx-dica">É assim que a família vê você nas conversas.</div></div>' +
+            '<label for="cx-perfil-nome">Nome</label><input id="cx-perfil-nome" maxlength="30" value="' + esc(m.nome || '') + '">' +
+            (ops.length ? '<label>Escolha um avatar</label><div class="cx-perfil-ops">' +
+              ops.map((u, i) => '<div class="cx-av corpo' + (perfilSel.avatar === u && !perfilSel.foto ? ' sel' : '') + '" data-op="' + i + '" style="background-image:url(\'' + urlCss(u) + '\')"></div>').join('') +
+              '</div>' : '') +
+            '<label for="cx-perfil-foto">Ou cole o link de uma foto de rosto</label><input id="cx-perfil-foto" inputmode="url" placeholder="https://..." value="' + esc(m.foto || '') + '">' +
+            '<div class="cx-dica">A foto de rosto tem prioridade sobre o avatar. Deixe em branco para usar o avatar.</div>' +
+            '<div class="cx-perfil-btns"><button type="button" class="nao" id="cx-perfil-nao">Cancelar</button><button type="button" class="ok" id="cx-perfil-ok">Salvar</button></div>' +
+          '</div>';
+        el.perfilFundo.classList.add('open');
+        const prev = () => {
+          const tmp = membros[eu];
+          membros[eu] = Object.assign({}, tmp, { foto: el.perfilFundo.querySelector('#cx-perfil-foto').value.trim(), avatar: perfilSel.avatar });
+          el.perfilFundo.querySelector('#cx-perfil-av').innerHTML = avatar(eu, false, false);
+          membros[eu] = tmp;
+        };
+        el.perfilFundo.querySelectorAll('[data-op]').forEach((d) => d.addEventListener('click', () => {
+          perfilSel.avatar = ops[Number(d.getAttribute('data-op'))];
+          el.perfilFundo.querySelector('#cx-perfil-foto').value = '';
+          el.perfilFundo.querySelectorAll('[data-op]').forEach((x) => x.classList.toggle('sel', x === d));
+          prev();
+        }));
+        el.perfilFundo.querySelector('#cx-perfil-foto').addEventListener('input', prev);
+        el.perfilFundo.querySelector('#cx-perfil-nao').addEventListener('click', fecharPerfil);
+        el.perfilFundo.querySelector('#cx-perfil-ok').addEventListener('click', async () => {
+          const nomeN = el.perfilFundo.querySelector('#cx-perfil-nome').value.trim();
+          const foto = el.perfilFundo.querySelector('#cx-perfil-foto').value.trim();
+          if (!nomeN) { pill('Escreva um nome.'); return; }
+          if (foto && !/^https:\/\//i.test(foto)) { pill('O link da foto precisa começar com https://'); return; }
+          try {
+            await C.salvarPerfil({ nome: nomeN, foto, avatar: perfilSel.avatar || '' });
+            membros[eu] = Object.assign({}, membros[eu], { nome: nomeN, foto, avatar: perfilSel.avatar || '' });
+            fecharPerfil();
+            renderLista();
+            pill('Perfil salvo!');
+          } catch (e) { pill('Não foi possível salvar.'); }
+        });
+      }
+      function fecharPerfil() { if (el.perfilFundo) { el.perfilFundo.classList.remove('open'); el.perfilFundo.innerHTML = ''; } }
+
+      /* ── vida do módulo ── */
+      function definirMembros(lista) {
+        membros = {};
+        (lista || []).forEach((m) => { if (m && m.id) membros[m.id] = m; });
+        if (!C) return;
+        cidsMinhas().concat(cidsOutras()).forEach(escutar);
+        agendar(GRUPO);
+        if (aberta) cabecalhoConversa(aberta);
+        if (cidPendente && membros[eu]) { const c = cidPendente; cidPendente = null; abrirConversa(c); }
+      }
+
+      function abrirOuAgendar(cid) {
+        if (C && Object.keys(membros).length > 1) abrirConversa(cid);
+        else cidPendente = cid;
+      }
+
+      function iniciar(cfg) {
+        if (iniciado) parar();
+        C = cfg; eu = cfg.eu; iniciado = true; inicioSessao = Date.now();
+        montarDom();
+        prepararGlobais();
+        conversas = {}; escutando = new Set();
+        definirMembros(cfg.membros || []);
+        iniciarPresenca();
+        atualizarTotal();
+        // Aberto por uma notificação (?chat=...)
+        try {
+          const q = new URLSearchParams(location.search);
+          const alvo = q.get('chat');
+          if (alvo) {
+            q.delete('chat');
+            const resto = q.toString();
+            history.replaceState(history.state, '', location.pathname + (resto ? '?' + resto : '') + location.hash);
+            abrirOuAgendar(alvo);
+          }
+        } catch (e) {}
+      }
+
+      function parar() {
+        offs.forEach((f) => { try { f(); } catch (e) {} });
+        offs = [];
+        if (presRef) {
+          try { presRef.onDisconnect().cancel(); presRef.set({ on: false, ts: TS() }).catch(() => {}); } catch (e) {}
+        }
+        presRef = null;
+        if (overlayAberto) fechar();
+        conversas = {}; escutando = new Set(); membros = {}; pres = {};
+        aberta = null; iniciado = false; cidPendente = null;
+        if (C && C.onTotal) { try { C.onTotal(0); } catch (e) {} }
+        C = null; eu = null;
+      }
+
+      function configurar(parcial) {
+        if (!C) return;
+        Object.assign(C, parcial || {});
+        if (overlayAberto && !aberta) renderLista();
+      }
+
+      return {
+        iniciar, parar, abrir: () => abrir(false), fechar, abrirConversa: abrirOuAgendar,
+        definirMembros, configurar, cidDireto, GRUPO,
+        get eu() { return eu; }, get ativo() { return iniciado; }, total: atualizarTotal
+      };
+    })();
+
+    /* ── Central de Mensagens: ligação com o app dos Guardiões ── */
+    function abrirMensagens() {
+      initAudio();
+      if (!Chat.ativo && currentUserEmail) iniciarChatGuardiao(sanitizeEmail(currentUserEmail));
+      Chat.abrir();
+      carregarMembrosChat();
     }
 
-    async function enviarMensagem() {
-      if (!selectedMestreUid) return;
-      const input = document.getElementById('chat-input');
-      const texto = input.value.trim();
-      if (!texto || !currentUserEmail) return;
-      input.value = '';
-      const emailKey = sanitizeEmail(currentUserEmail);
+    async function iniciarChatGuardiao(emailKey) {
+      if (!emailKey) return;
+      let aviso = null;
       try {
-        await garantirAuth();
-        await db.ref('mensagens/' + emailKey).push({
-          de: emailKey,
-          mestreUid: selectedMestreUid,
-          texto,
-          timestamp: new Date().toISOString()
-        });
-        vibrate(20);
-        soundTone(900, 'sine', 0.1, 0.12, 0.005);
-        enviarPush(selectedMestreUid, `💬 ${currentUserNome || 'Guardião'}`, texto,
-          'mensagem', { emailKey, mestreUid: selectedMestreUid });
+        const user = await garantirAuth();
+        const dev = (await db.ref('usuarios/' + emailKey + '/device_uid').get()).val();
+        if (dev !== user.uid) {
+          aviso = 'Este aparelho não está vinculado a ' + (currentUserNome || 'este Guardião') +
+                  ', então as mensagens não aparecem aqui. Use o celular dele.';
+        } else {
+          // Diz ao Firebase "este login é deste Guardião" (as regras conferem o vínculo)
+          await db.ref('chat/uids/' + user.uid).set(emailKey);
+        }
       } catch (e) {
-        input.value = texto;
-        oraMsg(falar('erro_generico'));
+        aviso = 'Não foi possível abrir as mensagens agora. Confira a internet e tente de novo.';
+      }
+      if (!currentUserEmail || sanitizeEmail(currentUserEmail) !== emailKey) return;   // trocou de Guardião no meio
+      Chat.iniciar({
+        db, eu: 'g_' + emailKey, ehMestre: false, aviso, membros: [],
+        enviarPush: (cid, mid) => enviarPushChat(cid, mid),
+        ativarPush: () => ativarNotificacoesPush(),
+        onTotal: (n) => {
+          const b = document.getElementById('chat-badge-footer');
+          if (!b) return;
+          b.style.display = n > 0 ? 'block' : 'none';
+          b.textContent = n > 9 ? '9+' : String(n);
+        },
+        som: (tipo) => {
+          initAudio();
+          if (tipo === 'enviar') soundTone(900, 'sine', 0.1, 0.12, 0.005);
+          else if (tipo === 'suave') soundTone(1175, 'sine', 0.12, 0.12, 0.005);
+          else { soundTone(988, 'sine', 0.15, 0.2, 0.01); setTimeout(() => soundTone(1319, 'sine', 0.24, 0.2, 0.01), 130); }
+        }
+      });
+      if (!aviso) await carregarMembrosChat();
+    }
+
+    async function carregarMembrosChat() {
+      if (!Chat.ativo) return;
+      try {
+        const [uS, aS] = await Promise.all([db.ref('usuarios').get(), db.ref('admins').get()]);
+        const lista = [];
+        Object.entries(uS.val() || {}).forEach(([k, u]) => {
+          if (u && u.email && !u.is_mestre) {
+            lista.push({ id: 'g_' + k, nome: u.nome || 'Guardião', foto: u.foto_perfil || '', avatar: u.avatar_url || '' });
+          }
+        });
+        Object.entries(aS.val() || {}).forEach(([uid, a]) => {
+          const o = (a && typeof a === 'object') ? a : {};
+          lista.push({ id: 'm_' + uid, nome: o.nome || 'Mestre', emoji: o.emoji || '⚔️', foto: o.foto || '', avatar: o.avatar || '' });
+        });
+        if (Chat.ativo) Chat.definirMembros(lista);
+      } catch (e) {
+        console.warn('Chat: não carregou a família:', e.message);
+      }
+    }
+
+    async function enviarPushChat(cid, mid) {
+      try {
+        const user = await garantirAuth();
+        const idToken = await user.getIdToken();
+        await fetch(PUSH_WORKER_URL + '/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
+          body: JSON.stringify({ tipo: 'chat', cid, mid })
+        });
+      } catch (e) {
+        console.warn('Push do chat não enviado:', e.message);
       }
     }
 
@@ -7927,7 +8755,7 @@
 
         // Marca como expirado no Firebase
         const emailKey = sanitizeEmail(currentUserEmail);
-        db.ref('vouchers/' + emailKey + '/' + _voucherAtivo.key).update({ status: 'Expirado' })
+        db.ref('vouchers/' + emailKey + '/' + _voucherAtivo.key).update({ status: 'Expirado', timestamp_fim: new Date().toISOString(), encerrado_por: 'tempo' })
           .catch(() => {});
 
         _voucherAtivo = null;
