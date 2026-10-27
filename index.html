@@ -1707,14 +1707,15 @@
       border-radius: 8px; background: #FFF6D8; color: #6B5A2A; font-size: 0.76rem; line-height: 1.35;
       box-shadow: 0 1px 1.5px rgba(0,0,0,0.08); }
 
-    .cx-linha { display: flex; margin-top: 2px; }
+    .cx-linha { display: flex; margin-top: 2px; position: relative; touch-action: pan-y; }
     .cx-linha.inicio { margin-top: 8px; }
     .cx-linha.eu { justify-content: flex-end; }
     .cx-b {
       position: relative; max-width: min(80%, 520px); padding: 6px 8px 7px 9px;
       font-size: 0.94rem; line-height: 1.38; border-radius: 9px;
       box-shadow: 0 1px 1px rgba(0,0,0,0.13);
-      -webkit-user-select: text; user-select: text; -webkit-touch-callout: default;
+      -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+      touch-action: pan-y; transition: transform 0.18s ease-out;
     }
     .cx-linha.ele .cx-b { background: var(--cx-recebida); }
     .cx-linha.eu .cx-b { background: var(--cx-enviada); }
@@ -1815,7 +1816,7 @@
     .cx-perfil-btns .ok { background: #1B2440; color: #F3DFA6; }
     .cx-perfil-btns .nao { background: #EFE8D6; color: #5B5546; }
     .cx-dica { font-size: 0.74rem; color: #8C8574; margin-top: 6px; line-height: 1.35; }
-    .cx-msgs { position: relative; }
+    .cx-msgs { position: relative; overflow-x: hidden; }
     .cx-item-prev .cx-tick { vertical-align: -1px; margin-right: 2px; }
     .cx-pill {
       position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 6;
@@ -1825,6 +1826,102 @@
     .cx-pill.show { opacity: 1; }
     .cx-linha.pisca .cx-b { animation: cx-pisca 1s ease-out; }
     @keyframes cx-pisca { 0% { box-shadow: 0 0 0 4px rgba(212,168,75,0.7); } 100% { box-shadow: 0 1px 1px rgba(0,0,0,0.13); } }
+
+    /* Responder arrastando */
+    .cx-linha::before {
+      content: ''; position: absolute; left: var(--ix, 8px); top: 50%; width: 30px; height: 30px; margin-top: -15px;
+      border-radius: 50%; background: rgba(27,36,64,0.16) center / 18px 18px no-repeat;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%231B2440' d='M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z'/></svg>");
+      opacity: var(--k, 0); transform: scale(calc(0.4 + var(--k, 0) * 0.6)); pointer-events: none;
+    }
+    .cx-linha.sel { background: rgba(47,155,224,0.22); }
+    .cx-linha.sel::before { display: none; }
+    .cx-msgs { margin: 0; }
+    .cx-linha { margin-left: -10px; margin-right: -10px; padding-left: 10px; padding-right: 10px; }
+
+    /* Citação dentro do balão */
+    .cx-quote {
+      margin: 0 0 4px; padding: 4px 8px 5px; border-left: 4px solid var(--cx-ouro); border-radius: 6px;
+      background: rgba(27,36,64,0.07); cursor: pointer; overflow: hidden;
+    }
+    .cx-linha.eu .cx-quote { background: rgba(120,90,20,0.10); }
+    .cx-q-nome { font-size: 0.76rem; font-weight: 900; }
+    .cx-q-txt { font-size: 0.84rem; color: #5B5546; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    .cx-autor { cursor: pointer; }
+    .cx-b.apagada { background: #F1ECDD !important; }
+    .cx-txt.apagada-txt { font-style: italic; color: #8C8574; font-size: 0.88rem; }
+
+    /* Barra de resposta acima da caixa de texto */
+    .cx-resp {
+      display: none; align-items: center; gap: 8px; flex-shrink: 0; margin: 0 8px; padding: 8px 6px 8px 10px;
+      background: #fff; border-radius: 14px 14px 0 0; border-left: 5px solid var(--cx-ouro);
+      box-shadow: 0 -1px 2px rgba(0,0,0,0.08);
+    }
+    .cx-resp.show { display: flex; }
+    .cx-resp-in { flex: 1; min-width: 0; }
+    .cx-resp-nome { font-size: 0.8rem; font-weight: 900; }
+    .cx-resp-txt { font-size: 0.86rem; color: #6E6757; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cx-resp-x { width: 32px; height: 32px; border: none; border-radius: 50%; background: transparent; color: #7A7466; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+    .cx-resp-x svg { width: 20px; height: 20px; fill: currentColor; }
+    .cx-resp.show + .cx-barra { padding-top: 0; }
+    .cx-resp.show + .cx-barra .cx-campo { border-top-left-radius: 0; border-top-right-radius: 0; }
+
+    /* Barra de seleção (substitui o cabeçalho da conversa) */
+    .cx-sel-head { position: absolute; left: 0; right: 0; top: 0; z-index: 4; display: none; }
+    .cx-sel-head.show { display: flex; }
+    .cx-sel-n { flex: 1; font-weight: 800; font-size: 1.05rem; padding-left: 6px; }
+    .cx-conv-quem { cursor: pointer; }
+
+    /* Janelinhas */
+    .cx-dlg-fundo { position: absolute; inset: 0; z-index: 7; background: rgba(15,20,35,0.55); display: none; align-items: center; justify-content: center; padding: 22px; }
+    .cx-dlg-fundo.open { display: flex; }
+    .cx-dlg { width: 100%; max-width: 340px; background: #FFFDF8; border-radius: 16px; padding: 18px 16px 12px; border-top: 4px solid #D4A84B; }
+    .cx-dlg h4 { font-family: 'Cinzel', 'Nunito', serif; font-size: 1.02rem; color: #1B2440; margin-bottom: 8px; }
+    .cx-dlg p { font-size: 0.84rem; color: #6E6757; line-height: 1.4; margin-bottom: 10px; }
+    .cx-dlg button { display: block; width: 100%; margin-top: 7px; padding: 12px; border: none; border-radius: 10px; font-weight: 800; font-size: 0.92rem; cursor: pointer; background: #EDE5CF; color: #1B2440; }
+    .cx-dlg button.perigo { background: #B03A2E; color: #fff; }
+    .cx-dlg button.nao { background: transparent; color: #7A7466; }
+
+    /* Informações */
+    .cx-info {
+      position: absolute; inset: 0; z-index: 4; display: flex; flex-direction: column; background: var(--cx-papel);
+      transform: translateX(100%); transition: transform 0.24s cubic-bezier(0.25,0.46,0.45,0.94); pointer-events: none;
+    }
+    .cx-info.open { transform: translateX(0); pointer-events: auto; }
+    .cx-info-corpo { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+    .cx-info-topo { display: flex; flex-direction: column; align-items: center; padding: 22px 16px 16px; background: var(--cx-lista); border-bottom: 1px solid var(--cx-linha); }
+    .cx-info-topo h3 { margin-top: 12px; font-size: 1.3rem; font-weight: 900; text-align: center; }
+    .cx-info-sub { margin-top: 3px; font-size: 0.86rem; color: var(--cx-sub); text-align: center; }
+    .cx-info-sub.st.on { color: var(--cx-verde); font-weight: 800; }
+    .cx-big {
+      width: 170px; height: 170px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 4rem; color: #fff; background-color: #C9B27A; background-repeat: no-repeat;
+      box-shadow: 0 0 0 3px var(--cx-ouro), 0 4px 14px rgba(0,0,0,0.2); overflow: hidden;
+    }
+    .cx-big.foto { background-size: cover; background-position: center; cursor: zoom-in; }
+    .cx-big.corpo { background-size: 250%; background-position: 50% 3%; background-color: #E9DDBF; cursor: zoom-in; }
+    .cx-big.grupo { background: radial-gradient(circle at 35% 30%, #34447A, var(--cx-navy)); font-size: 4.5rem; }
+    .cx-big.emoji { font-size: 5rem; }
+    .cx-info-card { margin: 10px 0 0; background: var(--cx-lista); border-top: 1px solid var(--cx-linha); border-bottom: 1px solid var(--cx-linha); }
+    .cx-info-tit { padding: 12px 16px 4px; font-size: 0.8rem; font-weight: 800; color: #9A7A2E; }
+    .cx-info-linha { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 14px 16px; border: none; background: transparent; font-size: 0.96rem; font-weight: 700; color: var(--cx-texto); text-align: left; cursor: pointer; }
+    .cx-info-linha:active { background: #F5EEDD; }
+    .cx-info-val { font-size: 0.82rem; color: var(--cx-sub); font-weight: 600; }
+    .cx-info-pessoa { display: flex; align-items: center; gap: 12px; padding: 9px 16px; cursor: pointer; }
+    .cx-info-pessoa:active { background: #F5EEDD; }
+    .cx-info-pessoa-txt { display: flex; flex-direction: column; min-width: 0; }
+    .cx-info-pessoa-txt b { font-size: 0.96rem; }
+    .cx-info-pessoa-txt b span { font-weight: 600; color: var(--cx-sub); }
+    .cx-info-pessoa-txt small { color: var(--cx-sub); font-size: 0.78rem; }
+
+    /* Foto ampliada */
+    .cx-zoom { position: absolute; inset: 0; z-index: 8; background: rgba(8,10,20,0.92); display: none; align-items: center; justify-content: center; padding: 16px; cursor: zoom-out; }
+    .cx-zoom.open { display: flex; }
+    .cx-zoom img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+
+    /* Silenciada */
+    .cx-item-mudo { font-size: 0.8rem; opacity: 0.7; flex-shrink: 0; }
+    .cx-item-badge.mudo { background: #A9A291; }
 
     /* ══ HERO OVERLAY ══ */
     #hero-overlay {
@@ -7627,8 +7724,10 @@
     /* ============================================================
        CENTRAL DE MENSAGENS (Fase 10) · módulo igual nos dois apps
        Estrutura no Firebase:
-         chat/c/{cid}/m/{mid}   = { de, texto, ts }      (mensagens)
+         chat/c/{cid}/m/{mid}   = { de, texto, ts [, resp:{mid,de,t}] [, apagada:true] }
          chat/c/{cid}/lido/{id} = ts da última lida       (vistos)
+         chat/c/{cid}/oculta/{id}/{mid} = true             (apagada só para esse membro)
+         chat/prefs/{id}/mute/{cid} = até quando silenciar (ms; 4102444800000 = sempre)
          chat/pres/{id}         = { on, ts }              (online)
          chat/uids/{authUid}    = chave do Guardião        (só crianças)
        Membros: "g_{chaveDoEmail}" (Guardião) e "m_{uidDoMestre}".
@@ -7647,6 +7746,9 @@
         perfil: '<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>',
         um: '<svg class="cx-tick" viewBox="0 0 16 11"><path d="M11.07.65 4.98 6.74 2.4 4.16 1.33 5.23l3.65 3.65 7.16-7.16z"/></svg>',
         dois: (azul) => '<svg class="cx-tick' + (azul ? ' lido' : '') + '" viewBox="0 0 16 11"><path d="M11.07.65 4.98 6.74 2.4 4.16 1.33 5.23l3.65 3.65 7.16-7.16zM15.6.65 8.44 7.81l-.95-.95-1.07 1.07 2.02 2.02 8.23-8.23z"/></svg>',
+        responder: '<svg viewBox="0 0 24 24"><path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/></svg>',
+        copiar: '<svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>',
+        lixo: '<svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>',
         relogio: '<svg class="cx-relogio" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>'
       };
       const DIAS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
@@ -7659,6 +7761,9 @@
       let renderPend = new Set(), renderTimer = null;
       let toastTimer = null, pillTimer = null, rascTimer = null, audioCtx = null;
       let novasAbaixo = 0, cidPendente = null, domPronto = false, globaisProntos = false, inicioSessao = Date.now();
+      let selecao = new Set(), respA = null, mutes = {}, ignorarClique = false;
+      let camadas = { info: false, dlg: false, zoom: false }, infoAlvo = null, infoPilha = [];
+      const MUDO_SEMPRE = 4102444800000;
 
       /* ── utilidades ── */
       const TS = () => firebase.database.ServerValue.TIMESTAMP;
@@ -7714,23 +7819,24 @@
 
       /* ── conversas ── */
       function cv(cid) {
-        if (!conversas[cid]) conversas[cid] = { cid, msgs: new Map(), lido: {}, pend: new Set(), carregado: false, ord: null, erro: false };
+        if (!conversas[cid]) conversas[cid] = { cid, msgs: new Map(), lido: {}, pend: new Set(), carregado: false, ord: null, erro: false, oc: {} };
         return conversas[cid];
       }
       function ordenadas(c) {
         if (!c.ord) {
-          c.ord = [...c.msgs.entries()].map(([id, m]) => Object.assign({ id }, m))
+          c.ord = [...c.msgs.entries()].filter(([id]) => !c.oc[id]).map(([id, m]) => Object.assign({ id }, m))
             .sort((a, b) => ((a.ts || 0) - (b.ts || 0)) || (a.id < b.id ? -1 : 1));
         }
         return c.ord;
       }
+      const silenciada = (cid) => (Number(mutes[cid]) || 0) > Date.now();
       const ultima = (cid) => { const c = conversas[cid]; if (!c) return null; const o = ordenadas(c); return o.length ? o[o.length - 1] : null; };
       function naoLidas(cid) {
         if (!ehMinha(cid)) return 0;
         const c = conversas[cid]; if (!c) return 0;
         const l = c.lido[eu] || 0;
         let n = 0;
-        c.msgs.forEach((m) => { if (m && m.de !== eu && (m.ts || 0) > l) n++; });
+        c.msgs.forEach((m, id) => { if (m && m.de !== eu && !m.apagada && !c.oc[id] && (m.ts || 0) > l) n++; });
         return n;
       }
       function cidsMinhas() {
@@ -7799,8 +7905,17 @@
               '<button type="button" class="cx-icon-btn" id="cx-btn-voltar" aria-label="Voltar">' + ICON.voltar + '</button>' +
               '<div class="cx-conv-quem"><div id="cx-conv-av"></div><div class="cx-conv-txt"><span class="cx-conv-nome" id="cx-conv-nome"></span><span class="cx-conv-sub" id="cx-conv-sub"></span></div></div>' +
             '</div>' +
+            '<div class="cx-head cx-sel-head" id="cx-sel-head">' +
+              '<button type="button" class="cx-icon-btn" id="cx-sel-x" aria-label="Cancelar seleção">' + ICON.fechar + '</button>' +
+              '<span class="cx-sel-n" id="cx-sel-n">1</span>' +
+              '<button type="button" class="cx-icon-btn" id="cx-sel-resp" aria-label="Responder">' + ICON.responder + '</button>' +
+              '<button type="button" class="cx-icon-btn" id="cx-sel-copiar" aria-label="Copiar">' + ICON.copiar + '</button>' +
+              '<button type="button" class="cx-icon-btn" id="cx-sel-apagar" aria-label="Apagar">' + ICON.lixo + '</button>' +
+            '</div>' +
             '<div class="cx-msgs" id="cx-msgs"></div>' +
             '<button type="button" class="cx-descer" id="cx-descer" aria-label="Ir para o fim">' + ICON.descer + '<b id="cx-descer-n"></b></button>' +
+            '<div class="cx-resp" id="cx-resp"><div class="cx-resp-in"><div class="cx-resp-nome" id="cx-resp-nome"></div><div class="cx-resp-txt" id="cx-resp-txt"></div></div>' +
+              '<button type="button" class="cx-resp-x" id="cx-resp-x" aria-label="Cancelar resposta">' + ICON.fechar + '</button></div>' +
             '<div class="cx-barra" id="cx-barra">' +
               '<div class="cx-campo"><textarea id="cx-texto" rows="1" maxlength="' + MAX_TXT + '" placeholder="Mensagem" enterkeyhint="enter" autocomplete="off"></textarea><span class="cx-cont" id="cx-cont"></span></div>' +
               '<button type="button" class="cx-enviar vazio" id="cx-enviar" aria-label="Enviar">' + ICON.enviar + '</button>' +
@@ -7808,7 +7923,10 @@
             '<div class="cx-so-leitura" id="cx-so-leitura" style="display:none"></div>' +
             '<div class="cx-pill" id="cx-pill"></div>' +
           '</div>' +
-          '<div class="cx-perfil-fundo" id="cx-perfil-fundo"></div>';
+          '<div class="cx-info" id="cx-info"></div>' +
+          '<div class="cx-perfil-fundo" id="cx-perfil-fundo"></div>' +
+          '<div class="cx-dlg-fundo" id="cx-dlg"></div>' +
+          '<div class="cx-zoom" id="cx-zoom"></div>';
         document.body.appendChild(ov);
         const t = document.createElement('div');
         t.id = 'cx-toast';
@@ -7825,7 +7943,11 @@
           aviso: ov.querySelector('#cx-aviso'), perfilBtn: ov.querySelector('#cx-btn-perfil'),
           perfilFundo: ov.querySelector('#cx-perfil-fundo'), pill: ov.querySelector('#cx-pill'),
           convAv: ov.querySelector('#cx-conv-av'), convNome: ov.querySelector('#cx-conv-nome'),
-          convSub: ov.querySelector('#cx-conv-sub')
+          convSub: ov.querySelector('#cx-conv-sub'),
+          selHead: ov.querySelector('#cx-sel-head'), selN: ov.querySelector('#cx-sel-n'),
+          selResp: ov.querySelector('#cx-sel-resp'), selCopiar: ov.querySelector('#cx-sel-copiar'),
+          resp: ov.querySelector('#cx-resp'), respNome: ov.querySelector('#cx-resp-nome'), respTxt: ov.querySelector('#cx-resp-txt'),
+          info: ov.querySelector('#cx-info'), dlg: ov.querySelector('#cx-dlg'), zoom: ov.querySelector('#cx-zoom')
         };
 
         ov.querySelector('#cx-btn-fechar').addEventListener('click', () => fechar());
@@ -7861,16 +7983,83 @@
         ['mousedown', 'pointerdown'].forEach((n) => el.enviar.addEventListener(n, (e) => e.preventDefault()));
         el.enviar.addEventListener('click', () => enviar());
 
-        // Segurar a mensagem copia o texto
-        let segurar = null;
+        // Gestos nas mensagens: segurar seleciona, arrastar para a direita responde, tocar na citação/nome abre
+        let g = null;
+        const fimGesto = () => { if (g) { clearTimeout(g.timer); g = null; } };
         el.msgs.addEventListener('pointerdown', (ev) => {
+          if (!aberta || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
           const b = ev.target.closest('.cx-b');
-          if (!b || ev.target.closest('a')) return;
-          clearTimeout(segurar);
-          segurar = setTimeout(() => copiarMensagem(b), 550);
+          if (!b || ev.clientX < 22) return;                       // borda esquerda é do "voltar" do celular
+          if (ev.target.closest('a') && !selecao.size) return;
+          const linha = b.closest('.cx-linha');
+          if (!linha) return;
+          g = { x: ev.clientX, y: ev.clientY, b, linha, mid: linha.getAttribute('data-mid'), modo: null, pid: ev.pointerId, tx: 0, vibrou: false };
+          linha.style.setProperty('--ix', (b.offsetLeft + 6) + 'px');
+          g.timer = setTimeout(() => {
+            if (!g || g.modo) return;
+            g.modo = 'longo'; ignorarClique = true;
+            alternarSel(g.mid, true);
+            vibrar(25);
+          }, 480);
         });
-        ['pointerup', 'pointercancel', 'pointerleave'].forEach((n) => el.msgs.addEventListener(n, () => clearTimeout(segurar)));
-        el.msgs.addEventListener('scroll', () => clearTimeout(segurar), { passive: true });
+        el.msgs.addEventListener('pointermove', (ev) => {
+          if (!g || ev.pointerId !== g.pid) return;
+          const dx = ev.clientX - g.x, dy = ev.clientY - g.y;
+          if (!g.modo) {
+            if (Math.abs(dy) > 10 || dx < -10) { fimGesto(); return; }       // é rolagem ou outro gesto
+            if (dx > 10 && dx > Math.abs(dy) * 1.4) {
+              if (!ehMinha(aberta) || selecao.size) { fimGesto(); return; }
+              clearTimeout(g.timer); g.modo = 'arrasta';
+              try { g.linha.setPointerCapture(ev.pointerId); } catch (e) {}
+              g.b.style.transition = 'none';
+            } else return;
+          }
+          if (g.modo === 'arrasta') {
+            const t = Math.min(Math.max(dx - 10, 0), 120);
+            const suave = t < 64 ? t : 64 + (t - 64) * 0.3;
+            g.tx = suave;
+            g.b.style.transform = 'translateX(' + suave + 'px)';
+            g.linha.style.setProperty('--k', String(Math.min(suave / 56, 1)));
+            if (!g.vibrou && suave >= 56) { g.vibrou = true; vibrar(18); }
+            else if (g.vibrou && suave < 50) g.vibrou = false;
+          }
+        });
+        const soltar = (ev, cancelou) => {
+          if (!g || ev.pointerId !== g.pid) return;
+          const x = g; clearTimeout(x.timer); g = null;
+          if (x.modo === 'arrasta') {
+            ignorarClique = true; setTimeout(() => { ignorarClique = false; }, 80);
+            x.b.style.transition = 'transform 0.18s ease-out'; x.b.style.transform = '';
+            x.linha.style.setProperty('--k', '0');
+            if (!cancelou && x.tx >= 56) responder(x.mid);
+          } else if (x.modo === 'longo') {
+            setTimeout(() => { ignorarClique = false; }, 80);
+          }
+        };
+        el.msgs.addEventListener('pointerup', (ev) => soltar(ev, false));
+        el.msgs.addEventListener('pointercancel', (ev) => soltar(ev, true));
+        el.msgs.addEventListener('scroll', () => { if (g && !g.modo) fimGesto(); }, { passive: true });
+        el.msgs.addEventListener('contextmenu', (ev) => { if (ev.target.closest('.cx-b')) ev.preventDefault(); });
+        el.msgs.addEventListener('click', (ev) => {
+          if (ignorarClique) { ev.preventDefault(); return; }
+          const linha = ev.target.closest('.cx-linha');
+          if (selecao.size && linha) { ev.preventDefault(); alternarSel(linha.getAttribute('data-mid')); return; }
+          const q = ev.target.closest('.cx-quote');
+          if (q && q.getAttribute('data-ir')) { irParaMsg(q.getAttribute('data-ir')); return; }
+          const au = ev.target.closest('.cx-autor');
+          if (au && au.getAttribute('data-id')) abrirInfo({ membro: au.getAttribute('data-id') });
+        });
+
+        // Barra de seleção, resposta, informações, janelinhas
+        ov.querySelector('#cx-sel-x').addEventListener('click', sairSelecao);
+        el.selResp.addEventListener('click', () => { if (selecao.size === 1) responder([...selecao][0]); });
+        el.selCopiar.addEventListener('click', copiarSel);
+        ov.querySelector('#cx-sel-apagar').addEventListener('click', pedirApagar);
+        ov.querySelector('#cx-resp-x').addEventListener('click', () => limparResp());
+        ov.querySelector('.cx-conv-quem').addEventListener('click', () => { if (aberta) abrirInfo({ cid: aberta }); });
+        el.info.addEventListener('click', cliqueInfo);
+        el.dlg.addEventListener('click', (ev) => { if (ev.target === el.dlg) fecharDlg(); });
+        el.zoom.addEventListener('click', fecharZoom);
 
         t.addEventListener('click', () => {
           const cid = t.getAttribute('data-cid');
@@ -7885,7 +8074,12 @@
         window.addEventListener('popstate', (ev) => {
           const st = ev.state && ev.state.cx;
           if (st === 2) return;
-          if (st === 1) { if (aberta) fecharConversaUI(); nivelHist = 1; return; }
+          if (st === 1) {
+            // voltar com algo aberto por cima (informações, janelinha, seleção) fecha só isso
+            if (aberta && fecharCamada()) { try { history.pushState({ cx: 2 }, ''); nivelHist = 2; } catch (e) {} return; }
+            if (aberta) fecharConversaUI();
+            nivelHist = 1; return;
+          }
           if (overlayAberto) { nivelHist = 0; fecharUI(); }
         });
         const vv = window.visualViewport;
@@ -7943,18 +8137,6 @@
         clearTimeout(pillTimer);
         pillTimer = setTimeout(() => el.pill.classList.remove('show'), 1600);
       }
-      function copiarMensagem(b) {
-        const linha = b.closest('.cx-linha');
-        const c = conversas[aberta];
-        const m = c && linha && c.msgs.get(linha.getAttribute('data-mid'));
-        if (!m) return;
-        vibrar(30);
-        const ok = () => pill('Mensagem copiada');
-        try {
-          if (navigator.clipboard) navigator.clipboard.writeText(m.texto || '').then(ok).catch(() => {});
-        } catch (e) {}
-      }
-
       /* ── rascunhos (um por conversa, guardados neste aparelho) ── */
       const chaveRasc = (cid) => 'cx_rasc_' + eu + '_' + cid;
       function salvarRascunho() {
@@ -7997,9 +8179,12 @@
           agendar(cid);
         };
         lidoRef.on('value', lidoCb, () => {});
+        const ocRef = base.child('oculta/' + eu);
+        const ocCb = (s) => { c.oc = s.val() || {}; c.ord = null; agendar(cid); };
+        ocRef.on('value', ocCb, () => {});
         offs.push(() => {
           q.off('child_added', add); q.off('child_changed', mud); q.off('child_removed', rem);
-          lidoRef.off('value', lidoCb);
+          lidoRef.off('value', lidoCb); ocRef.off('value', ocCb);
         });
       }
 
@@ -8015,6 +8200,7 @@
           return;
         }
         if (document.hidden) return;              // com o app em segundo plano, quem avisa é a notificação do sistema
+        if (silenciada(cid)) return;              // conversa silenciada: só o contador
         mostrarToast(cid, m);
         som('chegou');
         vibrar([60, 40, 90]);
@@ -8077,6 +8263,16 @@
         pr.on('value', prCb, () => {});
         offs.push(() => { con.off('value', conCb); pr.off('value', prCb); });
       }
+      function iniciarPrefs() {
+        const r = C.db.ref('chat/prefs/' + eu + '/mute');
+        const cb = (s) => {
+          mutes = s.val() || {};
+          if (overlayAberto && !aberta) renderLista();
+          if (camadas.info) renderInfo();
+        };
+        r.on('value', cb, () => {});
+        offs.push(() => r.off('value', cb));
+      }
       function publicarPresenca() {
         if (!presRef) return;
         presRef.set({ on: !document.hidden, ts: TS() }).catch(() => {});
@@ -8110,13 +8306,13 @@
           let pre = '';
           if (u.de === eu) pre = ticks(cid, u) + ' ';
           else if (cid === GRUPO || !minha) pre = esc(primeiroNome(u.de)) + ': ';
-          prev = pre + esc(String(u.texto || '').replace(/\s+/g, ' ').slice(0, 120));
+          prev = pre + (u.apagada ? '<i>🚫 Mensagem apagada</i>' : esc(String(u.texto || '').replace(/\s+/g, ' ').slice(0, 120)));
         }
         const avId = cid === GRUPO ? GRUPO : (minha ? outro(cid) : participantes(cid)[0]);
         return '<div class="cx-item" data-cid="' + esc(cid) + '">' + avatar(avId, false, minha) +
           '<div class="cx-item-corpo">' +
             '<div class="cx-item-l1"><span class="cx-item-nome">' + esc(titulo(cid)) + '</span><span class="cx-item-hora' + (n ? ' nova' : '') + '">' + (u ? horaLista(u.ts) : '') + '</span></div>' +
-            '<div class="cx-item-l2"><span class="cx-item-prev">' + prev + '</span>' + (n ? '<span class="cx-item-badge">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</div>' +
+            '<div class="cx-item-l2"><span class="cx-item-prev">' + prev + '</span>' + (silenciada(cid) ? '<span class="cx-item-mudo" title="Silenciada">🔇</span>' : '') + (n ? '<span class="cx-item-badge' + (silenciada(cid) ? ' mudo' : '') + '">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</div>' +
           '</div></div>';
       }
       function renderLista() {
@@ -8148,6 +8344,7 @@
         const minha = ehMinha(cid);
         const lados = participantes(cid);
         const msgs = ordenadas(c);
+        selecao.forEach((id) => { if (!c.msgs.has(id) || c.oc[id]) selecao.delete(id); });
         let h = '';
         if (cid === GRUPO) h += '<div class="cx-aviso-conv">🛡️ Grupo da família: todos os Guardiões e Mestres leem e escrevem aqui.</div>';
         else if (!minha) h += '<div class="cx-aviso-conv">👁️ Conversa entre ' + esc(nome(lados[0])) + ' e ' + esc(nome(lados[1])) + '. Só os Mestres conseguem ver.</div>';
@@ -8168,13 +8365,26 @@
           const inicio = m.de !== deAnt || ts - tsAnt > 10 * 60000;
           deAnt = m.de; tsAnt = ts;
           const autor = (!direita && inicio && (cid === GRUPO || !minha))
-            ? '<div class="cx-autor" style="color:' + cor(m.de) + '">' + esc(nome(m.de)) + '</div>' : '';
-          const emo = soEmoji(m.texto);
+            ? '<div class="cx-autor" data-id="' + esc(m.de) + '" style="color:' + cor(m.de) + '">' + esc(nome(m.de)) + '</div>' : '';
+          const ap = !!m.apagada;
+          const emo = !ap && soEmoji(m.texto);
           const meta = '<span class="cx-meta">' + hora(ts) + (minha && m.de === eu ? ticks(cid, m) : '') + '</span>';
-          h += '<div class="cx-linha ' + (direita ? 'eu' : 'ele') + (inicio ? ' inicio' : '') + '" data-mid="' + esc(m.id) + '">' +
-            '<div class="cx-b">' + autor + '<span class="cx-txt' + (emo ? ' emoji-so' : '') + '">' + linkificar(esc(m.texto)) + '</span>' + meta + '</div></div>';
+          let cit = '';
+          if (m.resp && !ap && m.resp.mid) {
+            const orig = c.msgs.get(m.resp.mid);
+            const sumiu = !!(orig && (orig.apagada || c.oc[m.resp.mid]));
+            const quem = (m.resp.de === eu && minha) ? 'Você' : nome(m.resp.de);
+            cit = '<div class="cx-quote"' + (sumiu ? '' : ' data-ir="' + esc(m.resp.mid) + '"') + ' style="border-left-color:' + cor(m.resp.de) + '">' +
+              '<div class="cx-q-nome" style="color:' + cor(m.resp.de) + '">' + esc(quem) + '</div>' +
+              '<div class="cx-q-txt">' + (sumiu ? '🚫 Mensagem apagada' : esc(m.resp.t || '')) + '</div></div>';
+          }
+          const corpo = ap ? '<span class="cx-txt apagada-txt">🚫 Esta mensagem foi apagada</span>'
+            : '<span class="cx-txt' + (emo ? ' emoji-so' : '') + '">' + linkificar(esc(m.texto)) + '</span>';
+          h += '<div class="cx-linha ' + (direita ? 'eu' : 'ele') + (inicio ? ' inicio' : '') + (selecao.has(m.id) ? ' sel' : '') + '" data-mid="' + esc(m.id) + '">' +
+            '<div class="cx-b' + (ap ? ' apagada' : '') + '">' + autor + cit + corpo + meta + '</div></div>';
         });
         el.msgs.innerHTML = h;
+        atualizarSelUI();
         if (modo === 'abrir') posicionarAbertura();
         else if (modo === 'fim' || perto) rolarFim();
         else el.msgs.scrollTop = antes;
@@ -8206,6 +8416,7 @@
         if (aberta === cid) return;
         const trocando = !!aberta;
         if (aberta) { salvarRascunho(); limparDivisor(aberta); }
+        sairSelecao(); fecharCamadasSemHist();
         escutar(cid);
         aberta = cid;
         novasAbaixo = 0;
@@ -8217,7 +8428,7 @@
         c.divisorN = primeiras.length;
         cabecalhoConversa(cid);
         el.ta.value = lerRascunho(cid);
-        autoAltura(); estadoEnviar();
+        autoAltura(); estadoEnviar(); mostrarResp();
         el.conv.classList.add('open');
         renderConversa('abrir');
         requestAnimationFrame(() => { if (aberta === cid) posicionarAbertura(); });
@@ -8235,6 +8446,7 @@
         if (!aberta) return;
         salvarRascunho();
         limparDivisor(aberta);
+        sairSelecao(); fecharCamadasSemHist();
         aberta = null;
         try { el.ta.blur(); } catch (e) {}
         el.conv.classList.remove('open');
@@ -8242,6 +8454,7 @@
       }
       function voltar() {
         if (!aberta) return;
+        if (fecharCamada()) return;
         if (nivelHist >= 2) { try { history.back(); return; } catch (e) {} }
         fecharConversaUI();
       }
@@ -8254,13 +8467,17 @@
         if (!texto.trim()) return;
         const final = texto.slice(0, MAX_TXT);
         const c = cv(cid);
+        const rp = (respA && respA.cid === cid) ? respA : null;
+        const obj = { de: eu, texto: final, ts: TS() };
+        if (rp) obj.resp = { mid: rp.mid, de: rp.de, t: rp.t };
         const ref = C.db.ref('chat/c/' + cid + '/m').push();
         const mid = ref.key;
         c.pend.add(mid);
         el.ta.value = '';
         autoAltura(); estadoEnviar(); apagarRascunho(cid);
         som('enviar');
-        ref.set({ de: eu, texto: final, ts: TS() }).then(() => {
+        if (rp) limparResp();
+        ref.set(obj).then(() => {
           c.pend.delete(mid);
           agendar(cid);
           if (C.enviarPush) { try { C.enviarPush(cid, mid); } catch (e) {} }
@@ -8269,6 +8486,7 @@
           c.msgs.delete(mid); c.ord = null;
           agendar(cid);
           if (aberta === cid && !el.ta.value) { el.ta.value = final; autoAltura(); estadoEnviar(); }
+          if (rp && !respA) { respA = rp; if (aberta === cid) mostrarResp(); }
           pill('Não foi possível enviar. Tente de novo.');
           console.warn('Chat: falha ao enviar', e && e.message);
         });
@@ -8352,6 +8570,260 @@
         } catch (e) {}
       }
 
+      /* ── selecionar, responder, copiar, apagar ── */
+      function alternarSel(mid, forcar) {
+        const c = conversas[aberta];
+        if (!c || !c.msgs.has(mid) || c.oc[mid]) return;
+        if (selecao.has(mid) && !forcar) selecao.delete(mid); else selecao.add(mid);
+        const l = [...el.msgs.querySelectorAll('.cx-linha')].find((x) => x.getAttribute('data-mid') === mid);
+        if (l) l.classList.toggle('sel', selecao.has(mid));
+        atualizarSelUI();
+      }
+      function atualizarSelUI() {
+        if (!el.selHead) return;
+        const n = selecao.size;
+        el.selHead.classList.toggle('show', n > 0);
+        el.selN.textContent = String(n);
+        const c = conversas[aberta];
+        const msgs = c ? [...selecao].map((id) => c.msgs.get(id)).filter(Boolean) : [];
+        el.selResp.style.display = (n === 1 && msgs[0] && !msgs[0].apagada && ehMinha(aberta)) ? '' : 'none';
+        el.selCopiar.style.display = msgs.some((m) => !m.apagada) ? '' : 'none';
+      }
+      function sairSelecao() {
+        if (!selecao.size) return;
+        selecao.clear();
+        if (el.msgs) el.msgs.querySelectorAll('.cx-linha.sel').forEach((l) => l.classList.remove('sel'));
+        atualizarSelUI();
+      }
+      function copiarTexto(t) {
+        return new Promise((res, rej) => {
+          const plano = () => {
+            try {
+              const ta = document.createElement('textarea');
+              ta.value = t; ta.style.cssText = 'position:fixed;top:0;opacity:0';
+              document.body.appendChild(ta); ta.select();
+              const ok = document.execCommand('copy'); ta.remove();
+              ok ? res() : rej(new Error('copy'));
+            } catch (e) { rej(e); }
+          };
+          try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(res, plano); return; } } catch (e) {}
+          plano();
+        });
+      }
+      function copiarSel() {
+        const c = conversas[aberta]; if (!c) return;
+        const msgs = ordenadas(c).filter((m) => selecao.has(m.id) && !m.apagada);
+        if (!msgs.length) return;
+        const txt = msgs.length === 1 ? String(msgs[0].texto) : msgs.map((m) => '[' + hora(m.ts) + '] ' + nome(m.de) + ': ' + m.texto).join('\n');
+        copiarTexto(txt).then(() => pill(msgs.length > 1 ? 'Mensagens copiadas' : 'Mensagem copiada')).catch(() => pill('Não foi possível copiar.'));
+        vibrar(20);
+        sairSelecao();
+      }
+
+      function responder(mid) {
+        const c = conversas[aberta]; const m = c && c.msgs.get(mid);
+        if (!m || m.apagada || !ehMinha(aberta)) return;
+        respA = { cid: aberta, mid, de: m.de, t: String(m.texto || '').replace(/\s+/g, ' ').slice(0, 140) };
+        sairSelecao();
+        mostrarResp();
+        try { el.ta.focus(); } catch (e) {}
+      }
+      function mostrarResp() {
+        if (!el.resp) return;
+        if (!respA || respA.cid !== aberta) { el.resp.classList.remove('show'); return; }
+        const quem = respA.de === eu ? 'Você' : nome(respA.de);
+        el.respNome.textContent = quem;
+        el.respNome.style.color = cor(respA.de);
+        el.resp.style.borderLeftColor = cor(respA.de);
+        el.respTxt.textContent = respA.t;
+        el.resp.classList.add('show');
+        if (pertoDoFim(160)) setTimeout(rolarFim, 30);
+      }
+      function limparResp() { respA = null; if (el.resp) el.resp.classList.remove('show'); }
+      function irParaMsg(mid) {
+        const l = [...el.msgs.querySelectorAll('.cx-linha')].find((x) => x.getAttribute('data-mid') === mid);
+        if (!l) { pill('Essa mensagem é muito antiga.'); return; }
+        l.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        l.classList.remove('pisca'); void l.offsetWidth; l.classList.add('pisca');
+        setTimeout(() => l.classList.remove('pisca'), 1100);
+      }
+
+      function abrirDlg(html, aoClicar) {
+        el.dlg.innerHTML = '<div class="cx-dlg">' + html + '</div>';
+        el.dlg.classList.add('open'); camadas.dlg = true;
+        el.dlg.querySelectorAll('button[data-a]').forEach((b) => b.addEventListener('click', () => {
+          const a = b.getAttribute('data-a');
+          fecharDlg();
+          if (a !== 'nao') aoClicar(a);
+        }));
+      }
+      function fecharDlg() { if (el.dlg) { el.dlg.classList.remove('open'); el.dlg.innerHTML = ''; } camadas.dlg = false; }
+
+      function pedirApagar() {
+        const c = conversas[aberta];
+        if (!c || !selecao.size) return;
+        const ids = [...selecao];
+        const cid = aberta;
+        const minha = ehMinha(cid);
+        const mestre = !!(C && C.ehMestre);
+        const podeTodos = mestre && ids.some((id) => c.msgs.get(id) && !c.msgs.get(id).apagada);
+        const n = ids.length;
+        let h = '<h4>' + (n === 1 ? 'Apagar mensagem?' : 'Apagar ' + n + ' mensagens?') + '</h4>';
+        if (mestre) {
+          h += '<p>' + (podeTodos ? '<b>Para todos</b>: some para todo mundo e fica "Esta mensagem foi apagada".' : '') +
+            (minha ? ' <b>Para mim</b>: some só do seu aparelho.' : '') + '</p>';
+        } else {
+          h += '<p>A mensagem some só para você. A outra pessoa e os Mestres continuam vendo.</p>';
+        }
+        if (podeTodos) h += '<button type="button" class="perigo" data-a="todos">Apagar para todos</button>';
+        if (minha) h += '<button type="button" class="perigo" data-a="mim">Apagar para mim</button>';
+        h += '<button type="button" class="nao" data-a="nao">Cancelar</button>';
+        abrirDlg(h, (a) => executarApagar(a, ids, cid));
+      }
+      async function executarApagar(modo, ids, cid) {
+        const c = conversas[cid]; if (!c) return;
+        const base = C.db.ref('chat/c/' + cid);
+        sairSelecao();
+        try {
+          if (modo === 'mim') {
+            const up = {};
+            ids.forEach((id) => { up[id] = true; c.oc[id] = true; });
+            c.ord = null; agendar(cid);                                   // some na hora
+            await base.child('oculta/' + eu).update(up);
+            pill(ids.length > 1 ? 'Mensagens apagadas para você' : 'Mensagem apagada para você');
+          } else {
+            const alvo = ids.filter((id) => c.msgs.get(id) && !c.msgs.get(id).apagada);
+            await Promise.all(alvo.map((id) => base.child('m/' + id).update({ texto: '🚫', apagada: true, resp: null })));
+            pill(alvo.length > 1 ? 'Mensagens apagadas para todos' : 'Mensagem apagada para todos');
+          }
+          vibrar(15);
+        } catch (e) {
+          if (modo === 'mim') { ids.forEach((id) => { delete c.oc[id]; }); c.ord = null; agendar(cid); }
+          pill('Não foi possível apagar.');
+          console.warn('Chat: falha ao apagar', e && e.message);
+        }
+      }
+
+      /* ── informações (toque na foto ou no nome) ── */
+      const papel = (id) => id === GRUPO ? '' : String(id).startsWith('m_') ? 'Mestre da Ordem' : 'Guardião da Ordem';
+      function statusMembro(id) {
+        if (id === eu) return '';
+        if (online(id)) return 'online';
+        const p = pres[id];
+        return (p && p.ts) ? 'visto por último ' + quando(p.ts) : '';
+      }
+      function avatarGrande(id) {
+        if (id === GRUPO) return '<div class="cx-big grupo">🛡️</div>';
+        const m = membros[id] || {};
+        if (m.foto) return '<div class="cx-big foto" data-zoom="' + esc(m.foto) + '" style="background-image:url(\'' + urlCss(m.foto) + '\')"></div>';
+        if (m.avatar) return '<div class="cx-big corpo" data-zoom="' + esc(m.avatar) + '" style="background-image:url(\'' + urlCss(m.avatar) + '\')"></div>';
+        if (m.emoji) return '<div class="cx-big emoji" style="background-color:' + cor(id) + '">' + esc(m.emoji) + '</div>';
+        return '<div class="cx-big" style="background-color:' + cor(id) + '">' + esc(nome(id).charAt(0).toUpperCase()) + '</div>';
+      }
+      function abrirInfo(alvo) {
+        if (!alvo || !el.info) return;
+        let a = Object.assign({}, alvo);
+        if (a.cid && a.cid !== GRUPO && ehMinha(a.cid) && !a.membro) a.membro = outro(a.cid);
+        if (camadas.info && infoAlvo) infoPilha.push(infoAlvo);
+        infoAlvo = a;
+        renderInfo();
+        el.info.classList.add('open'); camadas.info = true;
+      }
+      function infoVoltar() {
+        if (infoPilha.length) { infoAlvo = infoPilha.pop(); renderInfo(); return; }
+        fecharInfo();
+      }
+      function fecharInfo() {
+        if (el.info) el.info.classList.remove('open');
+        camadas.info = false; infoAlvo = null; infoPilha = [];
+        if (el.info) setTimeout(() => { if (!camadas.info) el.info.innerHTML = ''; }, 260);
+      }
+      function linhaPessoa(id) {
+        const st = statusMembro(id);
+        return '<div class="cx-info-pessoa" data-m="' + esc(id) + '">' + avatar(id, true, false) +
+          '<div class="cx-info-pessoa-txt"><b>' + esc(nome(id)) + (id === eu ? ' <span>(você)</span>' : '') + '</b><small>' + esc(st || papel(id)) + '</small></div></div>';
+      }
+      function renderInfo() {
+        const a = infoAlvo; if (!a || !el.info) return;
+        let titulo = 'Dados do contato', corpo = '';
+        const cidMudo = a.cid && (a.cid === GRUPO || ehMinha(a.cid)) ? a.cid : null;
+        if (a.membro) {
+          const id = a.membro;
+          corpo += '<div class="cx-info-topo">' + avatarGrande(id) + '<h3>' + esc(nome(id)) + (id === eu ? ' (você)' : '') + '</h3>' +
+            '<div class="cx-info-sub">' + esc(papel(id)) + '</div>' +
+            (statusMembro(id) ? '<div class="cx-info-sub st' + (online(id) ? ' on' : '') + '">' + esc(statusMembro(id)) + '</div>' : '') + '</div>';
+          if (id !== eu && membros[id] && cidDireto(eu, id) !== aberta) {
+            corpo += '<div class="cx-info-card"><button type="button" class="cx-info-linha" data-a="conversar" data-id="' + esc(id) + '"><span>💬 Conversar com ' + esc(primeiroNome(id)) + '</span></button></div>';
+          }
+        } else if (a.cid === GRUPO) {
+          titulo = 'Dados do grupo';
+          const ids = Object.keys(membros).sort((x, y) => (x === eu) - (y === eu) || nome(x).localeCompare(nome(y)));
+          corpo += '<div class="cx-info-topo">' + avatarGrande(GRUPO) + '<h3>Família</h3><div class="cx-info-sub">Grupo · ' + ids.length + ' participantes</div></div>';
+        } else if (a.cid) {
+          titulo = 'Conversa da família';
+          const [x, y] = participantes(a.cid);
+          corpo += '<div class="cx-info-topo">' + avatarGrande(x) + '<h3>' + esc(titulo_(a.cid)) + '</h3><div class="cx-info-sub">Só os Mestres conseguem ver esta conversa.</div></div>';
+        }
+        if (cidMudo) {
+          const ate = Number(mutes[cidMudo]) || 0;
+          const ativo = ate > Date.now();
+          const val = !ativo ? 'Desligado' : (ate >= MUDO_SEMPRE ? 'Sempre' : 'Até ' + quando(ate).replace(/^hoje às /, ''));
+          corpo += '<div class="cx-info-card"><button type="button" class="cx-info-linha" data-a="mudo" data-cid="' + esc(cidMudo) + '"><span>🔇 Silenciar notificações</span><span class="cx-info-val">' + esc(val) + '</span></button></div>';
+        }
+        if (!a.membro && a.cid) {
+          const ids = a.cid === GRUPO ? Object.keys(membros).sort((x, y) => (x === eu) - (y === eu) || nome(x).localeCompare(nome(y))) : participantes(a.cid);
+          corpo += '<div class="cx-info-card"><div class="cx-info-tit">' + (a.cid === GRUPO ? ids.length + ' participantes' : 'Participantes') + '</div>' +
+            ids.filter((id) => membros[id]).map(linhaPessoa).join('') + '</div>';
+        }
+        el.info.innerHTML = '<div class="cx-head"><button type="button" class="cx-icon-btn" data-a="voltar" aria-label="Voltar">' + ICON.voltar + '</button>' +
+          '<span class="cx-head-tit">' + esc(titulo) + '</span></div><div class="cx-info-corpo">' + corpo + '</div>';
+      }
+      const titulo_ = (cid) => titulo(cid);
+      function cliqueInfo(ev) {
+        const z = ev.target.closest('[data-zoom]');
+        if (z) { abrirZoom(z.getAttribute('data-zoom')); return; }
+        const p = ev.target.closest('[data-m]');
+        if (p) { abrirInfo({ membro: p.getAttribute('data-m') }); return; }
+        const b = ev.target.closest('[data-a]');
+        if (!b) return;
+        const a = b.getAttribute('data-a');
+        if (a === 'voltar') infoVoltar();
+        else if (a === 'conversar') { const id = b.getAttribute('data-id'); fecharInfo(); abrirConversa(cidDireto(eu, id)); }
+        else if (a === 'mudo') escolherMudo(b.getAttribute('data-cid'));
+      }
+      function escolherMudo(cid) {
+        const ativo = (Number(mutes[cid]) || 0) > Date.now();
+        let h = '<h4>Silenciar notificações</h4><p>Você continua recebendo as mensagens, mas sem aviso, som ou vibração.</p>' +
+          '<button type="button" data-a="8h">8 horas</button><button type="button" data-a="1s">1 semana</button><button type="button" data-a="sempre">Sempre</button>';
+        if (ativo) h += '<button type="button" class="perigo" data-a="ligar">Reativar notificações</button>';
+        h += '<button type="button" class="nao" data-a="nao">Cancelar</button>';
+        abrirDlg(h, (a) => {
+          const agora = Date.now();
+          const ate = a === '8h' ? agora + 8 * 3600000 : a === '1s' ? agora + 7 * 86400000 : a === 'sempre' ? MUDO_SEMPRE : 0;
+          const ref = C.db.ref('chat/prefs/' + eu + '/mute/' + cid);
+          if (ate) { mutes[cid] = ate; ref.set(ate).catch(() => pill('Não foi possível salvar.')); }
+          else { delete mutes[cid]; ref.remove().catch(() => pill('Não foi possível salvar.')); }
+          renderInfo();
+          if (!aberta) renderLista();
+        });
+      }
+      function abrirZoom(src) {
+        if (!src || !/^https:\/\//i.test(src)) return;
+        el.zoom.innerHTML = '<img alt="" src="' + esc(src) + '">';
+        el.zoom.classList.add('open'); camadas.zoom = true;
+      }
+      function fecharZoom() { if (el.zoom) { el.zoom.classList.remove('open'); el.zoom.innerHTML = ''; } camadas.zoom = false; }
+
+      // Fecha só a camada de cima (zoom, janelinha, informações, seleção). Devolve true se fechou algo.
+      function fecharCamada() {
+        if (camadas.zoom) { fecharZoom(); return true; }
+        if (camadas.dlg) { fecharDlg(); return true; }
+        if (camadas.info) { infoVoltar(); return true; }
+        if (selecao.size) { sairSelecao(); return true; }
+        return false;
+      }
+      function fecharCamadasSemHist() { fecharZoom(); fecharDlg(); fecharInfo(); }
+
       /* ── perfil do Mestre (nome e foto que aparecem no chat) ── */
       let perfilSel = null;
       function abrirPerfil() {
@@ -8426,6 +8898,7 @@
         conversas = {}; escutando = new Set();
         definirMembros(cfg.membros || []);
         iniciarPresenca();
+        iniciarPrefs();
         atualizarTotal();
         // Aberto por uma notificação (?chat=...)
         try {
@@ -8448,7 +8921,8 @@
         }
         presRef = null;
         if (overlayAberto) fechar();
-        conversas = {}; escutando = new Set(); membros = {}; pres = {};
+        conversas = {}; escutando = new Set(); membros = {}; pres = {}; mutes = {};
+        selecao = new Set(); respA = null; infoAlvo = null; infoPilha = [];
         aberta = null; iniciado = false; cidPendente = null;
         if (C && C.onTotal) { try { C.onTotal(0); } catch (e) {} }
         C = null; eu = null;
