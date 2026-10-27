@@ -8480,8 +8480,11 @@
       let aviso = null;
       try {
         const user = await garantirAuth();
-        const dev = (await db.ref('usuarios/' + emailKey + '/device_uid').get()).val();
-        if (dev !== user.uid) {
+        const perfil = (await db.ref('usuarios/' + emailKey).get()).val() || {};
+        const dev = perfil.device_uid;
+        if (perfil.teste) {
+          aviso = '🧪 ' + (perfil.nome || 'Este usuário') + ' é um usuário de teste, então as mensagens ficam desligadas para ele.';
+        } else if (dev !== user.uid) {
           aviso = 'Este aparelho não está vinculado a ' + (currentUserNome || 'este Guardião') +
                   ', então as mensagens não aparecem aqui. Use o celular dele.';
         } else {
@@ -8518,7 +8521,7 @@
         const [uS, aS] = await Promise.all([db.ref('usuarios').get(), db.ref('admins').get()]);
         const lista = [];
         Object.entries(uS.val() || {}).forEach(([k, u]) => {
-          if (u && u.email && !u.is_mestre) {
+          if (u && u.email && !u.is_mestre && !u.teste) {
             lista.push({ id: 'g_' + k, nome: u.nome || 'Guardião', foto: u.foto_perfil || '', avatar: u.avatar_url || '' });
           }
         });

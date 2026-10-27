@@ -1,6 +1,6 @@
 // ================================================================
 // sw.js - Service Worker - Minutinhos: Ordem dos Guardiões
-// v44 - Central de Mensagens: notificação única, com o texto da mensagem
+// v45 - Central de Mensagens: notificação única, com o texto da mensagem
 // ================================================================
 
 const TITULO_PADRAO = 'Minutinhos';
@@ -91,7 +91,7 @@ self.addEventListener('notificationclick', (event) => {
   })());
 });
 
-const CACHE_NAME = 'minutinhos-v44';
+const CACHE_NAME = 'minutinhos-v45';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
