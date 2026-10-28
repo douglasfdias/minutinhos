@@ -1923,6 +1923,8 @@
     .cx-item-mudo { font-size: 0.8rem; opacity: 0.7; flex-shrink: 0; }
     .cx-item-badge.mudo { background: #A9A291; }
 
+    .cx-info-linha.perigo { color: #B03A2E; }
+
     /* ══ HERO OVERLAY ══ */
     #hero-overlay {
       position: fixed; inset: 0; z-index: 2500;
@@ -7643,7 +7645,7 @@
 
       // Central de Mensagens (Fase 10) e push deste aparelho
       iniciarChatGuardiao(emailKey);
-      registrarTokenPush().catch(() => {});
+      _autoPush(() => ativarNotificacoesPush(), () => registrarTokenPush());
     }
 
     function tocarSino(notif) {
@@ -7898,7 +7900,7 @@
             '<button type="button" class="cx-icon-btn" id="cx-btn-perfil" aria-label="Meu perfil" style="display:none">' + ICON.perfil + '</button>' +
             '<button type="button" class="cx-icon-btn" id="cx-btn-fechar" aria-label="Fechar">' + ICON.fechar + '</button>' +
           '</div>' +
-          '<div class="cx-aviso" id="cx-aviso"><span>🔔 Ative as notificações para saber na hora quando chegar mensagem.</span><button type="button" id="cx-btn-push">Ativar</button></div>' +
+          '<div class="cx-aviso" id="cx-aviso"><span id="cx-aviso-txt">🔔 Ative as notificações para saber na hora quando chegar mensagem.</span><button type="button" id="cx-btn-push">Ativar</button></div>' +
           '<div class="cx-lista" id="cx-lista"></div>' +
           '<div class="cx-conv" id="cx-conv">' +
             '<div class="cx-head">' +
@@ -8539,8 +8541,18 @@
 
       function atualizarAvisoPush() {
         if (!el.aviso) return;
-        let mostrar = false;
-        try { mostrar = !!(C && C.ativarPush && 'Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied'); } catch (e) {}
+        let mostrar = false, bloqueada = false;
+        try {
+          if (C && C.ativarPush && 'Notification' in window) {
+            bloqueada = Notification.permission === 'denied';
+            mostrar = Notification.permission !== 'granted';
+          }
+        } catch (e) {}
+        const tx = el.aviso.querySelector('#cx-aviso-txt'), bt = el.aviso.querySelector('#cx-btn-push');
+        if (tx) tx.textContent = bloqueada
+          ? '🔕 As notificações estão bloqueadas neste celular. Libere em Configurações do celular, Apps, Notificações.'
+          : '🔔 Ative as notificações para saber na hora quando chegar mensagem.';
+        if (bt) bt.style.display = bloqueada ? 'none' : '';
         el.aviso.classList.toggle('show', mostrar);
       }
 
@@ -8779,6 +8791,10 @@
           const val = !ativo ? 'Desligado' : (ate >= MUDO_SEMPRE ? 'Sempre' : 'Até ' + quando(ate).replace(/^hoje às /, ''));
           corpo += '<div class="cx-info-card"><button type="button" class="cx-info-linha" data-a="mudo" data-cid="' + esc(cidMudo) + '"><span>🔇 Silenciar notificações</span><span class="cx-info-val">' + esc(val) + '</span></button></div>';
         }
+        const cidLimpar = a.cid || (a.membro && a.membro !== eu ? cidDireto(eu, a.membro) : null);
+        if (C && C.ehMestre && cidLimpar && (a.cid || cidDireto(eu, a.membro) === aberta)) {
+          corpo += '<div class="cx-info-card"><button type="button" class="cx-info-linha perigo" data-a="limpar" data-cid="' + esc(cidLimpar) + '"><span>🧹 Limpar conversa</span></button></div>';
+        }
         if (!a.membro && a.cid) {
           const ids = a.cid === GRUPO ? Object.keys(membros).sort((x, y) => (x === eu) - (y === eu) || nome(x).localeCompare(nome(y))) : participantes(a.cid);
           corpo += '<div class="cx-info-card"><div class="cx-info-tit">' + (a.cid === GRUPO ? ids.length + ' participantes' : 'Participantes') + '</div>' +
@@ -8799,6 +8815,7 @@
         if (a === 'voltar') infoVoltar();
         else if (a === 'conversar') { const id = b.getAttribute('data-id'); fecharInfo(); abrirConversa(cidDireto(eu, id)); }
         else if (a === 'mudo') escolherMudo(b.getAttribute('data-cid'));
+        else if (a === 'limpar') pedirLimpar(b.getAttribute('data-cid'));
       }
       function escolherMudo(cid) {
         const ativo = (Number(mutes[cid]) || 0) > Date.now();
@@ -8814,6 +8831,34 @@
           else { delete mutes[cid]; ref.remove().catch(() => pill('Não foi possível salvar.')); }
           renderInfo();
           if (!aberta) renderLista();
+        });
+      }
+      function pedirLimpar(cid) {
+        const c = conversas[cid];
+        if (!c || !C || !C.ehMestre) return;
+        const minha = ehMinha(cid);
+        let h = '<h4>Limpar conversa?</h4><p><b>Só para mim</b>: some do seu aparelho, os outros continuam vendo.<br><b>Para todos</b>: apaga todas as mensagens de verdade, para todo mundo, inclusive para as crianças. Não dá para desfazer.</p>';
+        if (minha) h += '<button type="button" data-a="mim">Limpar só para mim</button>';
+        h += '<button type="button" class="perigo" data-a="todos">Apagar tudo para todos</button><button type="button" class="nao" data-a="nao">Cancelar</button>';
+        abrirDlg(h, async (a) => {
+          const base = C.db.ref('chat/c/' + cid);
+          try {
+            if (a === 'mim') {
+              const up = {};
+              c.msgs.forEach((m, id) => { up[id] = true; c.oc[id] = true; });
+              c.ord = null; agendar(cid);
+              if (Object.keys(up).length) await base.child('oculta/' + eu).update(up);
+              pill('Conversa limpa para você');
+            } else {
+              await base.child('m').remove();
+              c.msgs.clear(); c.ord = null; c.divisor = null; agendar(cid);
+              pill('Conversa apagada para todos');
+            }
+            fecharInfo();
+          } catch (e) {
+            pill('Não foi possível limpar.');
+            console.warn('Chat: falha ao limpar', e && e.message);
+          }
         });
       }
       function abrirZoom(src) {
@@ -8951,6 +8996,27 @@
     })();
 
     /* ── Central de Mensagens: ligação com o app dos Guardiões ── */
+    /* Notificações: ao abrir o app, se já foram liberadas, renova o registro deste aparelho sozinho;
+       se nunca foram perguntadas, pede no primeiro toque (o navegador só deixa perguntar após um toque). */
+    let _autoPushPronto = false;
+    function _autoPush(ativar, registrar) {
+      try {
+        if (!('Notification' in window)) return;
+        const p = Notification.permission;
+        if (p === 'granted') {
+          registrar().catch(() => {});
+          if (!_autoPushPronto) {
+            _autoPushPronto = true;
+            document.addEventListener('visibilitychange', () => { if (!document.hidden) registrar().catch(() => {}); });
+          }
+        } else if (p === 'default' && !_autoPushPronto) {
+          _autoPushPronto = true;
+          const h = () => { document.removeEventListener('pointerup', h, true); _autoPushPronto = false; ativar().catch(() => {}); };
+          document.addEventListener('pointerup', h, true);
+        }
+      } catch (e) {}
+    }
+
     function abrirMensagens() {
       initAudio();
       if (!Chat.ativo && currentUserEmail) iniciarChatGuardiao(sanitizeEmail(currentUserEmail));
