@@ -2,6 +2,13 @@
 <html>
 <head>
   <meta charset="UTF-8">
+<script>
+/* Rede de segurança do imgbb: se uma imagem antiga (ainda gravada no Firebase, por exemplo) falhar,
+   troca pela cópia que está no GitHub. Quando os dados forem atualizados no Painel, isto deixa de ser usado. */
+(function(){var B='https://douglasfdias.github.io/minutinhos/img/',M={"YF6L3bP8/imagem-livro-180x140.png": "livro.webp", "jvkzKpNL/duolingo-oraculo-head-50x50.png": "oraculo-cabeca.webp", "1YgwbMTG/duolingo-oraculo-head.png": "oraculo-cabeca.webp", "dJswj4h4/duolingo-oraculo-head-sad-1.png": "oraculo-cabeca-triste.webp", "yFhfs0n4/duolingo-oraculo-full-body.png": "oraculo-corpo.webp", "7xwvFvSK/avatar-boy-full-body-mod1-nobg.png": "avatar-israel.webp", "V077M1SY/avatar-girl-full-body-mod1-nobg-2.png": "avatar-iza.webp", "cScPzrpW/imagem-forja-188x188.png": "forja.webp", "Zzkm8F01/icone-cristal.png": "cristal.webp", "N2QFSxDx/icone-energia-2.png": "energia.webp", "d4ntxNFN/background-user-UI-Minutinhos-3.webp": "fundo.webp", "rR2qn4yf/avatar-dad-full-body-mod1-nobg-2.png": "avatar-pai.webp"};
+window.addEventListener('error',function(e){var t=e.target;if(!t||t.tagName!=='IMG'||t.dataset.ibbFix)return;
+var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[m[1]]){t.dataset.ibbFix='1';t.src=B+M[m[1]];}},true);})();
+</script>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
@@ -26,7 +33,7 @@
 
     body {
       font-family: 'Nunito', sans-serif;
-      background: var(--blue-deep) url('https://i.ibb.co/d4ntxNFN/background-user-UI-Minutinhos-3.webp') center center / cover no-repeat fixed;
+      background: var(--blue-deep) url('img/fundo.webp') center center / cover no-repeat fixed;
       color: white; overflow: hidden; height: 100vh; height: 100dvh; position: relative;
     }
 
@@ -1024,7 +1031,7 @@
     /* ============ TELA DE SELEÇÃO DE GUARDIÃO ============ */
     #guardian-select {
       position: fixed; inset: 0; z-index: 2000;
-      background: var(--blue-deep) url('https://i.ibb.co/d4ntxNFN/background-user-UI-Minutinhos-3.webp') center/cover no-repeat;
+      background: var(--blue-deep) url('img/fundo.webp') center/cover no-repeat;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 24px;
     }
@@ -2095,7 +2102,7 @@
       <div class="gs-subtitle">✦ MINUTINHOS ✦</div>
 
       <div class="gs-oracle-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="gs-oracle-img" data-fala="gs_toque">
+        <img src="img/oraculo-corpo.webp" class="gs-oracle-img" data-fala="gs_toque">
         <div class="gs-oracle-bubble" data-fala="gs_toque">
           Saudações, Guardião! Toque no seu avatar para entrar na Ordem!
         </div>
@@ -2143,8 +2150,8 @@
 
       <!-- Nível 1: Leitura / Duolingo -->
       <div class="rank-nav-1">
-        <button class="rank-tab-1 active" id="rn1-leitura" onclick="rankNav1('leitura')"><img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">Leitura</button>
-        <button class="rank-tab-1" id="rn1-duolingo" onclick="rankNav1('duolingo')"><img class="ico" src="https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png" alt="">Duolingo</button>
+        <button class="rank-tab-1 active" id="rn1-leitura" onclick="rankNav1('leitura')"><img class="ico" src="img/livro.webp" alt="">Leitura</button>
+        <button class="rank-tab-1" id="rn1-duolingo" onclick="rankNav1('duolingo')"><img class="ico" src="img/oraculo-cabeca.webp" alt="">Duolingo</button>
       </div>
       <!-- Nível 2: Semanal / Geral -->
       <div class="rank-nav-2">
@@ -2170,11 +2177,11 @@
       </div>
       <div class="hero-mods">
         <div class="hero-mod" data-fala="xp_leitura">
-          <div class="hm-top"><div class="hm-ic"><img src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt=""></div><div class="hm-nm">Leitura</div><div class="hm-pill" id="hm-nv-l">Nível 1</div></div>
+          <div class="hm-top"><div class="hm-ic"><img src="img/livro.webp" alt=""></div><div class="hm-nm">Leitura</div><div class="hm-pill" id="hm-nv-l">Nível 1</div></div>
           <div class="hm-track"><div class="hm-fill l" id="hm-fill-l"></div><span class="hm-bt" id="hm-xp-l">0 / 250 XP</span></div>
         </div>
         <div class="hero-mod" data-fala="xp_duolingo">
-          <div class="hm-top"><div class="hm-ic"><img src="https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png" alt=""></div><div class="hm-nm">Duolingo</div><div class="hm-pill" id="hm-nv-d">Nível 1</div></div>
+          <div class="hm-top"><div class="hm-ic"><img src="img/oraculo-cabeca.webp" alt=""></div><div class="hm-nm">Duolingo</div><div class="hm-pill" id="hm-nv-d">Nível 1</div></div>
           <div class="hm-track"><div class="hm-fill d" id="hm-fill-d"></div><span class="hm-bt" id="hm-xp-d">0 / 250 XP</span></div>
         </div>
       </div>
@@ -2199,11 +2206,11 @@
     <!-- HUD -->
     <div class="top-hud">
       <div class="stat-pill" id="pill-energia" style="--delay:0s" onclick="tocarEnergia(this)">
-        <img src="https://i.ibb.co/N2QFSxDx/icone-energia-2.png">
+        <img src="img/energia.webp">
         <span id="v-e">0</span>
       </div>
       <div class="stat-pill" id="pill-cristais" style="--delay:2s" onclick="tocarCristais(this)">
-        <img src="https://i.ibb.co/Zzkm8F01/icone-cristal.png">
+        <img src="img/cristal.webp">
         <span id="v-c">0</span>
       </div>
       <div class="hud-actions">
@@ -2260,7 +2267,7 @@
     <div class="streak-duo-section">
       <div class="streak-duo-wrap">
         <div class="streak-duo-top">
-          <span class="streak-duo-title"><img class="ico" src="https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png" alt="">ORÁCULO DO SABER <span id="duo-escudo" data-fala="escudo_rotulo_duo" style="display:none;color:#7DD3FC;margin-left:4px;"></span></span>
+          <span class="streak-duo-title"><img class="ico" src="img/oraculo-cabeca.webp" alt="">ORÁCULO DO SABER <span id="duo-escudo" data-fala="escudo_rotulo_duo" style="display:none;color:#7DD3FC;margin-left:4px;"></span></span>
           <span class="streak-duo-record" id="duo-record" data-fala="duo_rotulo_record">Recorde: 0 dias</span>
         </div>
         <div class="streak-duo-heads" id="duo-heads"></div>
@@ -2277,7 +2284,7 @@
     <div class="meta-section">
       <div class="meta-wrap" id="meta-wrap" onclick="tocarMeta()">
         <div class="meta-top">
-          <span class="meta-label"><img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">META SEMANAL DE LEITURA</span>
+          <span class="meta-label"><img class="ico" src="img/livro.webp" alt="">META SEMANAL DE LEITURA</span>
           <span class="meta-nums" id="meta-nums">0 / 140 min</span>
         </div>
         <div class="meta-bar-bg">
@@ -2290,15 +2297,15 @@
     <!-- Botões -->
     <div class="action-grid tres">
       <button class="btn-epic btn-read" onclick="fLeitura(event)" aria-label="Registrar Leitura">
-        <img class="btn-ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">
+        <img class="btn-ico" src="img/livro.webp" alt="">
         <span class="btn-label">Leitura</span>
       </button>
       <button class="btn-epic btn-duo" onclick="fDuolingo(event)" aria-label="Registrar Duolingo">
-        <img class="btn-ico" src="https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png" alt="">
+        <img class="btn-ico" src="img/oraculo-cabeca.webp" alt="">
         <span class="btn-label">Duolingo</span>
       </button>
       <button class="btn-epic btn-forge" onclick="abrirForja(event)" aria-label="Forja de Cristais">
-        <img class="btn-ico" src="https://i.ibb.co/cScPzrpW/imagem-forja-188x188.png" alt="">
+        <img class="btn-ico" src="img/forja.webp" alt="">
         <span class="btn-label">Forja</span>
       </button>
     </div>
@@ -2306,7 +2313,7 @@
     <!-- Oráculo -->
     <div class="oracle-section">
       <div class="oracle-avatar-wrap">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="oracle-avatar" onclick="tocarOraculo(this)">
+        <img src="img/oraculo-corpo.webp" class="oracle-avatar" onclick="tocarOraculo(this)">
       </div>
       <div id="ora-msg" class="speech-bubble" onclick="tocarBalao()">A sabedoria é o maior tesouro, Guardião. Use sua Energia com inteligência.</div>
     </div>
@@ -2463,7 +2470,7 @@
 
       <!-- Mini Oráculo -->
       <div class="modal-ora-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="modal-ora-img" data-fala="bau_toque">
+        <img src="img/oraculo-corpo.webp" class="modal-ora-img" data-fala="bau_toque">
         <div class="modal-ora-bubble" id="ora-msg-bau" data-fala="bau_toque">Complete missões e ganhe cristais, Guardião!</div>
       </div>
 
@@ -2540,7 +2547,7 @@
 
       <!-- Mini Oráculo -->
       <div class="modal-ora-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="modal-ora-img" data-fala="voucher_toque">
+        <img src="img/oraculo-corpo.webp" class="modal-ora-img" data-fala="voucher_toque">
         <div class="modal-ora-bubble" id="ora-msg-voucher" data-fala="voucher_toque">Troque cristais por tempo de tela, Guardião!</div>
       </div>
 
@@ -2586,14 +2593,14 @@
     <button class="reading-close" onclick="fecharLeitura()">✕</button>
     <div class="reading-scroll">
       <div class="reg-tabs">
-        <button class="reg-tab active" id="reg-tab-leitura" onclick="setModoRegistro('leitura')"><img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">Leitura</button>
-        <button class="reg-tab" id="reg-tab-duolingo" onclick="setModoRegistro('duolingo')"><img class="ico" src="https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png" alt="">Duolingo</button>
+        <button class="reg-tab active" id="reg-tab-leitura" onclick="setModoRegistro('leitura')"><img class="ico" src="img/livro.webp" alt="">Leitura</button>
+        <button class="reg-tab" id="reg-tab-duolingo" onclick="setModoRegistro('duolingo')"><img class="ico" src="img/oraculo-cabeca.webp" alt="">Duolingo</button>
       </div>
-      <div class="reading-title" id="reading-title"><img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">Registro de Leitura</div>
+      <div class="reading-title" id="reading-title"><img class="ico" src="img/livro.webp" alt="">Registro de Leitura</div>
       <div class="reading-subtitle" id="reading-subtitle">✦ Relate sua aventura de leitura ao Oráculo ✦</div>
 
       <div class="reading-oracle-row">
-        <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="reading-oracle-img" data-fala="reg_toque">
+        <img src="img/oraculo-corpo.webp" class="reading-oracle-img" data-fala="reg_toque">
         <div class="reading-oracle-bubble" id="reading-oracle-text" data-fala="reg_toque">
           Qual livro você leu hoje, Guardião? Cada página é um passo para o próximo nível!
         </div>
@@ -2622,7 +2629,7 @@
     <button class="close-btn" onclick="fecharForja()">✕</button>
 
     <div class="forge-oracle-row">
-      <img src="https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png" class="forge-oracle-avatar" data-fala="forja_toque">
+      <img src="img/oraculo-corpo.webp" class="forge-oracle-avatar" data-fala="forja_toque">
       <div id="ora-msg-forge" data-fala="forja_toque">O calor da forja aumenta... Vamos criar cristais, Guardião!</div>
     </div>
 
@@ -4478,14 +4485,14 @@
           card.className = 'gs-card gs-card-enter';
           card.style.animationDelay = (i * 0.15) + 's';
           card.innerHTML = `
-            <img class="gs-card-avatar" src="${g.avatar_url || 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'}"
-                 onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
+            <img class="gs-card-avatar" src="${g.avatar_url || 'img/avatar-israel.webp'}"
+                 onerror="this.src='img/avatar-israel.webp'">
             <div class="gs-card-name">${g.nome}</div>
             <div class="gs-card-label">Guardião da Ordem</div>`;
           card.addEventListener('click', () => entrarComoGuardiao({
             email: g.email,
             nome: g.nome,
-            avatarUrl: g.avatar_url || 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'
+            avatarUrl: g.avatar_url || 'img/avatar-israel.webp'
           }));
           cardsEl.appendChild(card);
         });
@@ -4945,8 +4952,8 @@
     let _oraHoldAte      = 0;
 
     const REG_TEXTOS = {
-      leitura:  { titulo: '<img class="ico" src="https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png" alt="">Registro de Leitura',  subtitulo: '✦ Relate sua aventura de leitura ao Oráculo ✦' },
-      duolingo: { titulo: '<img class="ico" src="https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png" alt="">Registro de Duolingo', subtitulo: '✦ Conte ao Oráculo quanto você estudou ✦' }
+      leitura:  { titulo: '<img class="ico" src="img/livro.webp" alt="">Registro de Leitura',  subtitulo: '✦ Relate sua aventura de leitura ao Oráculo ✦' },
+      duolingo: { titulo: '<img class="ico" src="img/oraculo-cabeca.webp" alt="">Registro de Duolingo', subtitulo: '✦ Conte ao Oráculo quanto você estudou ✦' }
     };
 
     function _minimoRegistro(modo) {
@@ -5487,10 +5494,10 @@
       diasSemana.slice(0, metaDias).forEach((dia, i) => {
         const img = document.createElement('img');
         if (dia.bateu) {
-          img.src = 'https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png';
+          img.src = 'img/oraculo-cabeca.webp';
           img.className = 'duo-head ' + (dia.dateStr === hoje ? 'active-today' : 'active');
         } else {
-          img.src = 'https://i.ibb.co/dJswj4h4/duolingo-oraculo-head-sad-1.png';
+          img.src = 'img/oraculo-cabeca-triste.webp';
           img.className = 'duo-head';
         }
         img.style.animationDelay = (i * 0.06) + 's';
@@ -6565,7 +6572,7 @@
     ══════════════════════════════════════════════════════ */
     var _cerAtiva = false;
     const ORA_BASE = 'https://douglasfdias.github.io/minutinhos/oraculo/';       // poses: {pose}.webp ou {pose}--{traje}.webp
-    const ORA_PADRAO = 'https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png';
+    const ORA_PADRAO = 'img/oraculo-corpo.webp';
     const CER_COR = { comum: '#A9BDD8', raro: '#00D4FF', epico: '#FFB300', lend: '#FFD700' };
     const CER_FAISCA = { comum: ['rgba(169,189,216,', 'rgba(255,255,255,'], raro: ['rgba(0,212,255,', 'rgba(201,247,255,'], epico: ['rgba(255,179,0,', 'rgba(255,140,0,', 'rgba(255,243,176,'], lend: ['rgba(255,215,0,', 'rgba(255,140,0,', 'rgba(0,212,255,', 'rgba(255,255,255,'] };
     const CER_TRAJE = { comum: '', raro: '', epico: 'cerimonia', lend: 'gala' };
@@ -7405,7 +7412,7 @@
         div.innerHTML = `
           <span class="ranking-pos">${i+1}</span>
           <img class="ranking-avatar" src="${r.avatarUrl}"
-               onerror="this.src='https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png'">
+               onerror="this.src='img/avatar-israel.webp'">
           <div class="ranking-info">
             <div class="ranking-nome">${r.nome}</div>
             <div class="ranking-mins">${r.mins} ${label}</div>
