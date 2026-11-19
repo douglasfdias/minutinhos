@@ -115,7 +115,7 @@ const ASSETS_TO_CACHE = [
   '/minutinhos/img/cristal.webp',
   '/minutinhos/img/avatar-israel.webp',
   '/minutinhos/img/avatar-iza.webp',
-  'https://i.ibb.co/rR2qn4yf/avatar-dad-full-body-mod1-nobg-2.png'
+  '/minutinhos/img/avatar-pai.webp'
 ];
 
 self.addEventListener('install', event => {
