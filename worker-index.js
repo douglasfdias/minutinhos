@@ -183,8 +183,8 @@ async function enviarPushPara(env, destinoKey, titulo, mensagem, tipo, dados) {
         notification: { title: titulo, body: mensagem },
         webpush: {
           notification: {
-            icon: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
-            badge: 'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
+            icon: 'https://douglasfdias.github.io/minutinhos/img/avatar-israel.webp',
+            badge: 'https://douglasfdias.github.io/minutinhos/img/avatar-israel.webp',
           },
           fcm_options: { link },
         },

@@ -9,7 +9,7 @@ const TITULO_PADRAO = 'Minutinhos';
 // O Worker manda só "dados" (sem bloco notification). Assim só ESTE código
 // mostra a notificação, uma vez só. Antes o Firebase mostrava uma e este
 // arquivo mostrava outra: era a notificação duplicada.
-const ICONE_PADRAO = 'https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png';
+const ICONE_PADRAO = '/minutinhos/img/oraculo-cabeca.webp';
 const SELO = new URL('badge-notif.png', self.registration.scope).href;
 
 function lerPush(event) {
@@ -91,7 +91,7 @@ self.addEventListener('notificationclick', (event) => {
   })());
 });
 
-const CACHE_NAME = 'minutinhos-v48';
+const CACHE_NAME = 'minutinhos-v49';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
@@ -105,16 +105,16 @@ const ASSETS_TO_CACHE = [
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js',
-  'https://i.ibb.co/d4ntxNFN/background-user-UI-Minutinhos-3.webp',
-  'https://i.ibb.co/yFhfs0n4/duolingo-oraculo-full-body.png',
-  'https://i.ibb.co/YF6L3bP8/imagem-livro-180x140.png',
-  'https://i.ibb.co/cScPzrpW/imagem-forja-188x188.png',
-  'https://i.ibb.co/jvkzKpNL/duolingo-oraculo-head-50x50.png',
-  'https://i.ibb.co/1YgwbMTG/duolingo-oraculo-head.png',
-  'https://i.ibb.co/N2QFSxDx/icone-energia-2.png',
-  'https://i.ibb.co/Zzkm8F01/icone-cristal.png',
-  'https://i.ibb.co/7xwvFvSK/avatar-boy-full-body-mod1-nobg.png',
-  'https://i.ibb.co/V077M1SY/avatar-girl-full-body-mod1-nobg-2.png',
+  '/minutinhos/img/fundo.webp',
+  '/minutinhos/img/oraculo-corpo.webp',
+  '/minutinhos/img/livro.webp',
+  '/minutinhos/img/forja.webp',
+  '/minutinhos/img/oraculo-cabeca.webp',
+  '/minutinhos/img/oraculo-cabeca-triste.webp',
+  '/minutinhos/img/energia.webp',
+  '/minutinhos/img/cristal.webp',
+  '/minutinhos/img/avatar-israel.webp',
+  '/minutinhos/img/avatar-iza.webp',
   'https://i.ibb.co/rR2qn4yf/avatar-dad-full-body-mod1-nobg-2.png'
 ];
 
