@@ -4983,6 +4983,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
         _selosAtivo = cfg.selos_ativo === true;      // interruptor do Painel
         _avCfg = cfg.avatares || null;               // Loja de Avatares (Fase 7)
         _avTeste = userData.teste === true;
+        _avSexo = (userData.sexo === 'M' || userData.sexo === 'F') ? userData.sexo : '';
         atualizarFooterAvatares();
         _cfgMetaLeitura = Number(cfg.meta_leitura_semanal) || 140;
         if (cfg.custo_forja)            streakConfig.custo_forja             = Number(cfg.custo_forja);
@@ -9791,7 +9792,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
        Compra: debita cristais com transaction, grava a posse e só então registra o Gasto.
        Se a posse não for gravada, os cristais voltam. Modo 'teste': só quem tem usuarios/{k}/teste, sem exigir nível.
     ══════════════════════════════════════════════════════ */
-    let _avCfg = null, _avTeste = false;
+    let _avCfg = null, _avTeste = false, _avSexo = '';
     let _avAba = 'todos';
     let _avPossui = {}, _avSelos = {}, _avCristais = 0, _avAtual = '', _avBase = '';
     let _avAberto = null, _avConfirma = false, _avOcupado = false, _avErro = false;
@@ -9808,6 +9809,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
           xpL: Math.max(0, Math.floor(Number(v.xp_leitura)) || 0),
           xpD: Math.max(0, Math.floor(Number(v.xp_duolingo)) || 0),
           selo: String(v.selo || ''), historia: String(v.historia || '').trim(),
+          genero: (v.genero === 'M' || v.genero === 'F') ? v.genero : 'U',
           ordem: Number(v.ordem) || 0, ativo: v.ativo !== false
         };
       }).filter(i => i.nome && /^https:\/\//i.test(i.imagem))
@@ -9819,8 +9821,8 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
     function lojaAvatarEstado() {
       const c = avNormalizar(_avCfg);
       if (c.modo === 'off' || (c.modo === 'teste' && !_avTeste)) return 'off';
-      if (!c.itens.some(i => i.ativo && i.preco > 0)) return 'off';
-      if (c.modo === 'teste') return 'aberta';
+      if (!c.itens.some(i => i.ativo && i.preco > 0 && avGeneroOk(i))) return 'off';
+      if (c.modo === 'teste' || _avTeste) return 'aberta';
       return ((heroState && heroState.nivel) || 1) >= c.nivelMin ? 'aberta' : 'nivel';
     }
 
@@ -9885,8 +9887,14 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
     }
 
     /* Lista da loja: avatar de entrada + catálogo (item desativado só aparece para quem já tem) */
+    /* Cada avatar é de menino (M), de menina (F) ou de todos (U). A criança só vê os do seu sexo e os de todos;
+       quem está em modo teste vê todos. Avatar que a criança já tem continua aparecendo. */
+    function avGeneroOk(i) {
+      return _avTeste || i.genero === 'U' || i.genero === _avSexo;
+    }
+
     function avLista() {
-      const itens = avNormalizar(_avCfg).itens.filter(i => (i.ativo && i.preco > 0) || _avPossui[i.id]);
+      const itens = avNormalizar(_avCfg).itens.filter(i => (i.ativo && i.preco > 0 && avGeneroOk(i)) || _avPossui[i.id]);
       const noCatalogo = itens.some(i => i.imagem === _avAtual);
       const baseImg = _avBase || (!noCatalogo ? _avAtual : '');
       const lista = [];
@@ -9918,7 +9926,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
       const em_uso = _avAtual && it.imagem === _avAtual;
       if (it.base || _avPossui[it.id]) return { t: em_uso ? 'uso' : 'tem' };
       const falt = avRequisitos(it).filter(r => !r.ok);
-      if (falt.length) return { t: 'bloq' };
+      if (falt.length && !_avTeste) return { t: 'bloq' };
       return { t: 'venda', saldoOk: _avCristais >= it.preco, falta: Math.max(0, it.preco - _avCristais) };
     }
 
@@ -9979,7 +9987,8 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
           '<span class="av-tag ' + st.t + '">' + (st.t === 'uso' ? '✔ Em uso' : st.t === 'tem' ? 'Seu' : st.t === 'venda' ? 'À venda' : '🔒 Lacrado') + '</span>' +
           (it.historia ? '<div class="av-det-hist" data-fala="avatar_historia"' + dados + '>' + escAttr(it.historia) + '</div>' : '') +
           (reqs.length ? '<div class="av-reqs" data-fala="avatar_req"' + dados + '><div class="av-req-tit">Para abrir este avatar:</div>' +
-            reqs.map(r => '<div class="av-req ' + (r.ok ? 'ok' : '') + '">' + (r.ok ? '✔ ' : '✘ ') + escAttr(r.txt) + '</div>').join('') + '</div>' : '') +
+            reqs.map(r => '<div class="av-req ' + (r.ok ? 'ok' : '') + '">' + (r.ok ? '✔ ' : '✘ ') + escAttr(r.txt) + '</div>').join('') +
+            (_avTeste && reqs.some(r => !r.ok) ? '<div class="av-req ok">🧪 Modo teste: os requisitos não bloqueiam a compra.</div>' : '') + '</div>' : '') +
           ((st.t === 'venda' || st.t === 'bloq') ? '<div class="av-preco">💎 ' + it.preco + '</div>' : '') +
           acao +
         '</div>';
