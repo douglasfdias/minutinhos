@@ -641,6 +641,159 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
     }
     .bau-close:active { background:rgba(180,83,9,0.25); }
 
+    /* ══ LOJA DE AVATARES (Fase 7) ══ */
+    #avatares-modal {
+      position: fixed; inset: 0; z-index: 1001; background: #1d0f08;
+      display: none; flex-direction: column; align-items: center;
+      padding: 12px 12px 24px; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    }
+    #avatares-modal.open { display: flex; }
+    .av-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        linear-gradient(180deg, rgba(18,9,4,0.15) 0%, rgba(18,9,4,0.35) 45%, rgba(14,7,24,0.82) 100%),
+        url('fundo-loja.webp') center top / cover no-repeat,
+        radial-gradient(ellipse 70% 38% at 50% 0%, rgba(255,236,190,0.95), rgba(255,200,110,0.35) 55%, transparent 80%),
+        linear-gradient(180deg, #8a5a2e 0%, #4a2a14 38%, #26140c 70%, #1b0f26 100%);
+    }
+    .av-scroll { width: 100%; max-width: 420px; position: relative; z-index: 2; margin: 0 auto; padding: 0 2px; }
+    .av-topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .av-rbtn {
+      width: 42px; height: 42px; flex: none; border-radius: 50%; cursor: pointer; font-size: 1.15rem; font-weight: 900;
+      color: #FFE08A; border: 3px solid #D9A93A; background: radial-gradient(circle at 35% 30%, #3b6fc4, #14305e);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 0 8px rgba(255,255,255,0.2); -webkit-user-select: none;
+    }
+    .av-rbtn.x { background: radial-gradient(circle at 35% 30%, #d1583a, #7a1f10); }
+    .av-rbtn:active { transform: scale(0.92); }
+    .av-faixa {
+      flex: 1; text-align: center; font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.02rem; letter-spacing: 0.04em;
+      color: #FFE08A; padding: 9px 6px; text-transform: uppercase;
+      background: linear-gradient(180deg, #1f3f78, #12274d); border: 3px solid #D9A93A; border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.12); text-shadow: 0 2px 0 rgba(0,0,0,0.5);
+    }
+    .av-title {
+      font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 900;
+      color: #FFD700; text-align: center; margin-bottom: 4px;
+      text-shadow: 0 0 15px rgba(255,215,0,0.45);
+    }
+    .av-subtitle { text-align: center; font-size: 0.8rem; color: #FFE9B8; margin: 2px 0 8px; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
+    .av-saldo { display: flex; justify-content: center; margin: 0 0 12px; }
+    .av-saldo-pill {
+      background: linear-gradient(180deg, #1c2a4a, #0e1830); border: 2.5px solid #D9A93A;
+      color: #BFEFFF; font-weight: 900; font-size: 0.95rem; padding: 5px 20px; border-radius: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .av-abas { display: flex; margin: 0 0 12px; border-radius: 12px; overflow: hidden; border: 2.5px solid #D9A93A; background: #14203a; box-shadow: 0 3px 8px rgba(0,0,0,0.45); }
+    .av-aba { flex: 1; padding: 9px 4px; border: none; cursor: pointer; font-family: 'Cinzel', serif; font-weight: 900; font-size: 0.8rem; letter-spacing: 0.05em; color: #8EA0C4; background: transparent; -webkit-user-select: none; }
+    .av-aba.on { color: #fff; background: linear-gradient(180deg, #2f8fe0, #1565b8); text-shadow: 0 1px 0 rgba(0,0,0,0.4); }
+    .av-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .av-card {
+      --rc: #B8860B; --rc2: rgba(184,134,11,0.35);
+      position: relative; background: linear-gradient(180deg, #FFF4D8, #E9CF98);
+      border: 3px solid var(--rc); border-radius: 12px; padding: 0; text-align: center; cursor: pointer; overflow: hidden;
+      -webkit-user-select: none; user-select: none; transition: transform 0.12s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.55), 0 0 10px var(--rc2);
+    }
+    .av-card:active { transform: scale(0.96); }
+    .r-bronze { --rc: #CD7F32; --rc2: rgba(205,127,50,0.35); }
+    .r-prata  { --rc: #C8D3E0; --rc2: rgba(200,211,224,0.35); }
+    .r-ouro   { --rc: #FFD700; --rc2: rgba(255,215,0,0.5); }
+    .r-base   { --rc: #A78BFA; --rc2: rgba(167,139,250,0.35); }
+    .av-card.uso { box-shadow: 0 0 0 3px #FFD700, 0 0 18px rgba(255,215,0,0.7); }
+    .av-img, .av-det-img {
+      position: relative; display: flex; align-items: flex-end; justify-content: center; overflow: hidden;
+      background: radial-gradient(ellipse at 50% 88%, #FFF8E1 0%, #F6E3B4 42%, #D2B06A 100%);
+    }
+    .av-img { height: 132px; }
+    .av-img::before, .av-det-img::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 22%, rgba(255,255,255,0.95) 0 1.5px, transparent 2.5px),
+        radial-gradient(circle at 80% 30%, rgba(255,255,255,0.9) 0 1.5px, transparent 2.5px),
+        radial-gradient(circle at 66% 70%, rgba(255,255,255,0.8) 0 1px, transparent 2px),
+        radial-gradient(circle at 30% 62%, rgba(255,255,255,0.8) 0 1px, transparent 2px);
+      animation: av-twinkle 3.2s ease-in-out infinite;
+    }
+    .av-img::after, .av-det-img::after {
+      content: ''; position: absolute; left: 14%; right: 14%; bottom: 4px; height: 12px; border-radius: 50%;
+      background: radial-gradient(ellipse at 50% 40%, rgba(70,40,10,0.5), rgba(70,40,10,0) 70%);
+    }
+    .av-img img {
+      position: relative; z-index: 2; max-height: 112px; max-width: 86%; object-fit: contain; margin-bottom: 9px;
+      filter: drop-shadow(0 5px 5px rgba(60,35,0,0.45));
+    }
+    .av-raro {
+      position: absolute; top: 4px; right: 4px; z-index: 3; font-size: 0.58rem; font-weight: 900; letter-spacing: 0.02em;
+      padding: 1px 5px; border-radius: 8px; background: rgba(20,8,45,0.85); color: var(--rc); border: 1px solid var(--rc);
+    }
+    .av-card.bloq .av-img img, .av-det-img.bloq img { filter: brightness(0) opacity(0.55); animation: none; }
+    .av-card.bloq .av-img { background: radial-gradient(ellipse at 50% 88%, #E8E1F2 0%, #BDB1D3 50%, #8C7FA8 100%); }
+    .av-card.bloq .av-img span.av-q, .av-det-img.bloq span.av-q {
+      position: absolute; z-index: 3; top: 36%; left: 50%; transform: translate(-50%,-50%);
+      font-family: 'Cinzel', serif; font-weight: 900; font-size: 2rem; color: #FFD700;
+      text-shadow: 0 0 10px rgba(255,215,0,0.9), 0 2px 0 #7a5200; animation: av-pulse 2s ease-in-out infinite;
+    }
+    @keyframes av-twinkle { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+    @keyframes av-pulse { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.15); } }
+    .av-nome {
+      font-family: 'Cinzel', serif; font-weight: 900; font-size: 0.6rem; color: #FFE9B8; line-height: 1.1; padding: 5px 3px;
+      min-height: 2.2em; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, #254a86, #14305e); border-bottom: 2px solid var(--rc);
+    }
+    .av-tag { display: block; font-weight: 900; font-size: 0.74rem; padding: 5px 2px; margin: 0; border-radius: 0; background: linear-gradient(180deg, #1c2a4a, #0e1830); border-top: 2px solid var(--rc); }
+    .av-tag.uso   { background: linear-gradient(180deg, #2f9a4a, #17692c); color: #E9FFE9; }
+    .av-tag.tem   { color: #7BE0A0; }
+    .av-tag.venda { color: #7DE3FF; }
+    .av-tag.bloq  { color: #AEB4C8; }
+    .av-det .av-tag { display: inline-block; border-radius: 10px; padding: 3px 12px; border: 1.5px solid rgba(255,255,255,0.25); }
+    .av-colecao { margin-top: 14px; padding: 10px 12px; border-radius: 14px; background: linear-gradient(180deg, #FFF4D8, #E9CF98); border: 3px solid #D9A93A; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .av-col-ico { font-size: 2.1rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); }
+    .av-col-txt { flex: 1; text-align: left; font-weight: 800; font-size: 0.74rem; color: #5a3a12; }
+    .av-col-txt b { font-family: 'Cinzel', serif; font-size: 0.82rem; color: #3b2208; display: block; margin-bottom: 4px; }
+    .av-col-bar { height: 9px; border-radius: 6px; background: rgba(60,35,8,0.3); overflow: hidden; margin-top: 5px; }
+    .av-col-bar i { display: block; height: 100%; background: linear-gradient(90deg, #FFD700, #FF9F1C); border-radius: 6px; }
+    .av-vazio { text-align: center; color: rgba(200,180,140,0.5); font-size: 0.8rem; padding: 14px 0; }
+
+    .av-voltar {
+      background: none; border: none; color: #FFE9B8; text-shadow: 0 1px 3px rgba(0,0,0,0.7); font-weight: 800;
+      font-size: 0.8rem; cursor: pointer; padding: 4px 2px 8px; -webkit-user-select: none;
+    }
+    .av-det { text-align: center; }
+    .av-det-img {
+      height: clamp(200px, 36dvh, 290px); margin: 2px 0 10px; cursor: pointer;
+      border: 3px solid var(--rc); border-radius: 18px; box-shadow: 0 0 22px var(--rc2), inset 0 0 30px rgba(120,80,0,0.25);
+    }
+    .av-det-img::before {
+      inset: -60%; background: repeating-conic-gradient(from 0deg at 50% 62%, rgba(255,255,255,0.38) 0 7deg, transparent 7deg 22deg);
+      animation: av-giro 40s linear infinite; opacity: 0.8;
+    }
+    .av-det-img::after { height: 26px; bottom: 8px; left: 18%; right: 18%; }
+    .av-det-img img {
+      position: relative; z-index: 2; max-height: 86%; max-width: 70%; object-fit: contain; margin-bottom: 22px;
+      filter: drop-shadow(0 8px 8px rgba(60,35,0,0.5)); animation: hero-float 4s ease-in-out infinite;
+    }
+    .av-det-img .av-raro { font-size: 0.72rem; padding: 2px 9px; top: 10px; left: 10px; right: auto; }
+    @keyframes av-giro { to { transform: rotate(360deg); } }
+    .av-det-nome { font-family: 'Cinzel', serif; font-weight: 900; font-size: 1.1rem; color: #FFD700; margin-bottom: 4px; }
+    .av-det-hist { font-size: 0.8rem; color: rgba(240,225,190,0.85); line-height: 1.4; margin: 8px 2px 10px; cursor: pointer; }
+    .av-reqs { text-align: left; background: rgba(255,255,255,0.04); border: 1px solid rgba(184,134,11,0.35); border-radius: 12px; padding: 8px 12px; margin: 8px 0 10px; cursor: pointer; }
+    .av-req-tit { font-weight: 800; font-size: 0.72rem; color: rgba(220,190,120,0.8); margin-bottom: 4px; }
+    .av-req { font-size: 0.78rem; font-weight: 700; padding: 2px 0; color: #B0B0C0; }
+    .av-req.ok { color: #7BE0A0; }
+    .av-preco { font-weight: 900; font-size: 1rem; color: #7DE3FF; margin: 6px 0 8px; }
+    .av-btn {
+      width: 100%; min-height: 46px; border-radius: 12px; border: 2px solid #B8860B;
+      background: linear-gradient(180deg, #FFD700, #D4A017); color: #3b2a00; font-family: 'Cinzel', serif;
+      font-weight: 900; font-size: 0.9rem; cursor: pointer; margin-top: 6px; -webkit-user-select: none;
+    }
+    .av-btn:active { transform: scale(0.97); }
+    .av-btn.cian { background: linear-gradient(180deg, #5FE0FF, #00A8D6); border-color: #007A9C; color: #00323f; }
+    .av-btn.sec  { background: rgba(255,255,255,0.06); border-color: rgba(184,134,11,0.5); color: #FCD34D; }
+    .av-btn.off  { background: rgba(120,120,135,0.2); border-color: rgba(120,120,135,0.5); color: rgba(200,200,215,0.7); }
+    .av-btn[disabled] { opacity: 0.6; pointer-events: none; }
+    .av-confirma { background: rgba(0,212,255,0.08); border: 1.5px solid rgba(0,212,255,0.4); border-radius: 12px; padding: 10px; margin-top: 6px; font-weight: 800; font-size: 0.82rem; color: #BFEFFF; }
+    @media (prefers-reduced-motion: reduce) { .av-det-img img, .av-det-img::before, .av-img::before, .av-q { animation: none !important; } }
+
     /* ══ VOUCHER - Barra de Timer HUD ══ */
     #voucher-hud-bar {
       display: none; padding: 3px 12px 0; flex-shrink: 0;
@@ -2330,8 +2483,8 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
 
     <!-- Footer -->
     <div class="footer-menu">
-      <div class="menu-item locked" onclick="tocarFooter(this,'footer_avatares', '🧙')">
-        <span class="footer-lock-badge">🔒</span>
+      <div class="menu-item locked" id="menu-avatares" onclick="tocarAvatares(this)">
+        <span class="footer-lock-badge" id="av-lock-badge">🔒</span>
         <svg class="menu-icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="avGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFF2A3"/><stop offset="50%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#78350F"/></linearGradient>
@@ -2507,6 +2660,27 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
       </div>
 
       <button class="bau-close" onclick="fecharBau()">✕ Fechar</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ MODAL LOJA DE AVATARES ═══════════ -->
+  <div id="avatares-modal">
+    <div class="av-bg"></div>
+    <div class="av-scroll">
+      <div class="av-topo">
+        <button class="av-rbtn" onclick="avTopoVoltar()" aria-label="Voltar">&#8592;</button>
+        <div class="av-faixa" data-fala="avatar_titulo">Loja de Avatares</div>
+        <button class="av-rbtn x" onclick="fecharAvatares()" aria-label="Fechar">&#10005;</button>
+      </div>
+      <div class="av-subtitle">&#10022; Escolha seu herói &#10022;</div>
+
+      <div class="modal-ora-row">
+        <img src="img/oraculo-corpo.webp" class="modal-ora-img" data-fala="avatar_titulo">
+        <div class="modal-ora-bubble" id="ora-msg-av" data-fala="avatar_titulo">Escolha o seu avatar, Guardião!</div>
+      </div>
+
+      <div class="av-saldo"><span class="av-saldo-pill" id="av-saldo" data-fala="avatar_saldo">💎 0</span></div>
+      <div id="av-corpo"></div>
     </div>
   </div>
 
@@ -3937,6 +4111,117 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
         '⚔️ O Mestre não aprovou esta tarefa desta vez. Tente de novo com mais capricho!',
         '⚔️ A missão voltou sem selo. Converse com o Mestre e refaça!',
         '⚔️ Desta vez não deu para aprovar a missão. Você consegue na próxima!'
+      ],
+
+      /* ── Loja de Avatares (Fase 7) ── */
+      footer_avatares_nivel: [
+        '🔒 A Loja de Avatares abre no Nível {nivelMin}. Você está no Nível {nivel}, continue subindo!',
+        '🔒 Só Guardiões de Nível {nivelMin} entram na Loja de Avatares. Você chega lá, {nome}!',
+        '🔒 Falta pouco! No Nível {nivelMin} a porta da Loja de Avatares se abre para você.'
+      ],
+      avatar_abrir: [
+        'Bem-vindo à Loja de Avatares, {nome}! Escolha quem você quer ser na Ordem!',
+        'Aqui você troca de aparência, Guardião! Toque em um avatar para conhecer a história dele.',
+        'Cada avatar tem uma história. Toque neles para ouvir! Avatar comprado fica seu para sempre.',
+        'Seus cristais viram aventuras novas aqui. Olhe com calma antes de escolher!'
+      ],
+      avatar_titulo: [
+        'Esta é a Loja de Avatares da Ordem! Aqui você compra aparências novas com cristais.',
+        'Cada avatar comprado é seu para sempre. Pode trocar quando quiser, sem pagar de novo!',
+        'Alguns avatares pedem XP de leitura, XP de Duolingo ou um selo. Toque neles para ver o que pedem.'
+      ],
+      avatar_saldo: [
+        'Você tem {cristais} 💎 para gastar, {nome}. Gaste com sabedoria!',
+        'Seus cristais valem tempo de tela e também avatares novos. Escolha bem!',
+        'Falta cristal? A Forja faz mais para você. Volte aqui depois!'
+      ],
+      avatar_card_base: [
+        'Este é o avatar com que você entrou na Ordem, {nome}. Ele é seu para sempre!',
+        'Seu primeiro avatar! Dá para voltar a ele quando quiser, sem pagar nada.',
+        'Todo herói lembra de onde começou. Este avatar fica sempre com você!'
+      ],
+      avatar_card_uso: [
+        '{nomeItem} é o avatar que você está usando agora. Que visual, {nome}!',
+        'Você está vestindo {nomeItem}! A Ordem inteira está de olho em você.',
+        'Este é o seu avatar de hoje: {nomeItem}. Ele combina com você!'
+      ],
+      avatar_card_tem: [
+        '{nomeItem} já é seu! Toque para ver e escolha usar quando quiser.',
+        'Você já conquistou {nomeItem}. Ele fica guardado para sempre!',
+        '{nomeItem} está no seu guarda-roupa mágico. Vamos vestir?'
+      ],
+      avatar_card_venda: [
+        '{nomeItem} custa {preco} 💎. Toque para ver a história e decidir!',
+        'Gostou de {nomeItem}? Custa {preco} 💎. Veja os detalhes antes de levar!',
+        'Este avatar vale {preco} 💎. Toque nele e conheça melhor, {nome}.',
+        '{nomeItem} está à venda por {preco} 💎. Pense com calma, Guardião!'
+      ],
+      avatar_card_bloq: [
+        '{nomeItem} ainda está lacrado por magia. Toque para ver o que ele pede.',
+        'Este avatar ainda não abriu para você. Toque e veja o que falta!',
+        'Falta pouco para {nomeItem}? Toque para descobrir o que ele pede.'
+      ],
+      avatar_historia: [
+        'Cada avatar tem a sua história. Esta é a de {nomeItem}!',
+        'Gostou da história de {nomeItem}? Ela é só um pedacinho da lenda!',
+        'Os bardos da Ordem contam essa história há muito tempo, {nome}.'
+      ],
+      avatar_colecao: [
+        'Sua coleção tem {tem} de {total} avatares. Que tal completar, {nome}?',
+        'Cada avatar novo enche mais a sua coleção. Já são {tem} de {total}!',
+        'Colecionar avatares é coisa de Guardião de verdade. Faltam só os que você ainda não abriu!'
+      ],
+      avatar_req: [
+        'Para abrir {nomeItem} você precisa cumprir tudo da lista, {nome}.',
+        'O que está em verde você já tem. O que está faltando é o seu próximo desafio!',
+        'Estude e continue subindo: a lista vai ficando toda verde, Guardião!'
+      ],
+      avatar_confirma: [
+        'Quer mesmo levar {nomeItem} por {preco} 💎? Toque em Sim para comprar!',
+        '{nomeItem} custa {preco} 💎. Se tiver certeza, toque em Sim, comprar!',
+        'Última chance de pensar, {nome}! {nomeItem} por {preco} 💎. Posso fechar negócio?'
+      ],
+      avatar_comprado: [
+        '🎉 {nomeItem} agora é seu! Foram {preco} 💎 por um avatar para sempre!',
+        '🎉 Negócio fechado! {nomeItem} entrou para a sua coleção, {nome}!',
+        '🎉 Que compra incrível! {nomeItem} é seu. Toque em Usar para vestir!',
+        '🎉 Os ferreiros da Ordem entregaram {nomeItem}. Ele é todo seu!'
+      ],
+      avatar_sem_saldo: [
+        '⚠️ Faltam {falta} 💎 para levar {nomeItem}. Forje mais cristais e volte, {nome}!',
+        '⚠️ Ainda faltam {falta} 💎 para {nomeItem}. Estude, forje e volte logo!',
+        '⚠️ Seus cristais ainda não chegam. Faltam {falta} 💎 para {nomeItem}!'
+      ],
+      avatar_bloqueado: [
+        '🔒 {nomeItem} ainda não abriu para você. Veja na lista o que falta!',
+        '🔒 Esta porta ainda está fechada, {nome}. Cumpra a lista e ela se abre!',
+        '🔒 Falta cumprir um pedido para levar {nomeItem}. Continue estudando!'
+      ],
+      avatar_equipado: [
+        '✨ Agora você é {nomeItem}! Que visual, {nome}!',
+        '✨ {nomeItem} vestido! Volte à tela inicial e veja como ficou!',
+        '✨ Troca feita! A Ordem inteira vai notar o seu novo visual!',
+        '✨ Você combina muito com {nomeItem}, {nome}!'
+      ],
+      avatar_ja_tem: [
+        'Você já tem {nomeItem}, {nome}! Toque em Usar para vestir.',
+        '{nomeItem} já estava com você. Seus cristais continuam guardados!',
+        'Opa, {nomeItem} já é seu! Não gastei nenhum cristal.'
+      ],
+      avatar_erro: [
+        '❌ Algo travou no caminho, Guardião. Confira seus cristais e tente de novo!',
+        '❌ O corvo se perdeu e não consegui terminar. Tente novamente daqui a pouco!',
+        '❌ A magia falhou desta vez. Tente de novo, e se repetir, avise o Mestre!'
+      ],
+      notif_avatar_presente: [
+        '🧙 O Mestre deu a você o avatar {item}! Corra na Loja de Avatares e vista!',
+        '🧙 Presente da Ordem: o avatar {item} é seu! Abra a Loja e use quando quiser.',
+        '🧙 Surpresa, Guardião! O Mestre te deu o avatar {item}!'
+      ],
+      diario_GastoAvatar: [
+        'Um avatar novo para a sua coleção! Cristais bem gastos, Guardião!',
+        'Esta compra deixou a sua aparência ainda mais lendária!',
+        'Avatar comprado é avatar seu para sempre. Boa escolha!'
       ]
     };
 
@@ -4001,11 +4286,12 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
         case 'voucher_encerrado': t = cai('notif_voucher_fim'); break;
         case 'artefato': if (q && n.item) t = cai('notif_artefato'); break;
         case 'artefato_recusado': t = cai('notif_artefato_no'); break;
+        case 'avatar_presente': if (n.item) t = cai('notif_avatar_presente'); break;
       }
       if (t) return t;
       const icones = { duolingo:'🦉', duolingo_aprovado:'🦉✅', duolingo_reprovado:'🦉❌', gasto:'💎',
         leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌',
-        voucher_encerrado:'⏱⏹', artefato:'⚔️✅', artefato_recusado:'⚔️❌' };
+        voucher_encerrado:'⏱⏹', artefato:'⚔️✅', artefato_recusado:'⚔️❌', avatar_presente:'🧙' };
       return `${icones[n.tipo] || '⚔️'} ${n.mensagem || ''}`.trim();
     }
 
@@ -4106,7 +4392,8 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
     function _oraEspelhar(texto) {
       [
         { modal: 'vouchers-modal', msg: 'ora-msg-voucher', key: 'v' },
-        { modal: 'bau-modal',      msg: 'ora-msg-bau',     key: 'b' }
+        { modal: 'bau-modal',      msg: 'ora-msg-bau',     key: 'b' },
+        { modal: 'avatares-modal', msg: 'ora-msg-av',     key: 'a' }
       ].forEach(({ modal, msg, key }) => {
         const modalEl = document.getElementById(modal);
         const msgEl   = document.getElementById(msg);
@@ -4595,7 +4882,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
           .filter(t => t.email === emailLower)
           .sort((a, b) => new Date(b.data) - new Date(a.data))
           .slice(0, 6)
-          .map(t => ({ tipo: t.tipo, qtd: Math.floor(Number(t.quantidade)), status: t.status }));
+          .map(t => ({ tipo: t.tipo, qtd: Math.floor(Number(t.quantidade)), status: t.status, det: t.detalhes || '' }));
 
         const d = {
           nome:      userData.nome,
@@ -4670,14 +4957,15 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
         list.innerHTML = '';
         d.historico.forEach((h, i) => {
           const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦉', Gasto:'💸', Bonus:'🎁', Missao:'⚔️', Voucher:'📜' };
-          const icone = icones[h.tipo] || '✦';
+          const gastoAv = h.tipo === 'Gasto' && /Avatar/.test(h.det || '');
+          const icone = gastoAv ? '🧙' : (icones[h.tipo] || '✦');
           const statusClass = h.status === 'Pendente' ? 'entry-status-pendente'
                             : (h.status === 'Reprovado' || h.status === 'Estornado') ? 'entry-status-pendente' : 'entry-status-aprovado';
           const div = document.createElement('div');
           div.className = 'diary-entry';
           div.style.animationDelay = (i * 0.05) + 's';
-          div.innerHTML = `<span>${icone} ${h.tipo} (+${h.qtd} min)</span><span class="${statusClass}">${h.status}</span>`;
-          div.addEventListener('click', () => tocarDiario(div, h.tipo, h.qtd, h.status));
+          div.innerHTML = `<span>${icone} ${gastoAv ? 'Avatar (-' + h.qtd + ' 💎)' : h.tipo + ' (+' + h.qtd + ' min)'}</span><span class="${statusClass}">${h.status}</span>`;
+          div.addEventListener('click', () => tocarDiario(div, gastoAv ? 'GastoAvatar' : h.tipo, h.qtd, h.status));
           list.appendChild(div);
         });
 
@@ -4693,6 +4981,9 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
         bonusCfg = normalizarBonus(cfg);   // marcos, faixas e prêmios editados na aba Bônus do Painel
         _selosCfg = cfg.selos || null;               // catálogo de selos (Fase 6)
         _selosAtivo = cfg.selos_ativo === true;      // interruptor do Painel
+        _avCfg = cfg.avatares || null;               // Loja de Avatares (Fase 7)
+        _avTeste = userData.teste === true;
+        atualizarFooterAvatares();
         _cfgMetaLeitura = Number(cfg.meta_leitura_semanal) || 140;
         if (cfg.custo_forja)            streakConfig.custo_forja             = Number(cfg.custo_forja);
         if (cfg.ganho_forja)            streakConfig.ganho_forja             = Number(cfg.ganho_forja);
@@ -6589,6 +6880,11 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
     let _cerDig = null;
 
     const NOVIDADES = [
+      { id: 'avatares-1', quando: () => lojaAvatarEstado() === 'aberta', slides: [
+        { titulo: 'A Loja de Avatares abriu!', visual: '', fala: 'Guardião {nome}, a Ordem abriu a Loja de Avatares! Agora você pode trocar a sua aparência por avatares novos e poderosos.' },
+        { titulo: 'Como funciona', visual: '', fala: 'Cada avatar custa cristais. Alguns também pedem XP de leitura, XP de Duolingo ou um selo. Toque no avatar para ver o que ele pede.' },
+        { titulo: 'Onde fica a loja?', visual: 'avatares', fala: 'Toque em Avatares, no menu de baixo. Escolha um, compre com seus cristais e use quando quiser. Avatar comprado fica seu para sempre!' }
+      ] },
       { id: 'selos-1', quando: () => selosDisponiveis(), slides: [
         { titulo: 'Novidade na Ordem: os Selos!', visual: 'um', fala: 'Guardião {nome}, a Ordem criou os Selos! São medalhas que contam as suas façanhas: leituras, estudos, vitórias e missões.' },
         { titulo: 'Quatro raridades', visual: 'quatro', fala: 'Tem selo Comum, Raro, Épico e Lendário. Quanto mais raro, mais brilho! Os Lendários são só para quem não desiste nunca.' },
@@ -6955,6 +7251,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
       const med = (rar, tam) => seloSvgC('livro', rar, { size: tam });
       if (v === 'um') return '<div class="cer-fila">' + med('raro', 150) + '</div>';
       if (v === 'quatro') return '<div class="cer-fila">' + ['comum', 'raro', 'epico', 'lend'].map(r => '<div>' + med(r, 68) + '<div class="cer-rot">' + SEL_RAR_NOME[r] + '</div></div>').join('') + '</div>';
+      if (v === 'avatares') return '<div class="cer-caminho"><span class="cer-chip">🧙 Avatares</span><span class="cer-seta">▶</span><span class="cer-chip">💎 Comprar</span><span class="cer-seta">▶</span><span class="cer-chip">✨ Usar</span></div>';
       if (v === 'caminho') return '<div class="cer-caminho"><span class="cer-chip">⚔️ Baú</span><span class="cer-seta">▶</span><span class="cer-chip">🛡️ Coleção</span><span class="cer-seta">▶</span><span class="cer-chip">🏅 Selos</span></div>';
       return '';
     }
@@ -7459,7 +7756,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
                   : tipo === 'Bonus'   ? ['rgba(255,215,0,','rgba(255,180,50,']
                   : ['rgba(200,200,200,'];
       spawnColorSparks(cx, cy, 8, cores);
-      spawnFloat('+' + qtd, cores[0].replace('rgba(','').replace(',','').slice(0,7) + ')', cx, cy - 20);
+      spawnFloat((tipo === 'GastoAvatar' ? '-' : '+') + qtd, cores[0].replace('rgba(','').replace(',','').slice(0,7) + ')', cx, cy - 20);
       // Mensagem do oráculo
       const falasDiario = [falar(FALAS['diario_' + tipo] ? 'diario_' + tipo : 'diario_outro')];
       if (status === 'Pendente')        falasDiario.push('⏳ ' + falar('diario_pendente'));
@@ -7470,7 +7767,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
     /* ══════════════════════════════════════════════════════
        INTERAÇÃO - Footer bloqueado
     ══════════════════════════════════════════════════════ */
-    function tocarFooter(el, mensagem, icone) {
+    function tocarFooter(el, mensagem, icone, dados) {
       initAudio();
       vibrate([30, 20, 40]);
       soundError();
@@ -7482,7 +7779,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
       const cx = rect.left + rect.width/2, cy = rect.top;
       spawnColorSparks(cx, cy, 8, ['rgba(150,150,150,','rgba(180,160,100,']);
       // Oráculo com mensagem
-      oraMsg(falar(mensagem));
+      oraMsg(falar(mensagem, dados));
     }
 
     /* ══════════════════════════════════════════════════════
@@ -9483,6 +9780,359 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
       });
     }
 
+
+    /* ══════════════════════════════════════════════════════
+       LOJA DE AVATARES (Fase 7)
+       Catálogo (Painel): config/avatares = { modo: 'off' | 'teste' | 'todos', nivel_min,
+         itens: { id: { nome, imagem, preco, xp_leitura, xp_duolingo, selo, historia, ordem, ativo } } }
+       Posse: avatares/{emailKey}/{id} = { data, preco, origem: 'loja' | 'mestre' } (gravada uma única vez).
+       Avatar em uso: usuarios/{emailKey}/avatar_url (assim herói, ranking e chat seguem iguais).
+       Avatar de entrada: usuarios/{emailKey}/avatar_base (guardado ao trocar pela primeira vez).
+       Compra: debita cristais com transaction, grava a posse e só então registra o Gasto.
+       Se a posse não for gravada, os cristais voltam. Modo 'teste': só quem tem usuarios/{k}/teste, sem exigir nível.
+    ══════════════════════════════════════════════════════ */
+    let _avCfg = null, _avTeste = false;
+    let _avAba = 'todos';
+    let _avPossui = {}, _avSelos = {}, _avCristais = 0, _avAtual = '', _avBase = '';
+    let _avAberto = null, _avConfirma = false, _avOcupado = false, _avErro = false;
+
+    function avNormalizar(cfg) {
+      cfg = cfg || {};
+      const modo = (cfg.modo === 'todos' || cfg.modo === 'teste') ? cfg.modo : 'off';
+      const nivelMin = Math.max(1, Math.floor(Number(cfg.nivel_min)) || 4);
+      const itens = Object.entries(cfg.itens || {}).map(([id, v]) => {
+        v = v || {};
+        return {
+          id, nome: String(v.nome || '').trim(), imagem: String(v.imagem || '').trim(),
+          preco: Math.max(0, Math.floor(Number(v.preco)) || 0),
+          xpL: Math.max(0, Math.floor(Number(v.xp_leitura)) || 0),
+          xpD: Math.max(0, Math.floor(Number(v.xp_duolingo)) || 0),
+          selo: String(v.selo || ''), historia: String(v.historia || '').trim(),
+          ordem: Number(v.ordem) || 0, ativo: v.ativo !== false
+        };
+      }).filter(i => i.nome && /^https:\/\//i.test(i.imagem))
+        .sort((a, b) => a.ordem - b.ordem || (a.id < b.id ? -1 : 1));
+      return { modo, nivelMin, itens };
+    }
+
+    /* 'off' (trancada), 'nivel' (falta nível) ou 'aberta' */
+    function lojaAvatarEstado() {
+      const c = avNormalizar(_avCfg);
+      if (c.modo === 'off' || (c.modo === 'teste' && !_avTeste)) return 'off';
+      if (!c.itens.some(i => i.ativo && i.preco > 0)) return 'off';
+      if (c.modo === 'teste') return 'aberta';
+      return ((heroState && heroState.nivel) || 1) >= c.nivelMin ? 'aberta' : 'nivel';
+    }
+
+    function atualizarFooterAvatares() {
+      const el = document.getElementById('menu-avatares'), b = document.getElementById('av-lock-badge');
+      if (!el) return;
+      const aberta = lojaAvatarEstado() === 'aberta';
+      el.classList.toggle('locked', !aberta);
+      if (b) b.style.display = aberta ? 'none' : '';
+    }
+
+    function tocarAvatares(el) {
+      const e = lojaAvatarEstado();
+      if (e === 'aberta') return abrirAvatares();
+      if (e === 'nivel') return tocarFooter(el, 'footer_avatares_nivel', '🧙', { nivelMin: avNormalizar(_avCfg).nivelMin });
+      tocarFooter(el, 'footer_avatares', '🧙');
+    }
+
+    const avFala = (chave, dados) => oraMsg(falar(chave, dados));
+
+    async function abrirAvatares() {
+      if (lojaAvatarEstado() !== 'aberta') return;
+      initAudio();
+      vibrate(50);
+      soundButtonTap();
+      _avAberto = null; _avConfirma = false; _avErro = false;
+      const modal = document.getElementById('avatares-modal');
+      modal.classList.add('open');
+      modal.scrollTop = 0;
+      document.getElementById('av-corpo').innerHTML = '<div class="av-vazio">Abrindo a loja...</div>';
+      _oraEspelhar(falar('avatar_abrir'));
+      await avCarregar();
+      avRender();
+    }
+
+    function fecharAvatares() {
+      vibrate(20);
+      soundTone(440, 'sine', 0.1, 0.1, 0.005);
+      document.getElementById('avatares-modal').classList.remove('open');
+      _avAberto = null; _avConfirma = false;
+    }
+
+    async function avCarregar() {
+      const k = sanitizeEmail(currentUserEmail);
+      _avErro = false;
+      try {
+        await garantirPronto();
+        const [pS, uS] = await Promise.all([db.ref('avatares/' + k).get(), db.ref('usuarios/' + k).get()]);
+        _avPossui = pS.exists() ? pS.val() : {};
+        const u = uS.exists() ? uS.val() : {};
+        _avCristais = Math.floor(Number(u.saldo_cristais)) || 0;
+        _avAtual = u.avatar_url || (heroState && heroState.avatarUrl) || '';
+        _avBase = u.avatar_base || '';
+        if (avNormalizar(_avCfg).itens.some(i => i.selo)) {
+          try { const sn = await db.ref('selos/' + k).get(); _avSelos = sn.exists() ? sn.val() : {}; }
+          catch (e) { _avSelos = _selosGanhos || {}; }
+        }
+      } catch (e) {
+        console.error('Loja de avatares: não consegui ler os dados (as regras do Firebase estão publicadas?):', e);
+        _avErro = true;
+      }
+    }
+
+    /* Lista da loja: avatar de entrada + catálogo (item desativado só aparece para quem já tem) */
+    function avLista() {
+      const itens = avNormalizar(_avCfg).itens.filter(i => (i.ativo && i.preco > 0) || _avPossui[i.id]);
+      const noCatalogo = itens.some(i => i.imagem === _avAtual);
+      const baseImg = _avBase || (!noCatalogo ? _avAtual : '');
+      const lista = [];
+      if (baseImg) lista.push({ id: '_base', base: true, nome: 'Avatar da Ordem', imagem: baseImg,
+        historia: 'O avatar com que você entrou na Ordem. Ele é seu para sempre e você pode voltar a ele quando quiser!' });
+      return lista.concat(itens);
+    }
+
+    function avRequisitos(it) {
+      const r = [];
+      const xl = Math.floor((heroState && heroState.xpLeitura) || 0), xd = Math.floor((heroState && heroState.xpDuo) || 0);
+      if (it.xpL > 0) r.push({ ok: xl >= it.xpL, txt: '📖 XP de leitura: ' + xl + ' / ' + it.xpL });
+      if (it.xpD > 0) r.push({ ok: xd >= it.xpD, txt: '🦉 XP de Duolingo: ' + xd + ' / ' + it.xpD });
+      if (it.selo) {
+        const s = _selosCfg && _selosCfg.selos && _selosCfg.selos[it.selo];
+        r.push({ ok: !!_avSelos[it.selo], txt: '🏅 Selo: ' + (s && s.nome ? s.nome : 'um selo especial') });
+      }
+      return r;
+    }
+
+    function avRaridade(it) {
+      if (it.base) return { c: 'r-base', n: '✦ Origem', e: '✦' };
+      if (it.preco >= 150) return { c: 'r-ouro', n: '★ Ouro', e: '★★★' };
+      if (it.preco >= 60) return { c: 'r-prata', n: '★ Prata', e: '★★' };
+      return { c: 'r-bronze', n: '★ Bronze', e: '★' };
+    }
+
+    function avEstado(it) {
+      const em_uso = _avAtual && it.imagem === _avAtual;
+      if (it.base || _avPossui[it.id]) return { t: em_uso ? 'uso' : 'tem' };
+      const falt = avRequisitos(it).filter(r => !r.ok);
+      if (falt.length) return { t: 'bloq' };
+      return { t: 'venda', saldoOk: _avCristais >= it.preco, falta: Math.max(0, it.preco - _avCristais) };
+    }
+
+    function avRender() {
+      const corpo = document.getElementById('av-corpo');
+      if (!corpo) return;
+      const pill = document.getElementById('av-saldo');
+      pill.textContent = '💎 ' + _avCristais;
+      pill.dataset.cristais = _avCristais;
+      if (_avErro) { corpo.innerHTML = '<div class="av-vazio">Não consegui abrir a loja agora.<br>Tente de novo daqui a pouco.</div>'; return; }
+      if (_avAberto) return avRenderDetalhe(corpo);
+      const todos = avLista();
+      if (!todos.length) { corpo.innerHTML = '<div class="av-vazio">Nenhum avatar na loja ainda.</div>'; return; }
+      const lista = _avAba === 'meus' ? todos.filter(x => x.base || _avPossui[x.id]) : todos;
+      const abas = '<div class="av-abas"><button class="av-aba ' + (_avAba === 'todos' ? 'on' : '') + '" onclick="avAba(\'todos\')">▦ TODOS</button>' +
+        '<button class="av-aba ' + (_avAba === 'meus' ? 'on' : '') + '" onclick="avAba(\'meus\')">🛡 ADQUIRIDOS</button></div>';
+      corpo.innerHTML = abas + '<div class="av-grid">' + lista.map(it => {
+        const st = avEstado(it);
+        const tag = st.t === 'uso' ? '✔ Em uso' : st.t === 'tem' ? 'Seu' : st.t === 'venda' ? '💎 ' + it.preco : '🔒 Lacrado';
+        const chave = it.base ? 'avatar_card_base' : 'avatar_card_' + st.t;
+        const ra = avRaridade(it);
+        return '<div class="av-card ' + st.t + ' ' + ra.c + '" data-id="' + escAttr(it.id) + '" data-fala="' + chave + '" data-nome-item="' + escAttr(it.nome) + '" data-preco="' + it.preco + '" onclick="avAbrir(this.dataset.id)">' +
+          '<div class="av-nome">' + escAttr(it.nome) + '</div>' +
+          '<div class="av-img"><span class="av-raro">' + ra.e + '</span>' + (st.t === 'bloq' ? '<span class="av-q">?</span>' : '') + '<img src="' + escAttr(it.imagem) + '" alt="" loading="lazy" onerror="this.style.opacity=0.25"></div>' +
+          '<div class="av-tag ' + st.t + '">' + tag + '</div></div>';
+      }).join('') + '</div>' + avColecaoHtml();
+    }
+
+    function avRenderDetalhe(corpo) {
+      const it = avLista().find(x => x.id === _avAberto);
+      if (!it) { _avAberto = null; return avRender(); }
+      const st = avEstado(it), reqs = it.base ? [] : avRequisitos(it);
+      const chave = it.base ? 'avatar_card_base' : 'avatar_card_' + st.t;
+      const dados = ' data-nome-item="' + escAttr(it.nome) + '" data-preco="' + it.preco + '"';
+      let acao = '';
+      if (_avOcupado) {
+        acao = '<button class="av-btn off" disabled>⏳ Um instante...</button>';
+      } else if (st.t === 'uso') {
+        acao = '<button class="av-btn off" disabled>✔ Em uso</button>';
+      } else if (st.t === 'tem') {
+        acao = '<button class="av-btn" onclick="avEquipar(\'' + escAttr(it.id) + '\')">✨ Usar este avatar</button>';
+      } else if (st.t === 'bloq') {
+        acao = '<button class="av-btn off" onclick="avBloqueado()">🔒 Ainda não abre</button>';
+      } else if (!st.saldoOk) {
+        acao = '<button class="av-btn off" onclick="avSemSaldo()">Faltam ' + st.falta + ' 💎</button>';
+      } else if (!_avConfirma) {
+        acao = '<button class="av-btn cian" onclick="avPedirConfirma()">💎 Comprar por ' + it.preco + '</button>';
+      } else {
+        acao = '<div class="av-confirma">Levar ' + escAttr(it.nome) + ' por ' + it.preco + ' 💎?</div>' +
+          '<button class="av-btn cian" onclick="avComprar(\'' + escAttr(it.id) + '\')">✔ Sim, comprar</button>' +
+          '<button class="av-btn sec" onclick="avCancelaConfirma()">Voltar</button>';
+      }
+      corpo.innerHTML =
+        '<button class="av-voltar" onclick="avVoltar()">◀ Voltar à loja</button>' +
+        '<div class="av-det">' +
+          '<div class="av-det-img ' + st.t + ' ' + avRaridade(it).c + '" data-fala="' + chave + '"' + dados + '><span class="av-raro">' + avRaridade(it).n + '</span>' + (st.t === 'bloq' ? '<span class="av-q">?</span>' : '') + '<img src="' + escAttr(it.imagem) + '" alt=""></div>' +
+          '<div class="av-det-nome">' + escAttr(it.nome) + '</div>' +
+          '<span class="av-tag ' + st.t + '">' + (st.t === 'uso' ? '✔ Em uso' : st.t === 'tem' ? 'Seu' : st.t === 'venda' ? 'À venda' : '🔒 Lacrado') + '</span>' +
+          (it.historia ? '<div class="av-det-hist" data-fala="avatar_historia"' + dados + '>' + escAttr(it.historia) + '</div>' : '') +
+          (reqs.length ? '<div class="av-reqs" data-fala="avatar_req"' + dados + '><div class="av-req-tit">Para abrir este avatar:</div>' +
+            reqs.map(r => '<div class="av-req ' + (r.ok ? 'ok' : '') + '">' + (r.ok ? '✔ ' : '✘ ') + escAttr(r.txt) + '</div>').join('') + '</div>' : '') +
+          ((st.t === 'venda' || st.t === 'bloq') ? '<div class="av-preco">💎 ' + it.preco + '</div>' : '') +
+          acao +
+        '</div>';
+    }
+
+    function avAba(a) { _avAba = a; vibrate(10); soundTone(520, 'sine', 0.06, 0.08, 0.005); avRender(); }
+    function avTopoVoltar() { if (_avAberto) avVoltar(); else fecharAvatares(); }
+    function avColecaoHtml() {
+      const todos = avLista(), tem = todos.filter(x => x.base || _avPossui[x.id]).length, tot = todos.length;
+      const pct = tot ? Math.round(tem / tot * 100) : 0;
+      return '<div class="av-colecao" data-fala="avatar_colecao" data-tem="' + tem + '" data-total="' + tot + '"><div class="av-col-ico">🏆</div>' +
+        '<div class="av-col-txt"><b>Sua coleção</b>Você tem ' + tem + ' de ' + tot + ' avatares. Colete todos!' +
+        '<div class="av-col-bar"><i style="width:' + pct + '%"></i></div></div></div>';
+    }
+
+    function avAbrir(id) {
+      _avAberto = id; _avConfirma = false;
+      avRender();
+      document.getElementById('avatares-modal').scrollTop = 0;
+    }
+    function avVoltar() {
+      vibrate(15); soundTone(440, 'sine', 0.08, 0.1, 0.005);
+      _avAberto = null; _avConfirma = false;
+      avRender();
+    }
+    function avItemAberto() { return avLista().find(x => x.id === _avAberto) || null; }
+    function avPedirConfirma() {
+      const it = avItemAberto(); if (!it) return;
+      _avConfirma = true; avRender();
+      avFala('avatar_confirma', { nomeItem: it.nome, preco: it.preco });
+    }
+    function avCancelaConfirma() { _avConfirma = false; avRender(); vibrate(15); }
+    function avBloqueado() {
+      const it = avItemAberto(); if (!it) return;
+      soundError(); vibrate([30, 20, 40]);
+      avFala('avatar_bloqueado', { nomeItem: it.nome });
+    }
+    function avSemSaldo() {
+      const it = avItemAberto(); if (!it) return;
+      soundError(); vibrate([30, 20, 40]);
+      avFala('avatar_sem_saldo', { nomeItem: it.nome, falta: Math.max(0, it.preco - _avCristais) });
+    }
+
+    function avFesta(grande) {
+      const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+      if (grande) {
+        try { soundLevelUp(); screenFlash(); } catch (e) {}
+        vibrate([60, 30, 60, 30, 160]);
+        spawnShockwave(cx, cy, 'rgba(255,215,0,', 150);
+        spawnColorSparks(cx, cy - 80, 34, ['rgba(255,215,0,', 'rgba(255,180,50,', 'rgba(0,212,255,']);
+      } else {
+        try { soundCrystalChime(); } catch (e) {}
+        vibrate([40, 20, 80]);
+        spawnColorSparks(cx, cy - 60, 18, ['rgba(255,215,0,', 'rgba(255,255,170,', 'rgba(150,220,255,']);
+      }
+    }
+
+    function avAtualizarTela() {
+      const v = document.getElementById('v-c'); if (v) v.textContent = _avCristais;
+      if (heroState) { heroState.cristais = _avCristais; if (_avAtual) heroState.avatarUrl = _avAtual; }
+      const h = document.getElementById('hero-img'); if (h && _avAtual) h.src = _avAtual;
+    }
+
+    async function avComprar(id) {
+      if (_avOcupado) return;
+      const it = avLista().find(x => x.id === id);
+      if (!it || it.base) return;
+      const st = avEstado(it);
+      if (st.t !== 'venda' || !st.saldoOk) { avFala('avatar_bloqueado', { nomeItem: it.nome }); return; }
+      _avOcupado = true; avRender();
+      const k = sanitizeEmail(currentUserEmail);
+      const saldoRef = db.ref('usuarios/' + k + '/saldo_cristais');
+      let debitou = false;
+      try {
+        await garantirPronto();
+        const ja = await db.ref('avatares/' + k + '/' + id).get();
+        if (ja.exists()) {
+          _avPossui[id] = ja.val(); _avConfirma = false;
+          avFala('avatar_ja_tem', { nomeItem: it.nome });
+          return;
+        }
+        // 1) debita com transaction (null = ainda sem o valor do servidor: devolve como está e o Firebase repete com o valor real)
+        const r = await saldoRef.transaction(cur => {
+          if (cur === null) return cur;
+          const s = Number(cur) || 0;
+          return s >= it.preco ? s - it.preco : undefined;
+        });
+        if (!r.committed) {
+          const s = await saldoRef.get(); _avCristais = Math.floor(Number(s.val())) || 0;
+          avFala('avatar_sem_saldo', { nomeItem: it.nome, falta: Math.max(0, it.preco - _avCristais) });
+          return;
+        }
+        debitou = true;
+        _avCristais = Math.floor(Number(r.snapshot.val())) || 0;
+        // 2) grava a posse (uma única vez). Se falhar, devolve os cristais.
+        const agora = new Date().toISOString();
+        try {
+          await db.ref('avatares/' + k + '/' + id).set({ data: agora, preco: it.preco, origem: 'loja' });
+        } catch (e) {
+          await saldoRef.transaction(cur => cur === null ? cur : (Number(cur) || 0) + it.preco);
+          debitou = false;
+          throw e;
+        }
+        _avPossui[id] = { data: agora, preco: it.preco, origem: 'loja' };
+        // 3) registro no histórico (se falhar, a compra já valeu: só avisa no console)
+        try {
+          await db.ref('transacoes').push({
+            data: agora, email: currentUserEmail, tipo: 'Gasto', quantidade: it.preco,
+            detalhes: '🧙 Avatar: ' + it.nome, status: 'Aprovado', moeda: 'cristais',
+            email_key: k, avatar_id: id, _uid: auth.currentUser.uid
+          });
+        } catch (e) { console.error('Avatar comprado, mas o registro do gasto não foi gravado:', e); }
+        _avConfirma = false;
+        avAtualizarTela();
+        avFesta(true);
+        avFala('avatar_comprado', { nomeItem: it.nome, preco: it.preco });
+      } catch (e) {
+        console.error('Compra de avatar:', e);
+        _avConfirma = false;
+        if (debitou) { try { const s = await saldoRef.get(); _avCristais = Math.floor(Number(s.val())) || _avCristais; } catch (e2) {} }
+        avFala('avatar_erro', { nomeItem: it.nome });
+      } finally {
+        _avOcupado = false; avRender();
+      }
+    }
+
+    async function avEquipar(id) {
+      if (_avOcupado) return;
+      const it = avLista().find(x => x.id === id);
+      if (!it) return;
+      if (avEstado(it).t !== 'tem') return;
+      _avOcupado = true; avRender();
+      try {
+        await garantirPronto();
+        const k = sanitizeEmail(currentUserEmail);
+        const upd = { avatar_url: it.imagem };
+        if (!_avBase && !it.base) {
+          const noCatalogo = avNormalizar(_avCfg).itens.some(i => i.imagem === _avAtual);
+          if (_avAtual && !noCatalogo) upd.avatar_base = _avAtual;      // guarda o avatar de entrada para poder voltar
+        }
+        await db.ref('usuarios/' + k).update(upd);
+        if (upd.avatar_base) _avBase = upd.avatar_base;
+        _avAtual = it.imagem;
+        avAtualizarTela();
+        avFesta(false);
+        avFala('avatar_equipado', { nomeItem: it.nome });
+      } catch (e) {
+        console.error('Trocar avatar:', e);
+        avFala('avatar_erro', { nomeItem: it.nome });
+      } finally {
+        _avOcupado = false; avRender();
+      }
+    }
 
     /* ══════════════════════════════════════════════════════
        BAÚ DE ARTEFATOS - Sistema de Missões

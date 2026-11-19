@@ -91,7 +91,7 @@ self.addEventListener('notificationclick', (event) => {
   })());
 });
 
-const CACHE_NAME = 'minutinhos-v49';
+const CACHE_NAME = 'minutinhos-v50';
 
 const ASSETS_TO_CACHE = [
   '/minutinhos/',
@@ -99,6 +99,7 @@ const ASSETS_TO_CACHE = [
   '/minutinhos/Index.html',
   '/minutinhos/Mestre.html',
   '/minutinhos/manifest.json',
+  '/minutinhos/fundo-loja.webp',
   '/minutinhos/sw.js',
   'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Nunito:wght@400;700;900&display=swap',
   'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',
