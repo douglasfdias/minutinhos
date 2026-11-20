@@ -3831,6 +3831,21 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
         '✅ Tempo de tela cumprido! Você soube aproveitar, {nome}!',
         '✅ Pergaminho gasto e missão cumprida. Que tal forjar mais cristais?'
       ],
+      voucher_item_Pausado: [
+        '⏸ Seu voucher está pausado. O tempo que sobrou está guardado, {nome}!',
+        '⏸ O Mestre pausou o relógio. Nenhum minuto se perde!',
+        '⏸ Pergaminho em pausa! Quando o Mestre retomar, o tempo volta a correr.'
+      ],
+      voucher_pausado: [
+        '⏸ O Mestre pausou seu tempo de tela. Sobraram {min} minutos guardados!',
+        '⏸ Relógio parado, {nome}! Seus {min} minutos estão guardados.',
+        '⏸ Pausa mágica! Os {min} minutos que sobraram ficam esperando por você.'
+      ],
+      voucher_retomado: [
+        '▶ O relógio voltou a correr! Aproveite o tempo que sobrou, {nome}!',
+        '▶ Pausa terminou! Seu tempo de tela continua de onde parou.',
+        '▶ O Mestre retomou seu voucher. Os minutos guardados voltaram a contar!'
+      ],
       voucher_item_Recusado: [
         '📜 O Mestre não aprovou este pedido. Converse com ele e tente outro!',
         '📜 Este pergaminho voltou sem selo. Às vezes o Mestre tem seus motivos.',
@@ -4291,7 +4306,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
       if (t) return t;
       const icones = { duolingo:'🦉', duolingo_aprovado:'🦉✅', duolingo_reprovado:'🦉❌', gasto:'💎',
         leitura_aprovada:'📖✅', leitura_reprovada:'📖❌', voucher_aprovado:'⏱✅', voucher_recusado:'📜❌',
-        voucher_encerrado:'⏱⏹', artefato:'⚔️✅', artefato_recusado:'⚔️❌', avatar_presente:'🧙' };
+        voucher_encerrado:'⏱⏹', voucher_pausado:'⏸', voucher_retomado:'▶', voucher_estorno:'↩️💎', artefato:'⚔️✅', artefato_recusado:'⚔️❌', avatar_presente:'🧙' };
       return `${icones[n.tipo] || '⚔️'} ${n.mensagem || ''}`.trim();
     }
 
@@ -4956,7 +4971,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
         }
         list.innerHTML = '';
         d.historico.forEach((h, i) => {
-          const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦉', Gasto:'💸', Bonus:'🎁', Missao:'⚔️', Voucher:'📜' };
+          const icones = { Leitura:'📖', Forja:'⚒️', Duolingo:'🦉', Gasto:'💸', Bonus:'🎁', Missao:'⚔️', Voucher:'📜', Estorno:'↩️' };
           const gastoAv = h.tipo === 'Gasto' && /Avatar/.test(h.det || '');
           const icone = gastoAv ? '🧙' : (icones[h.tipo] || '✦');
           const statusClass = h.status === 'Pendente' ? 'entry-status-pendente'
@@ -4964,7 +4979,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
           const div = document.createElement('div');
           div.className = 'diary-entry';
           div.style.animationDelay = (i * 0.05) + 's';
-          div.innerHTML = `<span>${icone} ${gastoAv ? 'Avatar (-' + h.qtd + ' 💎)' : h.tipo + ' (+' + h.qtd + ' min)'}</span><span class="${statusClass}">${h.status}</span>`;
+          div.innerHTML = `<span>${icone} ${gastoAv ? 'Avatar (-' + h.qtd + ' 💎)' : h.tipo === 'Estorno' ? 'Devolução (+' + h.qtd + ' 💎)' : h.tipo + ' (+' + h.qtd + ' min)'}</span><span class="${statusClass}">${h.status}</span>`;
           div.addEventListener('click', () => tocarDiario(div, gastoAv ? 'GastoAvatar' : h.tipo, h.qtd, h.status));
           list.appendChild(div);
         });
@@ -9515,8 +9530,9 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
 
         // Lista: pendentes primeiro, depois histórico (exceto ativo)
         const pendentes = items.filter(v => v.status === 'Pendente');
-        const historico  = items.filter(v => v.status !== 'Ativo' && v.status !== 'Pendente').slice(0, 5);
-        const exibir     = [...pendentes, ...historico];
+        const pausados   = items.filter(v => v.status === 'Pausado');
+        const historico  = items.filter(v => v.status !== 'Ativo' && v.status !== 'Pendente' && v.status !== 'Pausado').slice(0, 5);
+        const exibir     = [...pausados, ...pendentes, ...historico];
 
         if (!exibir.length) {
           lista.innerHTML = '<div style="text-align:center;color:rgba(200,200,200,0.35);font-size:0.8rem;padding:12px 0;">Nenhum voucher ainda.</div>';
@@ -9530,6 +9546,7 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
           let cls = 'vs-pendente', txt = '⏳ Aguardando Mestre';
           if (v.status === 'Expirado') { cls = 'vs-expirado'; txt = '✕ Expirado'; }
           if (v.status === 'Recusado') { cls = 'vs-recusado'; txt = '✗ Recusado'; }
+          if (v.status === 'Pausado')  { cls = 'vs-pendente'; txt = '⏸ Pausado · restam ' + Math.floor((Number(v.restante_ms) || 0) / 60000) + ' min'; }
 
           // Botão ✕ cancelar - só em Pendente
           const btnCancelar = v.status === 'Pendente'
@@ -9676,8 +9693,10 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
 
       // Verifica se já tem ativo
       try {
-        const snapAtivo = await db.ref('vouchers/' + emailKey).orderByChild('status').equalTo('Ativo').get();
-        if (snapAtivo.exists()) {
+        const snapTodos = await db.ref('vouchers/' + emailKey).get();
+        let _emAndamento = false;
+        if (snapTodos.exists()) snapTodos.forEach(c => { const st = c.val().status; if (st === 'Ativo' || st === 'Pausado') _emAndamento = true; });
+        if (_emAndamento) {
           oraMsg(falar('voucher_ja_ativo'));
           soundError(); vibrate([80, 40, 80]); return;
         }
@@ -9732,15 +9751,23 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
           _suppressReload = true;
           setTimeout(() => { _suppressReload = false; }, 4000);
 
-          // Voucher aprovado! Inicia timer.
+          // Voucher aprovado (ou retomado depois de uma pausa)! Inicia timer.
+          const _retomado = Number(v.pausas) > 0 && !_voucherAtivo;
           _voucherAtivo = { key: snap.key, ...v };
-          soundCrystalChime();
-          setTimeout(() => soundLevelUp(), 500);
-          vibrate([100, 50, 200, 50, 100]);
-          screenFlash();
-          spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 25,
-            ['rgba(0,255,120,','rgba(0,212,255,','rgba(255,215,0,']);
-          oraMsg(falar('voucher_aprovado', { cristais: v.cristais }));
+          if (_retomado) {
+            soundTone(660, 'sine', 0.25, 0.2, 0.01);
+            setTimeout(() => soundTone(880, 'sine', 0.25, 0.2, 0.01), 160);
+            vibrate([60, 30, 60]);
+            oraMsg(falar('voucher_retomado'));
+          } else {
+            soundCrystalChime();
+            setTimeout(() => soundLevelUp(), 500);
+            vibrate([100, 50, 200, 50, 100]);
+            screenFlash();
+            spawnColorSparks(window.innerWidth/2, window.innerHeight/3, 25,
+              ['rgba(0,255,120,','rgba(0,212,255,','rgba(255,215,0,']);
+            oraMsg(falar('voucher_aprovado', { cristais: v.cristais }));
+          }
 
           // Inicia timer (sem chamar carregarVouchers - atualiza UI direto)
           if (_voucherTimerInterval) clearInterval(_voucherTimerInterval);
@@ -9751,6 +9778,18 @@ var m=/^https:\/\/i\.ibb\.co\/([^?#]+)/.exec(t.getAttribute('src')||'');if(m&&M[
           document.getElementById('voucher-footer-badge').style.display = 'none';
           document.getElementById('voucher-hud-bar').style.display = 'block';
           document.getElementById('voucher-ativo-section').style.display = 'block';
+
+        } else if (v.status === 'Pausado') {
+          // Mestre pausou: para o relógio e guarda o tempo que sobrou
+          if (_voucherTimerInterval) { clearInterval(_voucherTimerInterval); _voucherTimerInterval = null; }
+          _voucherAtivo = null;
+          document.getElementById('voucher-hud-bar').style.display = 'none';
+          document.getElementById('voucher-ativo-section').style.display = 'none';
+          soundTone(523, 'sine', 0.25, 0.2, 0.01);
+          setTimeout(() => soundTone(392, 'sine', 0.3, 0.2, 0.01), 160);
+          vibrate([40, 30, 40]);
+          oraMsg(falar('voucher_pausado', { min: Math.floor((Number(v.restante_ms) || 0) / 60000) }));
+          carregarVouchers();
 
         } else if (v.status === 'Expirado' || v.status === 'Recusado') {
           if (_voucherAtivo && _voucherAtivo.key === snap.key) {
